@@ -30,7 +30,7 @@ object CellLink {
       }
   )
 
-  def graphToString(graph: Vector[Vector[CellLink]], grid: Grid): String = {
+  def graphToString(graph: Vector[Vector[CellLink]]): String = {
     val colRange = graph(0).indices
     val rowRange = graph.indices
     val _out = new StringBuilder("+")
@@ -40,7 +40,7 @@ object CellLink {
       val bottomSb = new StringBuilder("+")
       for (c <- colRange) {
         val link = graph(r)(c)
-        val cell = grid(r, c)
+        val cell = link.cell
         val bottomWall = cell.south match {
           case Some(south) => {
             if (link.isLinked(graph(south.row)(south.col))) "   " else "---"

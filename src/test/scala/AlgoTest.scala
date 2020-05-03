@@ -9,14 +9,14 @@ class AlgoTest extends FunSuite {
 
     val solver = new BinaryTree
     val result = solver.solve(grid)
-    val s = CellLink.graphToString(result, grid)
+    val s = CellLink.graphToString(result)
     print(s)
   }
 
   test("Algorithm.Sidewinder") {
     val solver = new Sidewinder
     val result = solver.solve(grid)
-    val s = CellLink.graphToString(result, grid)
+    val s = CellLink.graphToString(result)
     print(s)
   }
 }
