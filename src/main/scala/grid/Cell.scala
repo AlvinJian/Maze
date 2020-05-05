@@ -34,10 +34,10 @@ class Cell(val row: Int, val col: Int) {
 
   override def toString: String = s"Cell(${row},${col})"
 
-  override def equals(obj: Any): Boolean = obj match {
-    case c: Cell => c.col == this.col && c.row == this.row
-    case _ => false
-  }
-
-  override def hashCode(): Int = s"$row,$col".hashCode
+//  override def equals(obj: Any): Boolean = obj match {
+//    case c: Cell => c.col == this.col && c.row == this.row
+//    case _ => false
+//  }
+//
+//  override def hashCode(): Int = s"$row,$col".hashCode
 }

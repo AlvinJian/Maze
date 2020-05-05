@@ -6,8 +6,8 @@ import scala.collection.immutable.VectorBuilder
 import scala.util.Random
 
 
-class Sidewinder extends MazeSolver {
-  private var _r = new Random()
+class Sidewinder(val _r: Random) extends MazeSolver {
+//  private var _r = new Random()
 
   override def solve(grid: Grid): Vector[Vector[CellLink]] = {
     val graph: Vector[Vector[CellLink]] = CellLink.createFrom(grid)

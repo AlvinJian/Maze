@@ -84,3 +84,6 @@ project/plugins/project/
 # Scala
 *.class
 *.log
+
+# Custom
+images/

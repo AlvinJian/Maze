@@ -1,7 +1,10 @@
 package algorithm
 
+import java.awt.image.BufferedImage
+
+import com.sksamuel.scrimage.color.{Color, RGBColor}
 import grid.{Cell, Direction, Grid}
-import grid.{NorthDir, WestDir, EastDir, SouthDir}
+import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 
 import scala.collection.mutable.Set
 
@@ -19,6 +22,8 @@ class CellLink(val cell: Cell) {
   }
 
   def isLinked(c: CellLink): Boolean = _linked.contains(c)
+
+  def linked: IndexedSeq[CellLink] = _linked.toIndexedSeq
 }
 
 object CellLink {
@@ -59,5 +64,61 @@ object CellLink {
       _out.append(topSb.append('\n')).append(bottomSb.append('\n'))
     }
     _out.toString()
+  }
+
+  def graphToImage(graph: Vector[Vector[CellLink]], cellSize: Int = 10): ImmutableImage = {
+    val imgWidth = cellSize * graph(0).size
+    val imgHeight = cellSize * graph.size
+    val mutableImage = new MutableImage(new BufferedImage(imgWidth+1, imgHeight+1, BufferedImage.TYPE_INT_RGB))
+    val bgColor = new RGBColor(255, 255, 255)
+    val wallColor = new RGBColor(0, 0, 0)
+    mutableImage.fillInPlace(bgColor.awt())
+
+    val drawLine = (x1: Int, y1: Int, x2: Int, y2: Int, c: Color) => {
+      for {
+        i <- x1 to x2
+        j <- y1 to y2
+      } {
+        mutableImage.setColor(i, j, c)
+      }
+    }
+    val colRange = graph(0).indices
+    val rowRange = graph.indices
+    for (r <- rowRange) {
+      for (c <- colRange) {
+        val link = graph(r)(c)
+        val cell = link.cell
+        val x1 = cell.col * cellSize
+        val y1 = cell.row * cellSize
+        val x2 = (cell.col+1) * cellSize
+        val y2 = (cell.row+1) * cellSize
+
+        cell.north match {
+          case None => drawLine(x1, y1, x2, y1, wallColor)
+          case _ => { }
+        }
+        cell.west match {
+          case None => drawLine(x1, y1, x1, y2, wallColor)
+          case _ => { }
+        }
+        val shouldDrawEast = cell.east match {
+          case Some(ecell) => {
+            val elink = graph(ecell.row)(ecell.col)
+            !link.isLinked(elink)
+          }
+          case _ => true
+        }
+        if (shouldDrawEast) drawLine(x2, y1, x2, y2, wallColor)
+        val shouldDrawSouth = cell.south match {
+          case Some(scell) => {
+            val slink = graph(scell.row)(scell.col)
+            !link.isLinked(slink)
+          }
+          case _ => true
+        }
+        if (shouldDrawSouth) drawLine(x1, y2, x2, y2, wallColor)
+      }
+    }
+    mutableImage.toImmutableImage.pad(5, bgColor.awt())
   }
 }
