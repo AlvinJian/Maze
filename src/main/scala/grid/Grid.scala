@@ -20,8 +20,7 @@ class Grid(val row: Int, val col: Int) extends Iterable[Cell] {
   override def iterator: Iterator[Cell] = new GridIterator(this)
 
   private def configCells() = {
-    for (cr <- this) {
-      val cell = cr.asInstanceOf[Cell]
+    for (cell <- this) {
       if (cell.col+1 < col) {
         cell.east = _cells(cell.row)(cell.col+1)
       }

@@ -3,17 +3,36 @@ package algorithm
 import java.awt.image.BufferedImage
 
 import com.sksamuel.scrimage.color.{Color, RGBColor}
-import grid.{Cell, Direction, Grid}
+import grid.{Cell, Grid}
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 
 import scala.collection.mutable.Set
 
-class CellLink(val cell: Cell) {
-  private val _linked = Set[CellLink]()
+// immutable interface
+trait CellLinkReader {
+  def cell: Cell
+  def isLinked(link: CellLinkReader): Boolean
+  def linked: IndexedSeq[CellLinkReader]
+}
+
+class LinkGraph {
+
+}
+
+// mutable class
+class CellLink(val cell: Cell) extends CellLinkReader {
+  private val _linked = Set[CellLinkReader]()
 
   def link(c: CellLink, bidir: Boolean = true): Unit = {
     _linked.add(c)
     if (bidir) c.link(this, false)
+  }
+
+  def link (c: CellLink, bidir: Boolean = true): CellLink = {
+    val newLink = new CellLink(c.cell)
+    newLink._linked.addAll(this._linked).add(c)
+
+    newLink
   }
 
   def unlink(c: CellLink, bidir: Boolean = true): Unit = {
@@ -21,9 +40,9 @@ class CellLink(val cell: Cell) {
     if (bidir) c.unlink(this, false)
   }
 
-  def isLinked(c: CellLink): Boolean = _linked.contains(c)
+  override def isLinked(c: CellLinkReader): Boolean = _linked.contains(c)
 
-  def linked: IndexedSeq[CellLink] = _linked.toIndexedSeq
+  override def linked: IndexedSeq[CellLinkReader] = _linked.toIndexedSeq
 }
 
 object CellLink {
@@ -35,7 +54,7 @@ object CellLink {
       }
   )
 
-  def graphToString(graph: Vector[Vector[CellLink]]): String = {
+  def graphToString(graph: Vector[Vector[CellLinkReader]]): String = {
     val colRange = graph(0).indices
     val rowRange = graph.indices
     val _out = new StringBuilder("+")
@@ -66,7 +85,7 @@ object CellLink {
     _out.toString()
   }
 
-  def graphToImage(graph: Vector[Vector[CellLink]], cellSize: Int = 10): ImmutableImage = {
+  def graphToImage(graph: Vector[Vector[CellLinkReader]], cellSize: Int = 10): ImmutableImage = {
     val imgWidth = cellSize * graph(0).size
     val imgHeight = cellSize * graph.size
     val mutableImage = new MutableImage(new BufferedImage(imgWidth+1, imgHeight+1, BufferedImage.TYPE_INT_RGB))

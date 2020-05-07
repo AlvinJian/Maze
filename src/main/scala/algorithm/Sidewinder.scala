@@ -9,7 +9,7 @@ import scala.util.Random
 class Sidewinder(val _r: Random) extends MazeSolver {
 //  private var _r = new Random()
 
-  override def solve(grid: Grid): Vector[Vector[CellLink]] = {
+  override def solve(grid: Grid): Vector[Vector[CellLinkReader]] = {
     val graph: Vector[Vector[CellLink]] = CellLink.createFrom(grid)
     for (r <- 0 until grid.row) {
       var run = new VectorBuilder[CellLink]

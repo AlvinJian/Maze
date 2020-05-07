@@ -1,4 +1,4 @@
-import algorithm.{BinaryTree, CellLink, Sidewinder}
+import algorithm.{BinaryTree, CellLink, Distance, Sidewinder}
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.Grid
 import org.scalatest.FunSuite
@@ -14,11 +14,24 @@ class AlgoTest extends FunSuite {
 
   test("Algorithm.BinaryTree") {
     val solver = new BinaryTree(_r)
-    val result = solver.solve(grid)
+    val smallGrid = new Grid(4,4)
+    val result = solver.solve(smallGrid)
     val s = CellLink.graphToString(result)
     print(s)
     val img = CellLink.graphToImage(result, 64)
     FileHelper.saveToFile(img, writer, s"BinaryTree${ext}", "images")
+
+    val distance = new Distance(result(0)(0))
+    for (r <- result.indices) {
+      for (c <- result(r).indices) {
+        val s = distance.get(result(r)(c)) match {
+          case Some(value) => s"${value}"
+          case _ => "-"
+        }
+        print(s + " ")
+      }
+      println()
+    }
   }
 
   test("Algorithm.Sidewinder") {
