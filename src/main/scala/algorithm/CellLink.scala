@@ -15,10 +15,6 @@ trait CellLinkReader {
   def linked: IndexedSeq[CellLinkReader]
 }
 
-class LinkGraph {
-
-}
-
 // mutable class
 class CellLink(val cell: Cell) extends CellLinkReader {
   private val _linked = Set[CellLinkReader]()
@@ -26,13 +22,6 @@ class CellLink(val cell: Cell) extends CellLinkReader {
   def link(c: CellLink, bidir: Boolean = true): Unit = {
     _linked.add(c)
     if (bidir) c.link(this, false)
-  }
-
-  def link (c: CellLink, bidir: Boolean = true): CellLink = {
-    val newLink = new CellLink(c.cell)
-    newLink._linked.addAll(this._linked).add(c)
-
-    newLink
   }
 
   def unlink(c: CellLink, bidir: Boolean = true): Unit = {

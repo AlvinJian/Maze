@@ -1,6 +1,6 @@
-import algorithm.{BinaryTree, CellLink, Distance, Sidewinder}
+import algorithm.{BinaryTree, BinaryTreeMaze, CellLink, Distance, Sidewinder}
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.Grid
+import grid.{Grid, GridEx}
 import org.scalatest.FunSuite
 import utils.FileHelper
 
