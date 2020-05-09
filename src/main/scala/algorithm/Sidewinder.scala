@@ -5,7 +5,7 @@ import grid.Grid
 import scala.collection.immutable.VectorBuilder
 import scala.util.Random
 
-
+@deprecated
 class Sidewinder(val _r: Random) extends MazeSolver {
 //  private var _r = new Random()
 

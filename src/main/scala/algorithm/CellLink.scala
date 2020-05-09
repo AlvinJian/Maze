@@ -8,6 +8,7 @@ import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 
 import scala.collection.mutable.Set
 
+@deprecated
 // immutable interface
 trait CellLinkReader {
   def cell: Cell
@@ -15,6 +16,7 @@ trait CellLinkReader {
   def linked: IndexedSeq[CellLinkReader]
 }
 
+@deprecated
 // mutable class
 class CellLink(val cell: Cell) extends CellLinkReader {
   private val _linked = Set[CellLinkReader]()
@@ -34,6 +36,7 @@ class CellLink(val cell: Cell) extends CellLinkReader {
   override def linked: IndexedSeq[CellLinkReader] = _linked.toIndexedSeq
 }
 
+@deprecated
 object CellLink {
   def createFrom(grid: Grid): Vector[Vector[CellLink]] = Vector.from(
     for (r <- 0 until grid.row)

@@ -1,5 +1,6 @@
 package grid
 
+@deprecated
 class Grid(val row: Int, val col: Int) extends Iterable[Cell] {
   private val _cells: Vector[Vector[Cell]] = Vector.from(
     for (r <- 0 until row) yield Vector.from(

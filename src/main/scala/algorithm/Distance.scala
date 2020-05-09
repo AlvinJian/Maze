@@ -4,6 +4,7 @@ import scala.collection.immutable
 import scala.collection.mutable.Map
 import scala.collection.mutable.Queue
 
+@deprecated
 class Distance(val root: CellLinkReader) {
   private val distMap = Map[CellLinkReader, Int]()
   build()

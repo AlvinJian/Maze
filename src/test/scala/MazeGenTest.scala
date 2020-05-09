@@ -2,6 +2,7 @@ import algorithm.{BinaryTreeMaze, DistanceEx, SidewinderMaze}
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{CellEx, GraphEx, GridEx}
 import org.scalatest.FunSuite
+import utils.FileHelper
 
 import scala.util.Random
 
@@ -33,6 +34,8 @@ class MazeGenTest extends FunSuite {
       case Some(path) => pathCheck(path, distMap, start, end)
       case None => assert(false)
     }
+    val img = maze.asImage(32)
+    FileHelper.saveToFile(img, writer, s"BinaryTree${ext}", "images")
   }
 
   test("Algorithm.SidewinderEx") {
@@ -49,6 +52,8 @@ class MazeGenTest extends FunSuite {
       sb.toString()
     }
     print(maze/*.dump(content)*/); println()
+    val img = maze.asImage(32)
+    FileHelper.saveToFile(img, writer, s"Sidewinder$ext", "images")
     val goal = grid(7, 5)
     distMap.pathTo(goal) match {
       case Some(path) => {

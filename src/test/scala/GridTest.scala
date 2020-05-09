@@ -3,6 +3,7 @@ import grid.{Cell, Grid}
 import org.scalatest.FunSuite
 import org.scalatest.PrivateMethodTester._
 
+@deprecated
 class GridTest extends FunSuite {
   test("GridTest.cell") {
     val cell = new Cell(1,1)

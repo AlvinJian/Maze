@@ -3,6 +3,7 @@ package grid
 import scala.collection.mutable.Map
 import scala.collection.mutable.Set
 
+@deprecated
 class Cell(val row: Int, val col: Int) {
   private var _neighbors = Map[Direction, Cell]()
 

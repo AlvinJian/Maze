@@ -4,6 +4,7 @@ import grid.{Cell, Grid}
 
 import scala.util.Random
 
+@deprecated
 class BinaryTree(val _r: Random) extends MazeSolver {
   override def solve(grid: Grid): Vector[Vector[CellLinkReader]] = {
     val graph: Vector[Vector[CellLink]] = CellLink.createFrom(grid)

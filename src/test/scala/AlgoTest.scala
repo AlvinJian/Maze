@@ -6,6 +6,7 @@ import utils.FileHelper
 
 import scala.util.Random
 
+@deprecated
 class AlgoTest extends FunSuite {
   private val grid = new Grid(8, 10)
   private implicit val writer: PngWriter = PngWriter.MaxCompression
