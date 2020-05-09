@@ -8,6 +8,7 @@ import scala.collection.mutable
 
 trait DistanceEx {
   def root: CellEx
+  def graph: GraphEx
   def apply(cell: CellEx): Int
   def contains(cell: CellEx)
   def pathTo(position: CellEx): Option[List[CellEx]]
