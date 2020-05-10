@@ -62,26 +62,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
       val ratio: Double = (maxDist - dist)/maxDist
       adjustTone(ratio)
     }
-    val wallImage =  graph.toImage(32, false)
-    val image = new MutableImage(
-      new BufferedImage(wallImage.width, wallImage.height,
-      BufferedImage.TYPE_INT_ARGB))
-    val graphics = new RichGraphics2D(image.awt().createGraphics())
-    for (cell <- graph.grid) {
-      val x1 = cell.col * cellSize
-      val y1 = cell.row * cellSize
-      val x2 = (cell.col+1) * cellSize
-      val y2 = (cell.row+1) * cellSize
-      val color = colorMapper(cell)
-      graphics.setColor(color)
-      val rect = new FilledRect(x1, y1, x2-x1, y2-y1)
-      rect.draw(graphics)
-    }
-     image.overlayInPlace(wallImage.awt(), 0, 0)
-    if (needPadding)
-      image.toImmutableImage.pad(5, adjustTone(0.9).awt())
-    else
-      image.toImmutableImage
+    graph.toImage(32, Some(colorMapper))
   }
 }
 
