@@ -1,10 +1,11 @@
 package grid
 
+import java.awt
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 
 import com.sksamuel.scrimage.canvas.{Canvas, GraphicsContext}
-import com.sksamuel.scrimage.canvas.drawables.Line
+import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line}
 import com.sksamuel.scrimage.color.{Color, RGBColor}
 import com.sksamuel.scrimage.graphics.{Graphics2DUtils, RichGraphics2D}
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
@@ -60,16 +61,33 @@ class GraphEx(val grid: GridEx) {
 
   override def toString: String = dump(_ => "   ")
 
-  def toImage(cellSize: Int = 10): ImmutableImage = {
+  def toImage(cellSize: Int = 10,
+              needPadding: Boolean = true): ImmutableImage = {
     val imgWidth = cellSize * grid.col
     val imgHeight = cellSize * grid.row
     val mutableImage = new MutableImage(new BufferedImage(imgWidth+1, imgHeight+1,
-      BufferedImage.TYPE_INT_RGB))
+      BufferedImage.TYPE_INT_ARGB))
+    mutableImage.fillInPlace(new awt.Color(0, 0, 0, 0))
+//
+//    val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
+//    for (cell <- grid) {
+//      val x1 = cell.col * cellSize
+//      val y1 = cell.row * cellSize
+//      val x2 = (cell.col+1) * cellSize
+//      val y2 = (cell.row+1) * cellSize
+//      val cellColor = colorMapper match {
+//        case Some(func) => func(cell)
+//        case None => new RGBColor(255, 255, 255)
+//      }
+//      cellGraphics.setColor(cellColor)
+//      new FilledRect(x1, y1, x2, y2).draw(cellGraphics)
+//    }
+//    mutableImage = new MutableImage(mutableImage.toImmutableImage.awt())
 
     val bgColor = new RGBColor(255, 255, 255)
     val bgGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
     bgGraphics.setColor(bgColor)
-    mutableImage.fillInPlace(bgColor.awt())
+//    mutableImage.fillInPlace(bgColor.awt())
 
     val wallColor = new RGBColor(0, 0, 0)
     val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
@@ -80,6 +98,7 @@ class GraphEx(val grid: GridEx) {
       val y1 = cell.row * cellSize
       val x2 = (cell.col+1) * cellSize
       val y2 = (cell.row+1) * cellSize
+
       if (cell.north.isEmpty) {
         new Line(x1, y1, x2, y1).draw(wallGraphics)
       }
@@ -98,7 +117,8 @@ class GraphEx(val grid: GridEx) {
       if (shouldDrawSouth) new Line(x1, y2, x2, y2).draw(wallGraphics)
     }
 
-    mutableImage.toImmutableImage.pad(5, bgColor.awt())
+    if (needPadding) mutableImage.toImmutableImage.pad(5, bgColor.awt())
+    else mutableImage.toImmutableImage
   }
 }
 

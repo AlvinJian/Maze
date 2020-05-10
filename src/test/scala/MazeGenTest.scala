@@ -4,7 +4,7 @@ import grid.{CellEx, GraphEx, GridEx}
 import org.scalatest.FunSuite
 import utils.FileHelper
 
-import scala.util.Random
+import scala.util.{Failure, Random, Success}
 
 class MazeGenTest extends FunSuite {
   private implicit val writer: PngWriter = PngWriter.MaxCompression
@@ -68,6 +68,9 @@ class MazeGenTest extends FunSuite {
     val grid = new GridEx(8,10)
     val generator = new SidewinderMaze(rand)
     val maze = generator.generate(grid)
+    val mazeImg = maze.toImage(32)
+    val f = FileHelper.saveToFile(mazeImg, writer, s"Sidewinder$ext", "images")
+    assert(f.isSuccess)
     val start: CellEx = grid(7, 0)
     var distMap = DistanceEx.from(maze, start).get
     val (newStart, _) = distMap.max
@@ -85,5 +88,12 @@ class MazeGenTest extends FunSuite {
     println(maze.dump((c) => {
       if (pathSet.contains(c)) distMap(c).toString else ""
     }))
+    val image = distMap.toImage(32)
+    val file = FileHelper.saveToFile(image, writer, s"DistanceMap$ext", "images")
+    file match {
+      case Failure(exception) => exception.printStackTrace()
+      case Success(value) =>
+    }
+    assert(file.isSuccess)
   }
 }

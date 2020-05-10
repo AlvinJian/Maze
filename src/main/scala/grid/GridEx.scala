@@ -7,10 +7,10 @@ trait CellEx {
   def south: Option[CellEx]
   def east: Option[CellEx]
   def west: Option[CellEx]
-  def neighbors: List[CellEx] = List(this.north, this.south, this.east, this.west).flatten
+  def neighbors: List[CellEx]
 }
 
-private class CellExImpl(val row: Int, val col: Int, grid: GridEx) extends CellEx {
+private[grid] class CellExImpl(val row: Int, val col: Int, grid: GridEx) extends CellEx {
   override def north: Option[CellEx] = if (row-1 >= 0) Some(grid(row-1, col)) else None
 
   override def south: Option[CellEx] = if (row+1 < grid.row) Some(grid(row+1, col)) else None
@@ -18,6 +18,8 @@ private class CellExImpl(val row: Int, val col: Int, grid: GridEx) extends CellE
   override def east: Option[CellEx] = if (col+1 < grid.col) Some(grid(row, col+1)) else None
 
   override def west: Option[CellEx] = if (col-1 >= 0) Some(grid(row, col-1)) else None
+
+  override def neighbors: List[CellEx] = List(this.north, this.south, this.east, this.west).flatten
 }
 
 class GridEx(val row: Int, val col: Int) extends Iterable[CellEx] {
