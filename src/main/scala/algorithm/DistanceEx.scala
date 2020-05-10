@@ -9,12 +9,14 @@ import scala.collection.mutable
 trait DistanceEx {
   def root: CellEx
   def graph: GraphEx
+  def max: (CellEx, Int)
   def apply(cell: CellEx): Int
-  def contains(cell: CellEx)
+  def contains(cell: CellEx): Boolean
   def pathTo(position: CellEx): Option[List[CellEx]]
 }
 
-private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val distMap: Map[CellEx, Int]) extends DistanceEx {
+private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (CellEx, Int),
+                             val distMap: Map[CellEx, Int]) extends DistanceEx {
   override def apply(cell: CellEx): Int = distMap(cell)
 
   override def pathTo(position: CellEx): Option[List[CellEx]] = {
@@ -37,18 +39,22 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val distMap: 
     if (path.head == root) Some(path) else None
   }
 
-  override def contains(cell: CellEx): Unit = distMap.contains(cell)
+  override def contains(cell: CellEx): Boolean = distMap.contains(cell)
 }
 
 object DistanceEx {
   def from(graph: GraphEx, root: CellEx): Option[DistanceEx] = {
     var distMap = Map(root -> 0)
     val que = mutable.Queue(root)
+    var maxItem = (root, 0)
     while (que.nonEmpty) {
       val size = que.size
       for (_ <- 0 until size) {
         val cell = que.dequeue()
         val curDist = distMap(cell)
+        if (curDist > maxItem._2) {
+          maxItem = (cell, curDist)
+        }
         graph.linkedCells(cell) match {
           case Some(cells) =>
             cells.foreach((c: CellEx) => {
@@ -61,7 +67,7 @@ object DistanceEx {
         }
       }
     }
-    if (distMap.nonEmpty) Some(new DistanceExImpl(graph, root, distMap))
+    if (distMap.nonEmpty) Some(new DistanceExImpl(graph, root, maxItem, distMap))
     else None
   }
 }

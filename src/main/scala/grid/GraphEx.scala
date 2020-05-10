@@ -49,7 +49,9 @@ class GraphEx(val grid: GridEx) {
           case Some(east) => if (connected.contains(east)) " " else "|"
           case _ => "|"
         }
-        topSb.append(contentFunc(cell)).append(eastWall)
+        val sb = new StringBuilder(contentFunc(cell))
+        while (sb.length() < 3) sb.append(' ')
+        topSb.append(sb.toString()).append(eastWall)
       }
       _out.append(topSb.append('\n')).append(bottomSb.append('\n'))
     }
@@ -58,7 +60,7 @@ class GraphEx(val grid: GridEx) {
 
   override def toString: String = dump(_ => "   ")
 
-  def asImage(cellSize: Int = 10): ImmutableImage = {
+  def toImage(cellSize: Int = 10): ImmutableImage = {
     val imgWidth = cellSize * grid.col
     val imgHeight = cellSize * grid.row
     val mutableImage = new MutableImage(new BufferedImage(imgWidth+1, imgHeight+1,
@@ -73,31 +75,29 @@ class GraphEx(val grid: GridEx) {
     val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
     wallGraphics.setColor(wallColor)
 
-    for (r <- 0 until grid.row) {
-      for (c <- 0 until grid.col) {
-        val cell: CellEx = grid(r, c)
-        val x1 = cell.col * cellSize
-        val y1 = cell.row * cellSize
-        val x2 = (cell.col+1) * cellSize
-        val y2 = (cell.row+1) * cellSize
-        if (cell.north.isEmpty) {
-          new Line(x1, y1, x2, y1).draw(wallGraphics)
-        }
-        if (cell.west.isEmpty) {
-          new Line(x1, y1, x1, y2).draw(wallGraphics)
-        }
-        val shouldDrawEast = cell.east match {
-          case Some(ecell) => !isLinked(cell, ecell)
-          case _ => true
-        }
-        if (shouldDrawEast) new Line(x2, y1, x2, y2).draw(wallGraphics)
-        val shouldDrawSouth = cell.south match {
-          case Some(scell) => !isLinked(cell, scell)
-          case _ => true
-        }
-        if (shouldDrawSouth) new Line(x1, y2, x2, y2).draw(wallGraphics)
+    for (cell <- grid) {
+      val x1 = cell.col * cellSize
+      val y1 = cell.row * cellSize
+      val x2 = (cell.col+1) * cellSize
+      val y2 = (cell.row+1) * cellSize
+      if (cell.north.isEmpty) {
+        new Line(x1, y1, x2, y1).draw(wallGraphics)
       }
+      if (cell.west.isEmpty) {
+        new Line(x1, y1, x1, y2).draw(wallGraphics)
+      }
+      val shouldDrawEast = cell.east match {
+        case Some(ecell) => !isLinked(cell, ecell)
+        case _ => true
+      }
+      if (shouldDrawEast) new Line(x2, y1, x2, y2).draw(wallGraphics)
+      val shouldDrawSouth = cell.south match {
+        case Some(scell) => !isLinked(cell, scell)
+        case _ => true
+      }
+      if (shouldDrawSouth) new Line(x1, y2, x2, y2).draw(wallGraphics)
     }
+
     mutableImage.toImmutableImage.pad(5, bgColor.awt())
   }
 }
