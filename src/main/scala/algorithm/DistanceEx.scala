@@ -21,6 +21,8 @@ trait DistanceEx {
   def pathTo(position: CellEx): Option[List[CellEx]]
   def toImage(cellSize: Int = 10,
               needPadding: Boolean = true): ImmutableImage
+  def pathToAsImage(cellSize: Int = 10,
+                    position: CellEx): Option[ImmutableImage]
 }
 
 private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (CellEx, Int),
@@ -47,22 +49,39 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
     if (path.head == root) Some(path) else None
   }
 
+  override def pathToAsImage(cellSize: Int = 10,
+                             position: CellEx): Option[ImmutableImage] = {
+    val path: List[CellEx] = pathTo(position) match {
+      case Some(value) => value
+      case None => List()
+    }
+    if (path.size > 0) {
+      val cellSet = path.toSet
+      val drawInPath: CellEx => RGBColor = (cell) => {
+        if (cellSet.contains(cell)) {
+          cellColorMapper(cell)
+        } else {
+          RGBColor.fromAwt(java.awt.Color.LIGHT_GRAY)
+        }
+      }
+      Some(graph.toImage(32, Some(drawInPath)))
+    } else None
+  }
+
   override def contains(cell: CellEx): Boolean = distMap.contains(cell)
 
   override def toImage(cellSize: Int = 10,
                        needPadding: Boolean = true): ImmutableImage = {
-    val adjustTone = (r: Double) => {
-      val dark: Int = (255.0 * r).round.toInt
-      val bright: Int = 128 + (127 * r).round.toInt
-      new RGBColor(dark, bright, dark)
-    }
-    val colorMapper: CellEx => RGBColor = (cell: CellEx) => {
-      val dist = this(cell).toDouble
-      val maxDist = max._2.toDouble
-      val ratio: Double = (maxDist - dist)/maxDist
-      adjustTone(ratio)
-    }
-    graph.toImage(32, Some(colorMapper))
+    graph.toImage(32, Some(cellColorMapper))
+  }
+
+  private def cellColorMapper(cell: CellEx): RGBColor = {
+    val dist = this(cell).toDouble
+    val maxDist = max._2.toDouble
+    val ratio: Double = (maxDist - dist)/maxDist
+    val dark: Int = (255.0 * ratio).round.toInt
+    val bright: Int = 128 + (127 * ratio).round.toInt
+    new RGBColor(dark, bright, dark)
   }
 }
 

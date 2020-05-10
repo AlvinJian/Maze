@@ -82,6 +82,13 @@ class MazeGenTest extends FunSuite {
     assert(testMaxDist == maxDist)
     assert(testMaxCells.contains(farCell))
     assert(distMap(farCell) == maxDist)
+    distMap.pathToAsImage(32, farCell) match {
+      case Some(pathImg) => {
+        val imgFile = FileHelper.saveToFile(pathImg, writer, s"longestPath$ext", "images")
+        assert(imgFile.isSuccess)
+      }
+      case None => assert(false)
+    }
     val path = distMap.pathTo(farCell).get
     pathCheck(path, distMap, newStart, farCell)
     val pathSet = path.toSet
