@@ -64,7 +64,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
           RGBColor.fromAwt(java.awt.Color.LIGHT_GRAY)
         }
       }
-      Some(graph.toImage(32, Some(drawInPath)))
+      Some(graph.toImage(cellSize, Some(drawInPath)))
     } else None
   }
 
@@ -72,7 +72,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
 
   override def toImage(cellSize: Int = 10,
                        needPadding: Boolean = true): ImmutableImage = {
-    graph.toImage(32, Some(cellColorMapper))
+    graph.toImage(cellSize, Some(cellColorMapper))
   }
 
   private def cellColorMapper(cell: CellEx): RGBColor = {
@@ -112,5 +112,14 @@ object DistanceEx {
     }
     if (distMap.nonEmpty) Some(new DistanceExImpl(graph, root, maxItem, distMap))
     else None
+  }
+
+  def createLongest(graph: GraphEx, thru: CellEx): Option[DistanceEx] = {
+    var distMap = DistanceEx.from(graph, thru) match {
+      case Some(value) => value
+      case None => return None
+    }
+    val (newStart, _) = distMap.max
+    DistanceEx.from(graph, newStart)
   }
 }

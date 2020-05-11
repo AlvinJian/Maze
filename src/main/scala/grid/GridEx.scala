@@ -1,5 +1,7 @@
 package grid
 
+import scala.util.Random
+
 trait CellEx {
   def row: Int
   def col: Int
@@ -35,6 +37,8 @@ class GridEx(val row: Int, val col: Int) extends Iterable[CellEx] {
     if (cell.row < this.row && cell.col < this.col) this(cell.row, cell.col) == cell
     else false
   }
+
+  def randomCell(r: Random): CellEx = data(r.nextInt(data.size))
 
   override def iterator: Iterator[CellEx] = new GridIterator(this)
 

@@ -1,4 +1,5 @@
-import algorithm.{BinaryTreeMaze, DistanceEx, SidewinderMaze}
+import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, SidewinderMaze}
+import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{CellEx, GraphEx, GridEx}
 import org.scalatest.FunSuite
@@ -10,6 +11,7 @@ class MazeGenTest extends FunSuite {
   private implicit val writer: PngWriter = PngWriter.MaxCompression
   private val ext = ".png"
   val rand: Random = new Random(System.currentTimeMillis())
+  val dir: String = "images"
 
   def pathCheck(path: List[CellEx], distMap: DistanceEx,
                 start: CellEx, end: CellEx): Unit = {
@@ -62,6 +64,22 @@ class MazeGenTest extends FunSuite {
     val img = maze.toImage(32)
     val file = FileHelper.saveToFile(img, writer, s"Sidewinder$ext", "images")
     assert(file.isSuccess)
+  }
+
+  test("Algorithm.AldousBroder") {
+    val grid = new GridEx(8, 10)
+    val generator = new AldousBroderMaze(rand)
+    val maze = generator.generate(grid)
+    var image = maze.toImage(32)
+    var f = FileHelper.saveToFile(image, writer, s"AldousBroder$ext", dir)
+    assert(f.isSuccess)
+    val distMap = DistanceEx.createLongest(maze, grid(3, 4)).get
+    f = FileHelper.saveToFile(distMap.toImage(32), writer,
+                              s"AldousBroder_DistMap$ext", dir)
+    assert(f.isSuccess)
+    image = distMap.pathToAsImage(64, distMap.max._1).get
+    f = FileHelper.saveToFile(image, writer, s"AldousBroder_MaxPath$ext", dir)
+    assert(f.isSuccess)
   }
 
   test("Algorithm.LongestPath") {
