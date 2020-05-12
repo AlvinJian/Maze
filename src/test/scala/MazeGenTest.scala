@@ -1,4 +1,4 @@
-import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, SidewinderMaze}
+import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{CellEx, GraphEx, GridEx}
@@ -80,6 +80,14 @@ class MazeGenTest extends FunSuite {
     image = distMap.pathToAsImage(64, distMap.max._1).get
     f = FileHelper.saveToFile(image, writer, s"AldousBroder_MaxPath$ext", dir)
     assert(f.isSuccess)
+  }
+
+  test("Algorithm.Wilson") {
+    val grid = new GridEx(8, 10)
+    val generator = new WilsonMaze(rand)
+    val maze = generator.generate(grid)
+    var image = maze.toImage(32)
+    var f = FileHelper.saveToFile(image, writer, s"Wilson$ext", dir)
   }
 
   test("Algorithm.LongestPath") {
