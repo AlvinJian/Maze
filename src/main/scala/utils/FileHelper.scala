@@ -27,9 +27,7 @@ object FileHelper {
       try {
         image.output(writer, imageFile.get)
       } catch {
-        case e: Throwable => {
-          imageFile = Failure(e)
-        }
+        case e: Throwable => imageFile = Failure(e)
       }
     }
     imageFile

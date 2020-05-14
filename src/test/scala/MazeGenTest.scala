@@ -1,4 +1,4 @@
-import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, SidewinderMaze, WilsonMaze}
+import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{CellEx, GraphEx, GridEx}
@@ -88,6 +88,16 @@ class MazeGenTest extends FunSuite {
     val maze = generator.generate(grid)
     var image = maze.toImage(32)
     var f = FileHelper.saveToFile(image, writer, s"Wilson$ext", dir)
+    assert(f.isSuccess)
+  }
+
+  test("Algorithm.HuntAndKill") {
+    val grid = new GridEx(20, 20)
+    val generator = new HuntAndKillMaze(rand)
+    val maze = generator.generate(grid)
+    var image = maze.toImage(32)
+    var f = FileHelper.saveToFile(image, writer, s"HuntAndKill$ext", dir)
+    assert(f.isSuccess)
   }
 
   test("Algorithm.LongestPath") {
@@ -98,9 +108,7 @@ class MazeGenTest extends FunSuite {
     val f = FileHelper.saveToFile(mazeImg, writer, s"Sidewinder$ext", "images")
     assert(f.isSuccess)
     val start: CellEx = grid(7, 0)
-    var distMap = DistanceEx.from(maze, start).get
-    val (newStart, _) = distMap.max
-    distMap = DistanceEx.from(maze, newStart).get
+    val distMap = DistanceEx.createLongest(maze, start).get
     val (farCell, maxDist) = distMap.max
     val ref = grid.maxBy((c) => distMap(c))
     val testMaxDist = distMap(ref)
@@ -116,7 +124,7 @@ class MazeGenTest extends FunSuite {
       case None => assert(false)
     }
     val path = distMap.pathTo(farCell).get
-    pathCheck(path, distMap, newStart, farCell)
+    pathCheck(path, distMap, distMap.root, farCell)
     val pathSet = path.toSet
     println(maze.dump((c) => {
       if (pathSet.contains(c)) distMap(c).toString else ""
