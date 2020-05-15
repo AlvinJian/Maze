@@ -8,41 +8,35 @@ import scala.util.Random
 class HuntAndKillMaze(val rand: Random) extends MazeGenerator {
   override def generate(grid: GridEx): GraphEx = {
     var graph = new GraphEx(grid)
-    var unvisited = grid.toSet
-    val getUnvisited = () => {
-      val arr = unvisited.toArray
-      arr(rand.nextInt(arr.size))
-    }
-    var cell = getUnvisited()
-    unvisited = unvisited - cell
-    while (unvisited.nonEmpty) {
-      val ns = cell.neighbors
-      if (ns.nonEmpty && ns.exists((c)=>unvisited.contains(c))) {
+    var cell: Option[CellEx] = Some(grid.randomCell(rand))
+    while (cell.isDefined) {
+      val ns = cell.get.neighbors
+      if (ns.exists((c)=>graph.linkedCells(c).isEmpty)) {
         val next: CellEx = {
-          val candidates = ns.filter((c)=>unvisited.contains(c))
+          val candidates = ns.filter((c)=>graph.linkedCells(c).isEmpty)
           candidates(rand.nextInt(candidates.size))
         }
-        graph = graph.link(cell, next) match {
+        graph = graph.link(cell.get, next) match {
           case Some(value) => value
           case None => graph
         }
-        cell = next; unvisited = unvisited - cell
+        cell = Some(next)
       } else {
         val ret = grid.find((c) => {
-          if (unvisited.contains(c) &&
-            c.neighbors.exists((c) => !unvisited.contains(c))) true
+          if (graph.linkedCells(c).isEmpty &&
+            c.neighbors.exists((nc)=>graph.linkedCells(nc).isDefined)) true
           else false
         })
         if (ret.isDefined) {
-          cell = ret.get
-          unvisited = unvisited - cell
-          val targets = cell.neighbors.filter((c) => !unvisited.contains(c))
-          if (targets.nonEmpty) {
-            graph = graph.link(cell, targets(rand.nextInt(targets.size))) match {
-              case Some(value) => value
-              case None => graph
-            }
+          cell = Some(ret.get)
+          val candidates = cell.get.neighbors.filter((nc)=>graph.linkedCells(nc).isDefined)
+          val other = candidates(rand.nextInt(candidates.size))
+          graph = graph.link(cell.get, other) match {
+            case Some(value) => value
+            case None => graph
           }
+        } else {
+          cell = None
         }
       }
     }
