@@ -1,10 +1,11 @@
-import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, SidewinderMaze, WilsonMaze}
+import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{CellEx, GraphEx, GridEx}
 import org.scalatest.FunSuite
 import utils.FileHelper
 
+import scala.collection.mutable
 import scala.util.{Failure, Random, Success}
 
 class MazeGenTest extends FunSuite {
@@ -98,6 +99,10 @@ class MazeGenTest extends FunSuite {
     var image = maze.toImage(32)
     var f = FileHelper.saveToFile(image, writer, s"HuntAndKill$ext", dir)
     assert(f.isSuccess)
+    val distMap = DistanceEx.createLongest(maze, grid(9,9)).get
+    image = distMap.toImage()
+    f = FileHelper.saveToFile(image, writer, s"HuntAndKill_DistMap$ext", dir)
+    assert(f.isSuccess)
   }
 
   test("Algorithm.LongestPath") {
@@ -136,5 +141,30 @@ class MazeGenTest extends FunSuite {
       case Success(value) =>
     }
     assert(file.isSuccess)
+  }
+
+  test("Algorithm.DeadEndTest") {
+    val algorithms = List[MazeGenerator](
+      new AldousBroderMaze(rand), new BinaryTreeMaze(rand), new HuntAndKillMaze(rand),
+      new SidewinderMaze(rand), new WilsonMaze(rand))
+    var averages: Map[MazeGenerator, Int] = Map()
+    val size = 20
+    val grid = new GridEx(size,size)
+    val tries = 100
+    for (algo <- algorithms) {
+      val counts = mutable.Seq[Int]() ++ (for (_ <- 0 until tries) yield 0)
+      for (i <- 0 until tries) {
+        val maze = algo.generate(grid)
+        counts(i) = maze.deadEnds.size
+      }
+      val total: Int = counts.sum
+      averages = averages + (algo -> (total/counts.size))
+    }
+    val orders = averages.keys.toArray.sortBy((a)=>averages(a))
+    println("average deadends statistics:")
+    for (algo <- orders) {
+      val percent: Double = averages(algo).toDouble * 100.0 / (size * size).toDouble
+      println(s"${algo.getClass.getSimpleName}: ${averages(algo)} (${percent}%)")
+    }
   }
 }

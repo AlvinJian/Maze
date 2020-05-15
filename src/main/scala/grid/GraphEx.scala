@@ -28,6 +28,8 @@ class GraphEx(val grid: GridEx) {
 
   def linkedCells(cell: CellEx): Option[Set[CellEx]] = _graph.get(cell)
   def linkedCells(r: Int, c: Int): Option[Set[CellEx]] = _graph.get(grid(r, c))
+  def deadEnds: List[CellEx] =
+    grid.filter((c)=>this.linkedCells(c).isDefined && this.linkedCells(c).get.size == 1).toList
 
   def dump(contentFunc: (CellEx) => String) = {
     val _out = new StringBuilder("+")
