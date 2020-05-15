@@ -1,4 +1,4 @@
-import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, SidewinderMaze, WilsonMaze}
+import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{CellEx, GraphEx, GridEx}
@@ -74,7 +74,7 @@ class MazeGenTest extends FunSuite {
     var image = maze.toImage(32)
     var f = FileHelper.saveToFile(image, writer, s"AldousBroder$ext", dir)
     assert(f.isSuccess)
-    val distMap = DistanceEx.createLongest(maze, grid(3, 4)).get
+    val distMap = DistanceEx.createMax(maze, grid(3, 4)).get
     f = FileHelper.saveToFile(distMap.toImage(32), writer,
                               s"AldousBroder_DistMap$ext", dir)
     assert(f.isSuccess)
@@ -99,9 +99,22 @@ class MazeGenTest extends FunSuite {
     var image = maze.toImage(32)
     var f = FileHelper.saveToFile(image, writer, s"HuntAndKill$ext", dir)
     assert(f.isSuccess)
-    val distMap = DistanceEx.createLongest(maze, grid(9,9)).get
+    val distMap = DistanceEx.createMax(maze, grid(9,9)).get
     image = distMap.toImage()
     f = FileHelper.saveToFile(image, writer, s"HuntAndKill_DistMap$ext", dir)
+    assert(f.isSuccess)
+  }
+
+  test("Algorithm.RecursiveBackTrack") {
+    val grid = new GridEx(20, 20)
+    val generator = new RecurBackTrackMaze(rand)
+    val maze = generator.generate(grid)
+    var image = maze.toImage(10)
+    var f = FileHelper.saveToFile(image, writer, s"RecursiveBackTrack$ext", dir)
+    assert(f.isSuccess)
+    val distMap = DistanceEx.createMax(maze, grid(9,9)).get
+    image = distMap.toImage()
+    f = FileHelper.saveToFile(image, writer, s"RecursiveBackTrack_DistMap$ext", dir)
     assert(f.isSuccess)
   }
 
@@ -113,7 +126,7 @@ class MazeGenTest extends FunSuite {
     val f = FileHelper.saveToFile(mazeImg, writer, s"Sidewinder$ext", "images")
     assert(f.isSuccess)
     val start: CellEx = grid(7, 0)
-    val distMap = DistanceEx.createLongest(maze, start).get
+    val distMap = DistanceEx.createMax(maze, start).get
     val (farCell, maxDist) = distMap.max
     val ref = grid.maxBy((c) => distMap(c))
     val testMaxDist = distMap(ref)
@@ -146,7 +159,7 @@ class MazeGenTest extends FunSuite {
   test("Algorithm.DeadEndTest") {
     val algorithms = List[MazeGenerator](
       new AldousBroderMaze(rand), new BinaryTreeMaze(rand), new HuntAndKillMaze(rand),
-      new SidewinderMaze(rand), new WilsonMaze(rand))
+      new SidewinderMaze(rand), new RecurBackTrackMaze(rand), new WilsonMaze(rand))
     var averages: Map[MazeGenerator, Int] = Map()
     val size = 20
     val grid = new GridEx(size,size)

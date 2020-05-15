@@ -114,7 +114,7 @@ object DistanceEx {
     else None
   }
 
-  def createLongest(graph: GraphEx, thru: CellEx): Option[DistanceEx] = {
+  def createMax(graph: GraphEx, thru: CellEx): Option[DistanceEx] = {
     var distMap = DistanceEx.from(graph, thru) match {
       case Some(value) => value
       case None => return None
