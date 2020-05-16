@@ -14,13 +14,12 @@ class GraphEx(val grid: GridEx) {
   private var _graph = Map[CellEx, Set[CellEx]]()
 
   def link(from: CellEx, to:CellEx): Option[GraphEx] =
-    if (grid.contains(from) && grid.contains(to)) {
+    if (grid.isValid(from) && grid.isValid(to)) {
       var newGraph = _graph
       newGraph = GraphEx.linkHelper(newGraph, from, to)
       newGraph = GraphEx.linkHelper(newGraph, to, from)
       Some(GraphEx(this.grid, newGraph))
-    }
-    else None
+    } else None
 
   def isLinked(c1: CellEx, c2: CellEx): Boolean =
     if (_graph.contains(c1) && _graph(c1).contains(c2)) true

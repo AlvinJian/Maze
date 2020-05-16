@@ -9,9 +9,7 @@ class BinaryTreeMaze(val _r: Random) extends MazeGenerator {
     for (cell <- grid) {
       val candidates: List[CellEx] = List(cell.north, cell.east).flatten
       if (candidates.nonEmpty) {
-        val otherCell =
-          if (candidates.size> 1) candidates(_r.nextInt(candidates.size))
-          else candidates(0)
+        val otherCell = candidates(_r.nextInt(candidates.size))
         graph = graph.link(cell, otherCell) match {
           case Some(newGraph) => newGraph
           case None => graph
