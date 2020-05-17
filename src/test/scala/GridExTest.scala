@@ -1,7 +1,17 @@
-import grid.GridEx
+import algorithm.{AldousBroderMaze, BinaryTreeMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze}
+import com.sksamuel.scrimage.nio.PngWriter
+import grid.{GraphEx, GridEx, MaskedGrid}
 import org.scalatest.FunSuite
+import utils.FileHelper
+
+import scala.util.Random
 
 class GridExTest extends FunSuite {
+  private implicit val writer: PngWriter = PngWriter.MaxCompression
+  private val ext = ".png"
+  val rand: Random = new Random(System.currentTimeMillis())
+  val dir: String = "images"
+
   test("GridExTest") {
     val grid = new GridEx(2,2)
     val cell0 = grid(0, 0)
@@ -34,5 +44,41 @@ class GridExTest extends FunSuite {
         other
       })
     }
+  }
+
+  test("MaskedGridTest") {
+    val mask =
+      """.x.x
+        |....
+        |x...
+        |x..x""".stripMargin
+    val grid = MaskedGrid.from(mask)
+    assert(!grid.isValid(grid(0, 1)))
+    assert(!grid.isValid(grid(0, 3)))
+    assert(!grid.isValid(grid(2, 0)))
+    assert(!grid.isValid(grid(3, 0)))
+    assert(!grid.isValid(grid(3, 3)))
+    for (cell <- grid) assert(grid.isValid(cell))
+  }
+
+  test("MaskedGridImageTest") {
+    val mask =
+      """X........X
+        |....XX....
+        |...XXXX...
+        |....XX....
+        |X........X
+        |X........X
+        |....XX....
+        |...XXXX...
+        |....XX....
+        |X........X""".stripMargin
+    val grid = MaskedGrid.from(mask)
+    val generator = new RecurBackTrackMaze(rand)
+    val maze = generator.generate(grid)
+    var image = maze.toImage(32)
+    var f = FileHelper.saveToFile(image, PngWriter.MaxCompression,
+      "MaskedGrid.png", "images")
+    assert(f.isSuccess)
   }
 }

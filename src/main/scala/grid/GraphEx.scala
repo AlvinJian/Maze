@@ -69,7 +69,7 @@ class GraphEx(val grid: GridEx) {
     val imgHeight = cellSize * grid.row
     var mutableImage = new MutableImage(new BufferedImage(imgWidth+1, imgHeight+1,
       BufferedImage.TYPE_INT_ARGB))
-    mutableImage.fillInPlace(new awt.Color(0, 0, 0, 0))
+    mutableImage.fillInPlace(new awt.Color(255, 255, 255))
 
     val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
     for (cell <- grid) {

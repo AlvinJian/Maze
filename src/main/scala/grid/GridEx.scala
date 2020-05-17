@@ -25,7 +25,7 @@ private[grid] class CellExImpl(val row: Int, val col: Int, grid: GridEx) extends
 }
 
 class GridEx(val row: Int, val col: Int) extends Iterable[CellEx] {
-  protected val data: Vector[CellExImpl] = Vector.from(
+  protected val data: Vector[CellEx] = Vector.from(
     for {
       r <- 0 until row
       c <- 0 until col
@@ -61,11 +61,11 @@ class GridEx(val row: Int, val col: Int) extends Iterable[CellEx] {
 
     override def next(): CellEx = {
       val c = GridEx.this(_row, _col)
-      _inc()
+      forward()
       c
     }
 
-    private def _inc(): Unit = {
+    private def forward(): Unit = {
       if (_col+1 < GridEx.this.col) {
         _col += 1
       } else {

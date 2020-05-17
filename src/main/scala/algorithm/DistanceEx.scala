@@ -87,6 +87,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
 
 object DistanceEx {
   def from(graph: GraphEx, root: CellEx): Option[DistanceEx] = {
+    if (!graph.grid.isValid(root)) return None
     var distMap = Map(root -> 0)
     val que = mutable.Queue(root)
     var maxItem = (root, 0)
