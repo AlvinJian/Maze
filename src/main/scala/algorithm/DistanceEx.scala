@@ -19,8 +19,11 @@ trait DistanceEx {
   def apply(cell: CellEx): Int
   def contains(cell: CellEx): Boolean
   def pathTo(position: CellEx): Option[List[CellEx]]
+  def colorMapper(cell: CellEx): RGBColor
+  @deprecated
   def toImage(cellSize: Int = 10,
               needPadding: Boolean = true): ImmutableImage
+  @deprecated
   def pathToAsImage(cellSize: Int = 10,
                     position: CellEx): Option[ImmutableImage]
 }
@@ -59,7 +62,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
       val cellSet = path.toSet
       val drawInPath: CellEx => RGBColor = (cell) => {
         if (cellSet.contains(cell)) {
-          cellColorMapper(cell)
+          colorMapper(cell)
         } else {
           RGBColor.fromAwt(java.awt.Color.LIGHT_GRAY)
         }
@@ -72,10 +75,10 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
 
   override def toImage(cellSize: Int = 10,
                        needPadding: Boolean = true): ImmutableImage = {
-    graph.toImage(cellSize, Some(cellColorMapper))
+    graph.toImage(cellSize, Some(colorMapper))
   }
 
-  private def cellColorMapper(cell: CellEx): RGBColor = {
+  def colorMapper(cell: CellEx): RGBColor = {
     val dist = this(cell).toDouble
     val maxDist = max._2.toDouble
     val ratio: Double = (maxDist - dist)/maxDist

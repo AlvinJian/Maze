@@ -62,6 +62,7 @@ class GraphEx(val grid: GridEx) {
 
   override def toString: String = dump(_ => "   ")
 
+  @deprecated
   def toImage(cellSize: Int = 10,
               colorMapper: Option[CellEx=>RGBColor] = None,
               needPadding: Boolean = true): ImmutableImage = {

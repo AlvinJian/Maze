@@ -1,9 +1,10 @@
 import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
+import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{CellEx, GraphEx, GridEx}
 import org.scalatest.FunSuite
-import utils.FileHelper
+import utils.{ColoredImageCreator, FileHelper, ImageCreator, MazeImageCreator, WhiteBackground}
 
 import scala.collection.mutable
 import scala.util.{Failure, Random, Success}
@@ -11,8 +12,11 @@ import scala.util.{Failure, Random, Success}
 class MazeGenTest extends FunSuite {
   private implicit val writer: PngWriter = PngWriter.MaxCompression
   private val ext = ".png"
-  val rand: Random = new Random(System.currentTimeMillis())
   val dir: String = "images"
+
+  val rand: Random = new Random(System.currentTimeMillis())
+  val cellSize: Int = 32
+  val padding: Option[Int] = Some(5)
 
   def pathCheck(path: List[CellEx], distMap: DistanceEx,
                 start: CellEx, end: CellEx): Unit = {
@@ -26,33 +30,33 @@ class MazeGenTest extends FunSuite {
   }
 
   test("Algorithm.BinaryTreeEx") {
-    val grid = new GridEx(8,10)
+    val grid = new GridEx(20,20)
     val generator = new BinaryTreeMaze(rand)
     val maze = generator.generate(grid)
     print(maze)
-    val start = grid(7, 0)
+    val start = grid(0, 0)
     val distMap = DistanceEx.from(maze, start).get
-    val end = grid(7, 5)
+    val end = grid((grid.row-1)/2, (grid.col-1)/2)
     distMap.pathTo(end) match {
       case Some(path) => pathCheck(path, distMap, start, end)
       case None => assert(false)
     }
-    val img = maze.toImage(32)
+    val img = ImageCreator.create(maze, cellSize = 32, padding = Some(5))
     val file = FileHelper.saveToFile(img, writer, s"BinaryTree${ext}", "images")
     assert(file.isSuccess)
   }
 
   test("Algorithm.SidewinderEx") {
-    val grid = new GridEx(8,10)
+    val grid = new GridEx(20,20)
     val generator = new SidewinderMaze(rand)
     val maze = generator.generate(grid)
-    val start: CellEx = grid(7, 0)
+    val start: CellEx = grid(0, 0)
     val distMap = DistanceEx.from(maze, start).get
     val content = (cell: CellEx) => {
       if (distMap.contains(cell)) distMap(cell).toString else "-"
     }
     print(maze/*.dump(content)*/); println()
-    val goal = grid(7, 5)
+    val goal = grid((grid.row-1)/2, (grid.col-1)/2)
     distMap.pathTo(goal) match {
       case Some(path) => {
         val pathSet = path.toSet;
@@ -62,32 +66,30 @@ class MazeGenTest extends FunSuite {
       }
       case None => assert(false)
     }
-    val img = maze.toImage(32)
+    val img = ImageCreator.create(maze, cellSize=cellSize, padding=padding)
     val file = FileHelper.saveToFile(img, writer, s"Sidewinder$ext", "images")
     assert(file.isSuccess)
   }
 
   test("Algorithm.AldousBroder") {
-    val grid = new GridEx(8, 10)
+    val grid = new GridEx(20, 20)
     val generator = new AldousBroderMaze(rand)
     val maze = generator.generate(grid)
-    var image = maze.toImage(32)
+    var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"AldousBroder$ext", dir)
     assert(f.isSuccess)
-    val distMap = DistanceEx.createMax(maze, grid(3, 4)).get
-    f = FileHelper.saveToFile(distMap.toImage(32), writer,
-                              s"AldousBroder_DistMap$ext", dir)
-    assert(f.isSuccess)
-    image = distMap.pathToAsImage(64, distMap.max._1).get
-    f = FileHelper.saveToFile(image, writer, s"AldousBroder_MaxPath$ext", dir)
+    val distMap = DistanceEx.createMax(maze,
+      grid((grid.row-1)/2, (grid.col-1)/2)).get
+    image = ImageCreator.create(distMap, cellSize, padding)
+    f = FileHelper.saveToFile(image, writer, s"AldousBroder_DistMap$ext", dir)
     assert(f.isSuccess)
   }
 
   test("Algorithm.Wilson") {
-    val grid = new GridEx(8, 10)
+    val grid = new GridEx(20, 20)
     val generator = new WilsonMaze(rand)
     val maze = generator.generate(grid)
-    var image = maze.toImage(32)
+    var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"Wilson$ext", dir)
     assert(f.isSuccess)
   }
@@ -96,11 +98,11 @@ class MazeGenTest extends FunSuite {
     val grid = new GridEx(20, 20)
     val generator = new HuntAndKillMaze(rand)
     val maze = generator.generate(grid)
-    var image = maze.toImage(32)
+    var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"HuntAndKill$ext", dir)
     assert(f.isSuccess)
     val distMap = DistanceEx.createMax(maze, grid(9,9)).get
-    image = distMap.toImage()
+    image = ImageCreator.create(distMap, cellSize, padding)
     f = FileHelper.saveToFile(image, writer, s"HuntAndKill_DistMap$ext", dir)
     assert(f.isSuccess)
   }
@@ -109,24 +111,24 @@ class MazeGenTest extends FunSuite {
     val grid = new GridEx(20, 20)
     val generator = new RecurBackTrackMaze(rand)
     val maze = generator.generate(grid)
-    var image = maze.toImage(10)
+    var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"RecursiveBackTrack$ext", dir)
     assert(f.isSuccess)
     val distMap = DistanceEx.createMax(maze, grid(9,9)).get
-    image = distMap.toImage()
+    image = ImageCreator.create(distMap, 32, Some(5))
     f = FileHelper.saveToFile(image, writer, s"RecursiveBackTrack_DistMap$ext", dir)
     assert(f.isSuccess)
   }
 
   test("Algorithm.LongestPath") {
-    val grid = new GridEx(8,10)
-    val generator = new SidewinderMaze(rand)
+    val grid = new GridEx(20,20)
+    val generator = new RecurBackTrackMaze(rand)
     val maze = generator.generate(grid)
-    val mazeImg = maze.toImage(32)
-    val f = FileHelper.saveToFile(mazeImg, writer, s"Sidewinder$ext", "images")
+    var image = ImageCreator.create(maze, cellSize, padding)
+    var f = FileHelper.saveToFile(image, writer, s"LongestPath_RecurBackTrackMaze$ext", dir)
     assert(f.isSuccess)
-    val start: CellEx = grid(7, 0)
-    val distMap = DistanceEx.createMax(maze, start).get
+    val thru: CellEx = grid((grid.row-1)/2, (grid.col-1)/2)
+    val distMap = DistanceEx.createMax(maze, thru).get
     val (farCell, maxDist) = distMap.max
     val ref = grid.maxBy((c) => distMap(c))
     val testMaxDist = distMap(ref)
@@ -134,26 +136,25 @@ class MazeGenTest extends FunSuite {
     assert(testMaxDist == maxDist)
     assert(testMaxCells.contains(farCell))
     assert(distMap(farCell) == maxDist)
-    distMap.pathToAsImage(32, farCell) match {
-      case Some(pathImg) => {
-        val imgFile = FileHelper.saveToFile(pathImg, writer, s"longestPath$ext", "images")
-        assert(imgFile.isSuccess)
-      }
-      case None => assert(false)
-    }
+    image = ImageCreator.create(distMap, cellSize, padding)
+    f = FileHelper.saveToFile(image, writer, s"LongestPath_MaxDistMap$ext", dir)
+    assert(f.isSuccess)
     val path = distMap.pathTo(farCell).get
     pathCheck(path, distMap, distMap.root, farCell)
     val pathSet = path.toSet
     println(maze.dump((c) => {
       if (pathSet.contains(c)) distMap(c).toString else ""
     }))
-    val image = distMap.toImage(32)
-    val file = FileHelper.saveToFile(image, writer, s"DistanceMap$ext", "images")
-    file match {
-      case Failure(exception) => exception.printStackTrace()
-      case Success(value) =>
+    val colorMapper: (CellEx)=>RGBColor = (c: CellEx) => {
+      if (pathSet.contains(c)) distMap.colorMapper(c)
+      else RGBColor.fromAwt(java.awt.Color.GRAY)
     }
-    assert(file.isSuccess)
+    image = ImageCreator.batch(padding)(
+      new ColoredImageCreator(grid, cellSize, colorMapper),
+      new MazeImageCreator(maze, cellSize),
+    )
+    f = FileHelper.saveToFile(image, writer, s"LongestPath$ext", dir)
+    assert(f.isSuccess)
   }
 
   test("Algorithm.DeadEndTest") {

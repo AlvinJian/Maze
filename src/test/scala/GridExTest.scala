@@ -2,7 +2,7 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, MazeGenerator, RecurBackTrac
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{GraphEx, GridEx, MaskedGrid}
 import org.scalatest.FunSuite
-import utils.FileHelper
+import utils.{FileHelper, ImageCreator}
 
 import scala.util.Random
 
@@ -76,7 +76,7 @@ class GridExTest extends FunSuite {
     val grid = MaskedGrid.from(mask)
     val generator = new RecurBackTrackMaze(rand)
     val maze = generator.generate(grid)
-    var image = maze.toImage(32)
+    var image = ImageCreator.create(maze, 32, Some(5))
     var f = FileHelper.saveToFile(image, PngWriter.MaxCompression,
       "MaskedGrid.png", "images")
     assert(f.isSuccess)
