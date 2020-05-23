@@ -13,7 +13,7 @@ import grid.{CellEx, GraphEx, GridContainer, GridEx, MaskedGrid}
 
 sealed abstract class ImageCreator(val baseGrid: GridContainer[CellEx],
                                    val cellSize: Int) {
-  def baseImage: ImmutableImage = {
+  val baseImage: ImmutableImage = {
     val imgWidth = cellSize * baseGrid.col
     val imgHeight = cellSize * baseGrid.row
     val image = ImmutableImage.filled(imgWidth+1, imgHeight+1,
@@ -44,9 +44,7 @@ class Background(grid: GridContainer[CellEx], cellSize: Int) extends ImageCreato
           }
           val x1 = cell.col * cellSize
           val y1 = cell.row * cellSize
-          val x2 = (cell.col+1) * cellSize
-          val y2 = (cell.row+1) * cellSize
-          new FilledRect(x1, y1, x2, y2).draw(cellGraphics)
+          new FilledRect(x1, y1, cellSize, cellSize).draw(cellGraphics)
         }
         mutableImage.toImmutableImage
       }
@@ -63,10 +61,8 @@ class ColoredImageCreator(grid: GridContainer[CellEx], cellSize: Int,
     for (cell <- baseGrid) {
       val x1 = cell.col * cellSize
       val y1 = cell.row * cellSize
-      val x2 = (cell.col+1) * cellSize
-      val y2 = (cell.row+1) * cellSize
       cellGraphics.setColor(mapper(cell))
-      new FilledRect(x1, y1, x2, y2).draw(cellGraphics)
+      new FilledRect(x1, y1, cellSize, cellSize).draw(cellGraphics)
     }
     mutableImage.toImmutableImage
   }

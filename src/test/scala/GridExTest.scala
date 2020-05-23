@@ -1,4 +1,4 @@
-import algorithm.{AldousBroderMaze, BinaryTreeMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze}
+import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, MazeGenerator, RecurBackTrackMaze, SidewinderMaze}
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{GraphEx, GridEx, MaskedGrid}
 import org.scalatest.FunSuite
@@ -59,26 +59,5 @@ class GridExTest extends FunSuite {
     assert(!grid.isValid(grid(3, 0)))
     assert(!grid.isValid(grid(3, 3)))
     for (cell <- grid) assert(grid.isValid(cell))
-  }
-
-  test("MaskedGridImageTest") {
-    val mask =
-      """X........X
-        |....XX....
-        |...XXXX...
-        |....XX....
-        |X........X
-        |X........X
-        |....XX....
-        |...XXXX...
-        |....XX....
-        |X........X""".stripMargin
-    val grid = MaskedGrid.from(mask)
-    val generator = new RecurBackTrackMaze(rand)
-    val maze = generator.generate(grid)
-    var image = ImageCreator.create(maze, 32, Some(5))
-    var f = FileHelper.saveToFile(image, PngWriter.MaxCompression,
-      "MaskedGrid.png", "images")
-    assert(f.isSuccess)
   }
 }

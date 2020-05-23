@@ -2,9 +2,9 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{CellEx, GraphEx, GridEx}
+import grid.{CellEx, GraphEx, GridEx, MaskedGrid}
 import org.scalatest.FunSuite
-import utils.{ColoredImageCreator, FileHelper, ImageCreator, MazeImageCreator, Background}
+import utils.{Background, ColoredImageCreator, FileHelper, ImageCreator, MazeImageCreator}
 
 import scala.collection.mutable
 import scala.util.{Failure, Random, Success}
@@ -180,5 +180,40 @@ class MazeGenTest extends FunSuite {
       val percent: Double = averages(algo).toDouble * 100.0 / (size * size).toDouble
       println(s"${algo.getClass.getSimpleName}: ${averages(algo)} (${percent}%)")
     }
+  }
+
+  test("MaskedGridImageTest") {
+    val mask =
+      """X........X
+        |....XX....
+        |...XXXX...
+        |....XX....
+        |X........X
+        |X........X
+        |....XX....
+        |...XXXX...
+        |....XX....
+        |X........X""".stripMargin
+    val grid = MaskedGrid.from(mask)
+    val generator = new RecurBackTrackMaze(rand)
+    val maze = generator.generate(grid)
+    var image = ImageCreator.create(maze, 32, Some(5))
+    var f = FileHelper.saveToFile(image, PngWriter.MaxCompression,
+      "MaskedGrid.png", "images")
+    assert(f.isSuccess)
+    val middle = grid(1, 1)
+    val distMap = DistanceEx.createMax(maze, middle).get
+    image = ImageCreator.create(distMap, 32, Some(5))
+    f = FileHelper.saveToFile(image, PngWriter.MaxCompression,
+      "MaskedGrid_DistMap.png", "images")
+    assert(f.isSuccess)
+    val (farCell, _) = distMap.max
+    val path = distMap.pathTo(farCell).get
+    pathCheck(path, distMap, distMap.root, farCell)
+    val content = (cell: CellEx) => {
+      if (distMap.contains(cell)) distMap(cell).toString else "-"
+    }
+    print(maze.dump(content)); println()
+    println(s"grid size=${grid.size}")
   }
 }
