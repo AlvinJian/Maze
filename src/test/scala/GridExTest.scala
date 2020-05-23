@@ -32,11 +32,11 @@ class GridExTest extends FunSuite {
         other
       })
       assert(cell.south === {
-        val other = if (r+1 < grid.row) Some(grid(r+1, c)) else None
+        val other = if (r+1 < grid.rows) Some(grid(r+1, c)) else None
         other
       })
       assert(cell.east === {
-        val other = if (c+1 < grid.col) Some(grid(r, c+1)) else None
+        val other = if (c+1 < grid.cols) Some(grid(r, c+1)) else None
         other
       })
       assert(cell.west === {

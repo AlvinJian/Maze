@@ -1,19 +1,19 @@
 package grid
 import scala.util.{Random, Try}
 
-case class MaskedGrid(override val row: Int, override val col: Int,
-                 blacklist: Set[(Int,Int)]) extends GridContainer[CellEx] {
+case class MaskedGrid(override val rows: Int, override val cols: Int,
+                      blacklist: Set[(Int,Int)]) extends GridContainer[CellEx] {
   override protected val data: Vector[CellEx] = Vector.from(
     for {
-      r <- 0 until row
-      c <- 0 until col
+      r <- 0 until rows
+      c <- 0 until cols
     } yield {
       val pos = (r, c);
       new MaskedGridCell(r, c, blacklist.contains(pos))
     }
   )
 
-  override def apply(r: Int, c: Int): CellEx = data(r * col + c)
+  override def apply(r: Int, c: Int): CellEx = data(r * cols + c)
 
   override def isValid(cell: CellEx): Boolean = if (super.isValid(cell) &&
     !cell.asInstanceOf[MaskedGridCell].masked) true else false
@@ -34,6 +34,7 @@ case class MaskedGrid(override val row: Int, override val col: Int,
   }
 
   override def iterator: Iterator[CellEx] = new Iterator[CellEx] {
+    private val outer: MaskedGrid = MaskedGrid.this
     private var _row = 0;
     private var _col = 0;
     private var buffer: Option[CellEx] = Some(MaskedGrid.this(_row, _col))
@@ -48,15 +49,14 @@ case class MaskedGrid(override val row: Int, override val col: Int,
     }
 
     private def bypassInvalid(): Unit = {
-      while (_row < MaskedGrid.this.row &&
-        _col < MaskedGrid.this.col &&
-        !MaskedGrid.this.isValid(MaskedGrid.this(_row, _col))) forward()
-      buffer = if (_row < MaskedGrid.this.row && _col < MaskedGrid.this.col)
-        Some(MaskedGrid.this(_row, _col)) else None
+      while (_row < outer.rows && _col < outer.cols &&
+        !outer.isValid(MaskedGrid.this(_row, _col))) forward()
+      buffer = if (_row < outer.rows && _col < outer.cols)
+        Some(outer(_row, _col)) else None
     }
 
     private def forward(): Unit = {
-      if (_col+1 < MaskedGrid.this.col) {
+      if (_col+1 < outer.cols) {
         _col += 1
       } else {
         _col = 0

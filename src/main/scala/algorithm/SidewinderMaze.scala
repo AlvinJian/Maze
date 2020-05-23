@@ -7,9 +7,9 @@ import scala.util.Random
 class SidewinderMaze(val _r: Random) extends MazeGenerator {
   override def generate(grid: GridContainer[CellEx]): GraphEx = {
     var graph: GraphEx = new GraphEx(grid)
-    for (r <- 0 until grid.row) {
+    for (r <- 0 until grid.rows) {
       var run = Vector[CellEx]()
-      for (c <- 0 until grid.col) {
+      for (c <- 0 until grid.cols) {
         val cell = grid(r, c)
         run = run :+ cell
         val isEastEnd = grid(r,c).east.isEmpty

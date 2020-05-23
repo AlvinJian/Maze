@@ -30,11 +30,11 @@ class GraphEx(val grid: GridContainer[CellEx]) {
 
   def dump(contentFunc: (CellEx) => String) = {
     val _out = new StringBuilder("+")
-    _out.append(new String((0 until grid.col).flatMap(_ => "---+").toArray) + "\n")
-    for (r <- 0 until grid.row) {
+    _out.append(new String((0 until grid.cols).flatMap(_ => "---+").toArray) + "\n")
+    for (r <- 0 until grid.rows) {
       val topSb = new StringBuilder("|")
       val bottomSb = new StringBuilder("+")
-      for (c <- 0 until grid.col) {
+      for (c <- 0 until grid.cols) {
         val cell: CellEx = grid(r, c)
         val connected = linkedCells(cell) match {
           case Some(cells) => cells
@@ -59,64 +59,6 @@ class GraphEx(val grid: GridContainer[CellEx]) {
   }
 
   override def toString: String = dump(_ => "   ")
-
-  @deprecated
-  def toImage(cellSize: Int = 10,
-              colorMapper: Option[CellEx=>RGBColor] = None,
-              needPadding: Boolean = true): ImmutableImage = {
-    val imgWidth = cellSize * grid.col
-    val imgHeight = cellSize * grid.row
-    var mutableImage = new MutableImage(new BufferedImage(imgWidth+1, imgHeight+1,
-      BufferedImage.TYPE_INT_ARGB))
-    mutableImage.fillInPlace(new awt.Color(255, 255, 255))
-
-    val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
-    for (cell <- grid) {
-      val x1 = cell.col * cellSize
-      val y1 = cell.row * cellSize
-      val x2 = (cell.col+1) * cellSize
-      val y2 = (cell.row+1) * cellSize
-      val cellColor = colorMapper match {
-        case Some(func) => func(cell)
-        case None => new RGBColor(255, 255, 255)
-      }
-      cellGraphics.setColor(cellColor)
-      new FilledRect(x1, y1, x2, y2).draw(cellGraphics)
-    }
-    mutableImage.awt().flush()
-    mutableImage = new MutableImage(mutableImage.awt())
-
-    val wallColor = new RGBColor(0, 0, 0)
-    val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
-    wallGraphics.setColor(wallColor)
-
-    for (cell <- grid) {
-      val x1 = cell.col * cellSize
-      val y1 = cell.row * cellSize
-      val x2 = (cell.col+1) * cellSize
-      val y2 = (cell.row+1) * cellSize
-
-      if (cell.north.isEmpty) {
-        new Line(x1, y1, x2, y1).draw(wallGraphics)
-      }
-      if (cell.west.isEmpty) {
-        new Line(x1, y1, x1, y2).draw(wallGraphics)
-      }
-      val shouldDrawEast = cell.east match {
-        case Some(ecell) => !isLinked(cell, ecell)
-        case _ => true
-      }
-      if (shouldDrawEast) new Line(x2, y1, x2, y2).draw(wallGraphics)
-      val shouldDrawSouth = cell.south match {
-        case Some(scell) => !isLinked(cell, scell)
-        case _ => true
-      }
-      if (shouldDrawSouth) new Line(x1, y2, x2, y2).draw(wallGraphics)
-    }
-
-    if (needPadding) mutableImage.toImmutableImage.pad(5, awt.Color.GRAY)
-    else mutableImage.toImmutableImage
-  }
 }
 
 object GraphEx {

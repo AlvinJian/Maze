@@ -14,8 +14,8 @@ import grid.{CellEx, GraphEx, GridContainer, GridEx, MaskedGrid}
 sealed abstract class ImageCreator(val baseGrid: GridContainer[CellEx],
                                    val cellSize: Int) {
   val baseImage: ImmutableImage = {
-    val imgWidth = cellSize * baseGrid.col
-    val imgHeight = cellSize * baseGrid.row
+    val imgWidth = cellSize * baseGrid.cols
+    val imgHeight = cellSize * baseGrid.rows
     val image = ImmutableImage.filled(imgWidth+1, imgHeight+1,
       new awt.Color(255, 255, 255, 0), BufferedImage.TYPE_INT_ARGB)
     image
@@ -33,8 +33,8 @@ class Background(grid: GridContainer[CellEx], cellSize: Int) extends ImageCreato
         val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
         // need to draw invalid cells
         for {
-          r <- 0 until masked.row
-          c <- 0 until masked.col
+          r <- 0 until masked.rows
+          c <- 0 until masked.cols
         } {
           val cell = masked(r,c)
           if (masked.isValid(cell)) {

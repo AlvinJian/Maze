@@ -36,7 +36,7 @@ class MazeGenTest extends FunSuite {
     print(maze)
     val start = grid(0, 0)
     val distMap = DistanceEx.from(maze, start).get
-    val end = grid((grid.row-1)/2, (grid.col-1)/2)
+    val end = grid((grid.rows-1)/2, (grid.cols-1)/2)
     distMap.pathTo(end) match {
       case Some(path) => pathCheck(path, distMap, start, end)
       case None => assert(false)
@@ -56,7 +56,7 @@ class MazeGenTest extends FunSuite {
       if (distMap.contains(cell)) distMap(cell).toString else "-"
     }
     print(maze/*.dump(content)*/); println()
-    val goal = grid((grid.row-1)/2, (grid.col-1)/2)
+    val goal = grid((grid.rows-1)/2, (grid.cols-1)/2)
     distMap.pathTo(goal) match {
       case Some(path) => {
         val pathSet = path.toSet;
@@ -79,7 +79,7 @@ class MazeGenTest extends FunSuite {
     var f = FileHelper.saveToFile(image, writer, s"AldousBroder$ext", dir)
     assert(f.isSuccess)
     val distMap = DistanceEx.createMax(maze,
-      grid((grid.row-1)/2, (grid.col-1)/2)).get
+      grid((grid.rows-1)/2, (grid.cols-1)/2)).get
     image = ImageCreator.create(distMap, cellSize, padding)
     f = FileHelper.saveToFile(image, writer, s"AldousBroder_DistMap$ext", dir)
     assert(f.isSuccess)
@@ -127,7 +127,7 @@ class MazeGenTest extends FunSuite {
     var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"LongestPath_RecurBackTrackMaze$ext", dir)
     assert(f.isSuccess)
-    val thru: CellEx = grid((grid.row-1)/2, (grid.col-1)/2)
+    val thru: CellEx = grid((grid.rows-1)/2, (grid.cols-1)/2)
     val distMap = DistanceEx.createMax(maze, thru).get
     val (farCell, maxDist) = distMap.max
     val ref = grid.maxBy((c) => distMap(c))
