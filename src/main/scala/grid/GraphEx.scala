@@ -1,16 +1,14 @@
 package grid
 
 import java.awt
-import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 
-import com.sksamuel.scrimage.canvas.{Canvas, GraphicsContext}
 import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line}
 import com.sksamuel.scrimage.color.{Color, RGBColor}
 import com.sksamuel.scrimage.graphics.{Graphics2DUtils, RichGraphics2D}
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 
-class GraphEx(val grid: GridEx) {
+class GraphEx(val grid: GridContainer[CellEx]) {
   private var _graph = Map[CellEx, Set[CellEx]]()
 
   def link(from: CellEx, to:CellEx): Option[GraphEx] =
@@ -122,8 +120,8 @@ class GraphEx(val grid: GridEx) {
 }
 
 object GraphEx {
-  private def apply(gridEx: GridEx, g: Map[CellEx, Set[CellEx]]): GraphEx = {
-    val ret = new GraphEx(gridEx)
+  private def apply(grid: GridContainer[CellEx], g: Map[CellEx, Set[CellEx]]): GraphEx = {
+    val ret = new GraphEx(grid)
     ret._graph = g
     ret
   }

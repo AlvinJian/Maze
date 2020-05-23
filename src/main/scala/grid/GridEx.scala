@@ -2,58 +2,19 @@ package grid
 
 import scala.util.Random
 
-trait CellEx {
-  def row: Int
-  def col: Int
-  def north: Option[CellEx]
-  def south: Option[CellEx]
-  def east: Option[CellEx]
-  def west: Option[CellEx]
-  def neighbors: List[CellEx]
-}
+case class GridEx(override val row: Int,
+                  override val col: Int) extends GridContainer[CellEx] {
 
-private[grid] class CellExImpl(val row: Int, val col: Int, grid: GridEx) extends CellEx {
-  override def north: Option[CellEx] = grid.adjacencyOf(this, NorthDir)
-
-  override def south: Option[CellEx] = grid.adjacencyOf(this, SouthDir)
-
-  override def east: Option[CellEx] = grid.adjacencyOf(this, EastDir)
-
-  override def west: Option[CellEx] = grid.adjacencyOf(this, WestDir)
-
-  override def neighbors: List[CellEx] = List(this.north, this.south, this.east, this.west).flatten
-}
-
-class GridEx(val row: Int, val col: Int) extends Iterable[CellEx] {
   protected val data: Vector[CellEx] = Vector.from(
     for {
       r <- 0 until row
       c <- 0 until col
-    } yield new CellExImpl(r, c, this)
+    } yield new GridExCell(r, c)
   )
 
   def apply(r: Int, c: Int): CellEx = data(r * col + c)
 
-  def isValid(cell: CellEx): Boolean = {
-    if (cell.row < this.row && cell.col < this.col) this(cell.row, cell.col) == cell
-    else false
-  }
-
-  def randomCell(r: Random): CellEx = data(r.nextInt(data.size))
-
-  def adjacencyOf(cell: CellEx, direction: Direction): Option[CellEx] = {
-    val r = cell.row; val c = cell.col
-    val ret: Option[CellEx] = direction match {
-      case NorthDir => if (r-1 >= 0) Some(this(r-1, c)) else None
-      case SouthDir => if (r+1 < row) Some(this(r+1, c)) else None
-      case WestDir => if (c-1 >= 0) Some(this(r, c-1)) else None
-      case EastDir => if (c+1 < col) Some(this(r, c+1)) else None
-      case _ => None
-    }
-    ret
-  }
-
-  override def iterator: Iterator[CellEx] = new Iterator[CellEx] {
+  def iterator: Iterator[CellEx] = new Iterator[CellEx] {
     private var _row = 0;
     private var _col = 0;
 
@@ -73,5 +34,19 @@ class GridEx(val row: Int, val col: Int) extends Iterable[CellEx] {
         _row += 1
       }
     }
+  }
+
+  private class GridExCell(override val row: Int, override val col: Int) extends CellEx {
+    val outer: GridEx = GridEx.this
+
+    override def north: Option[CellEx] = outer.adjacencyOf(this, NorthDir)
+
+    override def south: Option[CellEx] = outer.adjacencyOf(this, SouthDir)
+
+    override def east: Option[CellEx] = outer.adjacencyOf(this, EastDir)
+
+    override def west: Option[CellEx] = outer.adjacencyOf(this, WestDir)
+
+    override def neighbors: List[CellEx] = List(this.north, this.south, this.east, this.west).flatten
   }
 }

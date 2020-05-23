@@ -1,10 +1,10 @@
 package algorithm
-import grid.{CellEx, GraphEx, GridEx}
+import grid.{CellEx, GraphEx, GridContainer, GridEx}
 
 import scala.util.Random
 
 class BinaryTreeMaze(val _r: Random) extends MazeGenerator {
-  override def generate(grid: GridEx): GraphEx = {
+  override def generate(grid: GridContainer[CellEx]): GraphEx = {
     var graph = new GraphEx(grid)
     for (cell <- grid) {
       val candidates: List[CellEx] = List(cell.north, cell.east).flatten

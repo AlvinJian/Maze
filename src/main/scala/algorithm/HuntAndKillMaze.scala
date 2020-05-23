@@ -1,12 +1,12 @@
 package algorithm
 
-import grid.{CellEx, GraphEx, GridEx}
+import grid.{CellEx, GraphEx, GridContainer, GridEx}
 
 import scala.collection.mutable
 import scala.util.Random
 
 class HuntAndKillMaze(val rand: Random) extends MazeGenerator {
-  override def generate(grid: GridEx): GraphEx = {
+  override def generate(grid: GridContainer[CellEx]): GraphEx = {
     var graph = new GraphEx(grid)
     var cell: Option[CellEx] = Some(grid.randomCell(rand))
     while (cell.isDefined) {

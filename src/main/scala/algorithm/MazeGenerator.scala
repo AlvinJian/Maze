@@ -1,7 +1,7 @@
 package algorithm
 
-import grid.{GraphEx, GridEx}
+import grid.{CellEx, GraphEx, GridContainer}
 
 trait MazeGenerator {
-  def generate(grid: GridEx): GraphEx
+  def generate(grid: GridContainer[CellEx]): GraphEx
 }

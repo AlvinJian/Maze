@@ -10,8 +10,6 @@ import grid.{CellEx, GraphEx}
 
 import scala.collection.mutable
 
-//case class Position(val i: Int, val j: Int) { }
-
 trait DistanceEx {
   def root: CellEx
   def graph: GraphEx
@@ -20,12 +18,6 @@ trait DistanceEx {
   def contains(cell: CellEx): Boolean
   def pathTo(position: CellEx): Option[List[CellEx]]
   def colorMapper(cell: CellEx): RGBColor
-  @deprecated
-  def toImage(cellSize: Int = 10,
-              needPadding: Boolean = true): ImmutableImage
-  @deprecated
-  def pathToAsImage(cellSize: Int = 10,
-                    position: CellEx): Option[ImmutableImage]
 }
 
 private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (CellEx, Int),
@@ -52,31 +44,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
     if (path.head == root) Some(path) else None
   }
 
-  override def pathToAsImage(cellSize: Int = 10,
-                             position: CellEx): Option[ImmutableImage] = {
-    val path: List[CellEx] = pathTo(position) match {
-      case Some(value) => value
-      case None => List()
-    }
-    if (path.size > 0) {
-      val cellSet = path.toSet
-      val drawInPath: CellEx => RGBColor = (cell) => {
-        if (cellSet.contains(cell)) {
-          colorMapper(cell)
-        } else {
-          RGBColor.fromAwt(java.awt.Color.LIGHT_GRAY)
-        }
-      }
-      Some(graph.toImage(cellSize, Some(drawInPath)))
-    } else None
-  }
-
   override def contains(cell: CellEx): Boolean = distMap.contains(cell)
-
-  override def toImage(cellSize: Int = 10,
-                       needPadding: Boolean = true): ImmutableImage = {
-    graph.toImage(cellSize, Some(colorMapper))
-  }
 
   def colorMapper(cell: CellEx): RGBColor = {
     val dist = this(cell).toDouble

@@ -1,11 +1,11 @@
 package algorithm
-import grid.{CellEx, GraphEx, GridEx}
+import grid.{CellEx, GraphEx, GridContainer, GridEx}
 
 import scala.collection.immutable.VectorBuilder
 import scala.util.Random
 
 class SidewinderMaze(val _r: Random) extends MazeGenerator {
-  override def generate(grid: GridEx): GraphEx = {
+  override def generate(grid: GridContainer[CellEx]): GraphEx = {
     var graph: GraphEx = new GraphEx(grid)
     for (r <- 0 until grid.row) {
       var run = Vector[CellEx]()

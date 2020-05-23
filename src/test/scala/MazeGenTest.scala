@@ -4,7 +4,7 @@ import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{CellEx, GraphEx, GridEx}
 import org.scalatest.FunSuite
-import utils.{ColoredImageCreator, FileHelper, ImageCreator, MazeImageCreator, WhiteBackground}
+import utils.{ColoredImageCreator, FileHelper, ImageCreator, MazeImageCreator, Background}
 
 import scala.collection.mutable
 import scala.util.{Failure, Random, Success}

@@ -1,6 +1,7 @@
 package utils
 
 import java.awt
+import java.awt.Color
 import java.awt.image.BufferedImage
 
 import algorithm.DistanceEx
@@ -8,11 +9,11 @@ import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{CellEx, GraphEx, GridEx}
+import grid.{CellEx, GraphEx, GridContainer, GridEx, MaskedGrid}
 
-sealed abstract class ImageCreator(val baseGrid: GridEx,
+sealed abstract class ImageCreator(val baseGrid: GridContainer[CellEx],
                                    val cellSize: Int) {
-  def prepareBaseImage(): ImmutableImage = {
+  def baseImage: ImmutableImage = {
     val imgWidth = cellSize * baseGrid.col
     val imgHeight = cellSize * baseGrid.row
     val image = ImmutableImage.filled(imgWidth+1, imgHeight+1,
@@ -20,14 +21,41 @@ sealed abstract class ImageCreator(val baseGrid: GridEx,
     image
   }
   def drawOn(baseImage: ImmutableImage): ImmutableImage
-  def create(): ImmutableImage = drawOn(prepareBaseImage())
+  def create(): ImmutableImage = drawOn(baseImage)
 }
 
-class WhiteBackground(grid: GridEx, cellSize: Int) extends ImageCreator(grid, cellSize) {
-  override def drawOn(baseImage: ImmutableImage): ImmutableImage = baseImage.fill(awt.Color.WHITE)
+class Background(grid: GridContainer[CellEx], cellSize: Int) extends ImageCreator(grid, cellSize) {
+  override def drawOn(baseImage: ImmutableImage): ImmutableImage = {
+    baseGrid match {
+      case normal: GridEx => baseImage.fill(awt.Color.WHITE)
+      case masked: MaskedGrid => {
+        val mutableImage = new MutableImage(baseImage.awt())
+        val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
+        // need to draw invalid cells
+        for {
+          r <- 0 until masked.row
+          c <- 0 until masked.col
+        } {
+          val cell = masked(r,c)
+          if (masked.isValid(cell)) {
+            cellGraphics.setColor(Color.WHITE)
+          } else {
+            cellGraphics.setColor(Color.BLACK)
+          }
+          val x1 = cell.col * cellSize
+          val y1 = cell.row * cellSize
+          val x2 = (cell.col+1) * cellSize
+          val y2 = (cell.row+1) * cellSize
+          new FilledRect(x1, y1, x2, y2).draw(cellGraphics)
+        }
+        mutableImage.toImmutableImage
+      }
+      case _ => baseImage
+    }
+  }
 }
 
-class ColoredImageCreator(grid: GridEx, cellSize: Int,
+class ColoredImageCreator(grid: GridContainer[CellEx], cellSize: Int,
                           mapper: (CellEx)=>RGBColor) extends ImageCreator(grid, cellSize) {
   override def drawOn(baseImage: ImmutableImage): ImmutableImage = {
     val mutableImage = new MutableImage(baseImage.awt())
@@ -92,7 +120,7 @@ object ImageCreator {
   }
   def create(graph: GraphEx, cellSize: Int, padding: Option[Int]): ImmutableImage = {
     ImageCreator.batch(padding)(
-      new WhiteBackground(graph.grid, cellSize),
+      new Background(graph.grid, cellSize),
       new MazeImageCreator(graph, cellSize)
     )
   }

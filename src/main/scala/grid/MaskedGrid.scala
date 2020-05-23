@@ -1,36 +1,22 @@
 package grid
 import scala.util.{Random, Try}
 
-private[grid] class MaskableCell(override val row: Int, override val col: Int,
-                                 grid: MaskedGrid, val masked: Boolean)
-  extends CellExImpl(row, col, grid) {
-
-  override def north: Option[CellEx] = if (masked) None else super.north
-
-  override def south: Option[CellEx] = if (masked) None else super.south
-
-  override def west: Option[CellEx] = if (masked) None else super.west
-
-  override def east: Option[CellEx] = if (masked) None else super.east
-
-  override def neighbors: List[CellEx] = if (masked) List[CellEx]() else super.neighbors
-}
-
-class MaskedGrid(override val row: Int, override val col: Int,
-                 blacklist: Set[(Int,Int)]) extends GridEx(row, col) {
+case class MaskedGrid(override val row: Int, override val col: Int,
+                 blacklist: Set[(Int,Int)]) extends GridContainer[CellEx] {
   override protected val data: Vector[CellEx] = Vector.from(
     for {
       r <- 0 until row
       c <- 0 until col
     } yield {
       val pos = (r, c);
-      val masked = blacklist.contains(pos)
-      new MaskableCell(r, c, this, masked)
+      new MaskedGridCell(r, c, blacklist.contains(pos))
     }
   )
 
+  override def apply(r: Int, c: Int): CellEx = data(r * col + c)
+
   override def isValid(cell: CellEx): Boolean = if (super.isValid(cell) &&
-    !cell.asInstanceOf[MaskableCell].masked) true else false
+    !cell.asInstanceOf[MaskedGridCell].masked) true else false
 
   // if the adjacent cell is masked, return None
   override def adjacencyOf(cell: CellEx, direction: Direction): Option[CellEx] = {
@@ -62,7 +48,8 @@ class MaskedGrid(override val row: Int, override val col: Int,
     }
 
     private def bypassInvalid(): Unit = {
-      while (_row < MaskedGrid.this.row && _col < MaskedGrid.this.col &&
+      while (_row < MaskedGrid.this.row &&
+        _col < MaskedGrid.this.col &&
         !MaskedGrid.this.isValid(MaskedGrid.this(_row, _col))) forward()
       buffer = if (_row < MaskedGrid.this.row && _col < MaskedGrid.this.col)
         Some(MaskedGrid.this(_row, _col)) else None
@@ -76,6 +63,27 @@ class MaskedGrid(override val row: Int, override val col: Int,
         _row += 1
       }
     }
+  }
+
+  class MaskedGridCell(override val row: Int, override val col: Int,
+                       val masked: Boolean)
+    extends CellEx {
+    val outer: MaskedGrid = MaskedGrid.this
+
+    override def north: Option[CellEx] =
+      if (masked) None else outer.adjacencyOf(this, NorthDir)
+
+    override def south: Option[CellEx] =
+      if (masked) None else outer.adjacencyOf(this, SouthDir)
+
+    override def east: Option[CellEx] =
+      if (masked) None else outer.adjacencyOf(this, EastDir)
+
+    override def west: Option[CellEx] =
+      if (masked) None else outer.adjacencyOf(this, WestDir)
+
+    override def neighbors: List[CellEx] =
+      List(this.north, this.south, this.east, this.west).flatten
   }
 }
 
