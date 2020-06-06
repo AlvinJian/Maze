@@ -1,7 +1,7 @@
 package grid
 
 case class GridEx(override val rows: Int,
-                  override val cols: Int) extends GridContainer[Cell2DCart] {
+                  override val cols: Int) extends CellContainer[Cell2DCart] {
   protected val data: Vector[Cell2DCart] = Vector.from(
     for {
       r <- 0 until rows

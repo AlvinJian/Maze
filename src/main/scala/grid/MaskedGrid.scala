@@ -2,7 +2,7 @@ package grid
 import scala.util.{Random, Try}
 
 case class MaskedGrid(override val rows: Int, override val cols: Int,
-                      blacklist: Set[(Int,Int)]) extends GridContainer[Cell2DCart] {
+                      blacklist: Set[(Int,Int)]) extends CellContainer[Cell2DCart] {
   override protected val data: Vector[Cell2DCart] = Vector.from(
     for {
       r <- 0 until rows

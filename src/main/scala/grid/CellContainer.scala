@@ -2,7 +2,7 @@ package grid
 
 import scala.util.Random
 
-trait GridContainer[+T <: Cell2D] extends Iterable[T] {
+trait CellContainer[+T <: Cell2D] extends Iterable[T] {
   val rows: Int
   val cols: Int
 

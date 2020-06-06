@@ -6,7 +6,7 @@ import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line, Rect}
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.{Color, RGBColor}
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, GraphEx, GridContainer}
+import grid.{Cell2D, GraphEx, CellContainer}
 
 import scala.collection.mutable
 

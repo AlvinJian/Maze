@@ -1,6 +1,6 @@
 package grid
 
-class GraphEx(val grid: GridContainer[Cell2D]) {
+class GraphEx(val grid: CellContainer[Cell2D]) {
   private var _graph = Map[Cell2D, Set[Cell2D]]()
 
   def link(from: Cell2D, to:Cell2D): Option[GraphEx] =
@@ -55,7 +55,7 @@ class GraphEx(val grid: GridContainer[Cell2D]) {
 }
 
 object GraphEx {
-  private def apply(grid: GridContainer[Cell2D], g: Map[Cell2D, Set[Cell2D]]): GraphEx = {
+  private def apply(grid: CellContainer[Cell2D], g: Map[Cell2D, Set[Cell2D]]): GraphEx = {
     val ret = new GraphEx(grid)
     ret._graph = g
     ret

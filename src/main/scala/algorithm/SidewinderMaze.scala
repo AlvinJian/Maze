@@ -1,5 +1,5 @@
 package algorithm
-import grid.{Cell2DCart, GraphEx, GridContainer, GridEx}
+import grid.{Cell2DCart, GraphEx, CellContainer, GridEx}
 
 import scala.collection.immutable.VectorBuilder
 import scala.util.Random

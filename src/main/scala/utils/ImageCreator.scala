@@ -9,9 +9,9 @@ import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, Cell2DCart, GraphEx, GridContainer, GridEx, MaskedGrid}
+import grid.{Cell2D, Cell2DCart, GraphEx, CellContainer, GridEx, MaskedGrid}
 
-sealed abstract class ImageCreator(val baseGrid: GridContainer[Cell2D],
+sealed abstract class ImageCreator(val baseGrid: CellContainer[Cell2D],
                                    val cellSize: Int) {
   val baseImage: ImmutableImage = {
     val imgWidth = cellSize * baseGrid.cols
@@ -24,7 +24,7 @@ sealed abstract class ImageCreator(val baseGrid: GridContainer[Cell2D],
   def create(): ImmutableImage = drawOn(baseImage)
 }
 
-class Background(grid: GridContainer[Cell2D], cellSize: Int)
+class Background(grid: CellContainer[Cell2D], cellSize: Int)
   extends ImageCreator(grid, cellSize) {
   override def drawOn(baseImage: ImmutableImage): ImmutableImage = {
     baseGrid match {
@@ -54,7 +54,7 @@ class Background(grid: GridContainer[Cell2D], cellSize: Int)
   }
 }
 
-class ColoredImageCreator(grid: GridContainer[Cell2D], cellSize: Int,
+class ColoredImageCreator(grid: CellContainer[Cell2D], cellSize: Int,
                           mapper: (Cell2D) => RGBColor)
   extends ImageCreator(grid, cellSize) {
   override def drawOn(baseImage: ImmutableImage): ImmutableImage = {
@@ -73,13 +73,13 @@ class ColoredImageCreator(grid: GridContainer[Cell2D], cellSize: Int,
 class MazeImageCreator(val graph: GraphEx, cellSize: Int) extends ImageCreator(graph.grid, cellSize) {
   override def drawOn(baseImage: ImmutableImage): ImmutableImage = {
     graph.grid match {
-      case grid: GridEx => drawCartGrid(baseImage, grid.asInstanceOf[GridContainer[Cell2DCart]])
-      case maskedGrid: MaskedGrid => drawCartGrid(baseImage, maskedGrid.asInstanceOf[GridContainer[Cell2DCart]])
+      case grid: GridEx => drawCartGrid(baseImage, grid.asInstanceOf[CellContainer[Cell2DCart]])
+      case maskedGrid: MaskedGrid => drawCartGrid(baseImage, maskedGrid.asInstanceOf[CellContainer[Cell2DCart]])
       case _ => ???
     }
   }
 
-  private def drawCartGrid(baseImage: ImmutableImage, grid: GridContainer[Cell2DCart]): ImmutableImage = {
+  private def drawCartGrid(baseImage: ImmutableImage, grid: CellContainer[Cell2DCart]): ImmutableImage = {
     val mutableImage = new MutableImage(baseImage.awt())
     val wallColor = new RGBColor(0, 0, 0)
     val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
