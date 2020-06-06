@@ -2,7 +2,7 @@ package grid
 
 import scala.util.Random
 
-trait GridContainer[T <: CellPosition] extends Iterable[T] {
+trait GridContainer[+T <: Cell2D] extends Iterable[T] {
   val rows: Int
   val cols: Int
 
@@ -10,12 +10,15 @@ trait GridContainer[T <: CellPosition] extends Iterable[T] {
 
   def randomCell(r: Random): T = data(r.nextInt(data.size))
 
-  def isValid(t: T): Boolean = {
+  def isValid(t: Cell2D): Boolean = {
     if (t.row < this.rows && t.col < this.cols) this(t.row, t.col) == t
     else false
   }
 
-  def adjacencyOf(t: T, direction: Direction): Option[T] = {
+  // default implementation for cartesian 2d cell
+  // should be overridden if using other coordinate system
+  def adjacencyOf(t: Cell2D, direction: Direction): Option[T] = {
+    if (!isValid(t)) return None
     val r = t.row; val c = t.col
     val ret: Option[T] = direction match {
       case NorthDir => if (r-1 >= 0) Some(this(r-1, c)) else None

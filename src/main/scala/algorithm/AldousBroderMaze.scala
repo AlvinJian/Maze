@@ -1,13 +1,13 @@
 package algorithm
 
-import grid.{CellEx, GraphEx, GridContainer, GridEx}
+import grid.{Cell2D, GraphEx, GridContainer, GridEx}
 
-import scala.collection.mutable
 import scala.util.Random
 
-class AldousBroderMaze(val r: Random) extends MazeGenerator {
+object AldousBroderMaze extends MazeGenerator {
+  override type T = GridContainer[Cell2D]
 
-  override def generate(grid: GridContainer[CellEx]): GraphEx = {
+  override def generate(r: Random, grid: T): GraphEx = {
     var graph = new GraphEx(grid)
     var unvisited: Int = grid.size
     var cell = grid.randomCell(r)

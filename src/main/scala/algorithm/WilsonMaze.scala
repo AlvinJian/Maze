@@ -1,23 +1,26 @@
 package algorithm
 
-import grid.{CellEx, GraphEx, GridContainer, GridEx}
+import grid.{Cell2D, GraphEx, GridContainer}
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.util.Random
 
-class WilsonMaze(val rand: Random) extends MazeGenerator {
-  override def generate(grid: GridContainer[CellEx]): GraphEx = {
+object WilsonMaze extends MazeGenerator {
+  override type T = GridContainer[Cell2D]
+
+  override def generate(rand: Random, grid: T): GraphEx = {
     var graph = new GraphEx(grid)
     var unvisited = grid.toSet
-    val getUnvisited: ()=>CellEx = () => {
+    val getUnvisited: ()=> Cell2D = () => {
       val arr = unvisited.toArray
       arr(rand.nextInt(arr.length))
     }
     val seed = getUnvisited()
     unvisited = unvisited - seed
     while (unvisited.nonEmpty) {
-      val pathSet = mutable.Set[CellEx]()
-      val path = mutable.ArrayDeque[CellEx]()
+      val pathSet = mutable.Set[Cell2D]()
+      val path = mutable.ArrayDeque[Cell2D]()
       var p = getUnvisited()
       pathSet.add(p); path.prepend(p)
       while (unvisited.contains(p)) {
@@ -29,15 +32,19 @@ class WilsonMaze(val rand: Random) extends MazeGenerator {
         }
         pathSet.add(p); path.prepend(p)
       }
-      for (i <- 0 until path.size-1) {
-        graph = graph.link(path(i), path(i+1)) match {
-          case Some(value) => {
-            unvisited = unvisited.filter((c) => c != path(i) && c != path(i+1))
-            value
+      @tailrec
+      def linkPath(path: Seq[Cell2D], i: Int, graph: GraphEx): GraphEx = {
+        if (i < path.size-1) {
+          graph.link(path(i), path(i + 1)) match {
+            case Some(value) => {
+              unvisited = unvisited.filter((c) => c != path(i) && c != path(i+1))
+              linkPath(path, i+1, value)
+            }
+            case None => graph
           }
-          case None => graph
-        }
+        } else graph
       }
+      graph = linkPath(path.toSeq, 0, graph)
     }
     graph
   }

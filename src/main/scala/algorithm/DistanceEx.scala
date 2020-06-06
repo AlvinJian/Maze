@@ -6,26 +6,26 @@ import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line, Rect}
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.{Color, RGBColor}
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{CellEx, GraphEx}
+import grid.{Cell2D, GraphEx, GridContainer}
 
 import scala.collection.mutable
 
 trait DistanceEx {
-  def root: CellEx
+  def root: Cell2D
   def graph: GraphEx
-  def max: (CellEx, Int)
-  def apply(cell: CellEx): Int
-  def contains(cell: CellEx): Boolean
-  def pathTo(position: CellEx): Option[List[CellEx]]
-  def colorMapper(cell: CellEx): RGBColor
+  def max: (Cell2D, Int)
+  def apply(cell: Cell2D): Int
+  def contains(cell: Cell2D): Boolean
+  def pathTo(position: Cell2D): Option[List[Cell2D]]
+  def colorMapper(cell: Cell2D): RGBColor
 }
 
-private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (CellEx, Int),
-                             val distMap: Map[CellEx, Int]) extends DistanceEx {
-  override def apply(cell: CellEx): Int = distMap(cell)
+private class DistanceExImpl(val graph: GraphEx, val root: Cell2D, val max: (Cell2D, Int),
+                             val distMap: Map[Cell2D, Int]) extends DistanceEx {
+  override def apply(cell: Cell2D): Int = distMap(cell)
 
-  override def pathTo(position: CellEx): Option[List[CellEx]] = {
-    var path = List[CellEx]()
+  override def pathTo(position: Cell2D): Option[List[Cell2D]] = {
+    var path = List[Cell2D]()
     val que = mutable.Queue(position)
     while (que.nonEmpty) {
       val current = que.dequeue()
@@ -34,7 +34,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
         val dist = this(current)
         val candidates = graph.linkedCells(current) match {
           case Some(cells) => cells.filter((p)=>this(p) == (dist-1)).toList
-          case None => List[CellEx]()
+          case None => List[Cell2D]()
         }
         if (candidates.nonEmpty) que.enqueue(candidates.head)
       } else {
@@ -44,9 +44,9 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
     if (path.head == root) Some(path) else None
   }
 
-  override def contains(cell: CellEx): Boolean = distMap.contains(cell)
+  override def contains(cell: Cell2D): Boolean = distMap.contains(cell)
 
-  def colorMapper(cell: CellEx): RGBColor = {
+  def colorMapper(cell: Cell2D): RGBColor = {
     val dist = this(cell).toDouble
     val maxDist = max._2.toDouble
     val ratio: Double = (maxDist - dist)/maxDist
@@ -57,7 +57,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: CellEx, val max: (Cel
 }
 
 object DistanceEx {
-  def from(graph: GraphEx, root: CellEx): Option[DistanceEx] = {
+  def from(graph: GraphEx, root: Cell2D): Option[DistanceEx] = {
     if (!graph.grid.isValid(root)) return None
     var distMap = Map(root -> 0)
     val que = mutable.Queue(root)
@@ -72,7 +72,7 @@ object DistanceEx {
         }
         graph.linkedCells(cell) match {
           case Some(cells) =>
-            cells.foreach((c: CellEx) => {
+            cells.foreach((c: Cell2D) => {
               if (!distMap.contains(c)) {
                 distMap = distMap + (c -> (curDist+1))
                 que.enqueue(c)
@@ -86,7 +86,7 @@ object DistanceEx {
     else None
   }
 
-  def createMax(graph: GraphEx, thru: CellEx): Option[DistanceEx] = {
+  def createMax(graph: GraphEx, thru: Cell2D): Option[DistanceEx] = {
     var distMap = DistanceEx.from(graph, thru) match {
       case Some(value) => value
       case None => return None

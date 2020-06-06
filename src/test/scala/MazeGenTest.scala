@@ -2,7 +2,7 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{CellEx, GraphEx, GridEx, MaskedGrid}
+import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, MaskedGrid}
 import org.scalatest.FunSuite
 import utils.{Background, ColoredImageCreator, FileHelper, ImageCreator, MazeImageCreator}
 
@@ -18,8 +18,8 @@ class MazeGenTest extends FunSuite {
   val cellSize: Int = 32
   val padding: Option[Int] = Some(5)
 
-  def pathCheck(path: List[CellEx], distMap: DistanceEx,
-                start: CellEx, end: CellEx): Unit = {
+  def pathCheck(path: List[Cell2D], distMap: DistanceEx,
+                start: Cell2D, end: Cell2D): Unit = {
     assert(path.head == start)
     assert(path.last == end)
     val graph = distMap.graph
@@ -31,8 +31,7 @@ class MazeGenTest extends FunSuite {
 
   test("Algorithm.BinaryTreeEx") {
     val grid = new GridEx(20,20)
-    val generator = new BinaryTreeMaze(rand)
-    val maze = generator.generate(grid)
+    val maze = BinaryTreeMaze.generate(rand, grid)
     print(maze)
     val start = grid(0, 0)
     val distMap = DistanceEx.from(maze, start).get
@@ -48,11 +47,10 @@ class MazeGenTest extends FunSuite {
 
   test("Algorithm.SidewinderEx") {
     val grid = new GridEx(20,20)
-    val generator = new SidewinderMaze(rand)
-    val maze = generator.generate(grid)
-    val start: CellEx = grid(0, 0)
+    val maze = SidewinderMaze.generate(rand, grid);
+    val start: Cell2DCart = grid(0, 0)
     val distMap = DistanceEx.from(maze, start).get
-    val content = (cell: CellEx) => {
+    val content = (cell: Cell2DCart) => {
       if (distMap.contains(cell)) distMap(cell).toString else "-"
     }
     print(maze/*.dump(content)*/); println()
@@ -60,7 +58,7 @@ class MazeGenTest extends FunSuite {
     distMap.pathTo(goal) match {
       case Some(path) => {
         val pathSet = path.toSet;
-        print(maze.dump((c: CellEx) =>
+        print(maze.dump((c: Cell2DCart) =>
           if (pathSet.contains(c)) content(c) else " " ))
         pathCheck(path, distMap, start, goal)
       }
@@ -73,8 +71,7 @@ class MazeGenTest extends FunSuite {
 
   test("Algorithm.AldousBroder") {
     val grid = new GridEx(20, 20)
-    val generator = new AldousBroderMaze(rand)
-    val maze = generator.generate(grid)
+    val maze = AldousBroderMaze.generate(rand, grid)
     var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"AldousBroder$ext", dir)
     assert(f.isSuccess)
@@ -87,8 +84,7 @@ class MazeGenTest extends FunSuite {
 
   test("Algorithm.Wilson") {
     val grid = new GridEx(20, 20)
-    val generator = new WilsonMaze(rand)
-    val maze = generator.generate(grid)
+    val maze = WilsonMaze.generate(rand, grid)
     var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"Wilson$ext", dir)
     assert(f.isSuccess)
@@ -96,8 +92,7 @@ class MazeGenTest extends FunSuite {
 
   test("Algorithm.HuntAndKill") {
     val grid = new GridEx(20, 20)
-    val generator = new HuntAndKillMaze(rand)
-    val maze = generator.generate(grid)
+    val maze = HuntAndKillMaze.generate(rand, grid)
     var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"HuntAndKill$ext", dir)
     assert(f.isSuccess)
@@ -109,8 +104,7 @@ class MazeGenTest extends FunSuite {
 
   test("Algorithm.RecursiveBackTrack") {
     val grid = new GridEx(20, 20)
-    val generator = new RecurBackTrackMaze(rand)
-    val maze = generator.generate(grid)
+    val maze = RecurBackTrackMaze.generate(rand, grid)
     var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"RecursiveBackTrack$ext", dir)
     assert(f.isSuccess)
@@ -122,17 +116,16 @@ class MazeGenTest extends FunSuite {
 
   test("Algorithm.LongestPath") {
     val grid = new GridEx(20,20)
-    val generator = new RecurBackTrackMaze(rand)
-    val maze = generator.generate(grid)
+    val maze = RecurBackTrackMaze.generate(rand, grid)
     var image = ImageCreator.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"LongestPath_RecurBackTrackMaze$ext", dir)
     assert(f.isSuccess)
-    val thru: CellEx = grid((grid.rows-1)/2, (grid.cols-1)/2)
+    val thru: Cell2DCart = grid((grid.rows-1)/2, (grid.cols-1)/2)
     val distMap = DistanceEx.createMax(maze, thru).get
     val (farCell, maxDist) = distMap.max
     val ref = grid.maxBy((c) => distMap(c))
     val testMaxDist = distMap(ref)
-    val testMaxCells = grid.filter((c) => distMap(c) == testMaxDist).toSet
+    val testMaxCells = grid.filter((c) => distMap(c) == testMaxDist).toSet[Cell2D]
     assert(testMaxDist == maxDist)
     assert(testMaxCells.contains(farCell))
     assert(distMap(farCell) == maxDist)
@@ -145,7 +138,7 @@ class MazeGenTest extends FunSuite {
     println(maze.dump((c) => {
       if (pathSet.contains(c)) distMap(c).toString else ""
     }))
-    val colorMapper: (CellEx)=>RGBColor = (c: CellEx) => {
+    val colorMapper: (Cell2D) => RGBColor = (c) => {
       if (pathSet.contains(c)) distMap.colorMapper(c)
       else RGBColor.fromAwt(java.awt.Color.GRAY)
     }
@@ -159,8 +152,8 @@ class MazeGenTest extends FunSuite {
 
   test("Algorithm.DeadEndTest") {
     val algorithms = List[MazeGenerator](
-      new AldousBroderMaze(rand), new BinaryTreeMaze(rand), new HuntAndKillMaze(rand),
-      new SidewinderMaze(rand), new RecurBackTrackMaze(rand), new WilsonMaze(rand))
+      AldousBroderMaze, BinaryTreeMaze, HuntAndKillMaze,
+      SidewinderMaze, RecurBackTrackMaze, WilsonMaze)
     var averages: Map[MazeGenerator, Int] = Map()
     val size = 20
     val grid = new GridEx(size,size)
@@ -168,7 +161,7 @@ class MazeGenTest extends FunSuite {
     for (algo <- algorithms) {
       val counts = mutable.Seq[Int]() ++ (for (_ <- 0 until tries) yield 0)
       for (i <- 0 until tries) {
-        val maze = algo.generate(grid)
+        val maze = algo.generate(rand, grid.asInstanceOf[algo.T])
         counts(i) = maze.deadEnds.size
       }
       val total: Int = counts.sum
@@ -195,8 +188,7 @@ class MazeGenTest extends FunSuite {
         |....XX....
         |X........X""".stripMargin
     val grid = MaskedGrid.from(mask)
-    val generator = new RecurBackTrackMaze(rand)
-    val maze = generator.generate(grid)
+    val maze = RecurBackTrackMaze.generate(rand, grid)
     var image = ImageCreator.create(maze, 32, Some(5))
     var f = FileHelper.saveToFile(image, PngWriter.MaxCompression,
       "MaskedGrid.png", "images")
@@ -210,7 +202,7 @@ class MazeGenTest extends FunSuite {
     val (farCell, _) = distMap.max
     val path = distMap.pathTo(farCell).get
     pathCheck(path, distMap, distMap.root, farCell)
-    val content = (cell: CellEx) => {
+    val content = (cell: Cell2DCart) => {
       if (distMap.contains(cell)) distMap(cell).toString else "-"
     }
     print(maze.dump(content)); println()

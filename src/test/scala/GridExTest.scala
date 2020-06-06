@@ -1,4 +1,3 @@
-import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, MazeGenerator, RecurBackTrackMaze, SidewinderMaze}
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{GraphEx, GridEx, MaskedGrid}
 import org.scalatest.FunSuite

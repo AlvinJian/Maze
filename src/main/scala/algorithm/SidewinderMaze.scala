@@ -1,14 +1,16 @@
 package algorithm
-import grid.{CellEx, GraphEx, GridContainer, GridEx}
+import grid.{Cell2DCart, GraphEx, GridContainer, GridEx}
 
 import scala.collection.immutable.VectorBuilder
 import scala.util.Random
 
-class SidewinderMaze(val _r: Random) extends MazeGenerator {
-  override def generate(grid: GridContainer[CellEx]): GraphEx = {
+object SidewinderMaze extends MazeGenerator {
+  override type T = GridEx
+
+  override def generate(_r: Random, grid: T): GraphEx = {
     var graph: GraphEx = new GraphEx(grid)
     for (r <- 0 until grid.rows) {
-      var run = Vector[CellEx]()
+      var run = Vector[Cell2DCart]()
       for (c <- 0 until grid.cols) {
         val cell = grid(r, c)
         run = run :+ cell
@@ -25,7 +27,7 @@ class SidewinderMaze(val _r: Random) extends MazeGenerator {
               case None => graph
             }
           }
-          run = Vector[CellEx]()
+          run = Vector[Cell2DCart]()
         } else {
           if (cell.east.isDefined) {
             graph = graph.link(cell, cell.east.get) match {

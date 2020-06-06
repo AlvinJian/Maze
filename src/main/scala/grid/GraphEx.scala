@@ -1,17 +1,9 @@
 package grid
 
-import java.awt
-import java.awt.image.BufferedImage
+class GraphEx(val grid: GridContainer[Cell2D]) {
+  private var _graph = Map[Cell2D, Set[Cell2D]]()
 
-import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line}
-import com.sksamuel.scrimage.color.{Color, RGBColor}
-import com.sksamuel.scrimage.graphics.{Graphics2DUtils, RichGraphics2D}
-import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
-
-class GraphEx(val grid: GridContainer[CellEx]) {
-  private var _graph = Map[CellEx, Set[CellEx]]()
-
-  def link(from: CellEx, to:CellEx): Option[GraphEx] =
+  def link(from: Cell2D, to:Cell2D): Option[GraphEx] =
     if (grid.isValid(from) && grid.isValid(to)) {
       var newGraph = _graph
       newGraph = GraphEx.linkHelper(newGraph, from, to)
@@ -19,26 +11,27 @@ class GraphEx(val grid: GridContainer[CellEx]) {
       Some(GraphEx(this.grid, newGraph))
     } else None
 
-  def isLinked(c1: CellEx, c2: CellEx): Boolean =
+  def isLinked(c1: Cell2D, c2: Cell2D): Boolean =
     if (_graph.contains(c1) && _graph(c1).contains(c2)) true
     else false
 
-  def linkedCells(cell: CellEx): Option[Set[CellEx]] = _graph.get(cell)
-  def linkedCells(r: Int, c: Int): Option[Set[CellEx]] = _graph.get(grid(r, c))
-  def deadEnds: List[CellEx] =
+  def linkedCells(cell: Cell2D): Option[Set[Cell2D]] = _graph.get(cell)
+  def linkedCells(r: Int, c: Int): Option[Set[Cell2D]] = _graph.get(grid(r, c))
+  def deadEnds: List[Cell2D] =
     grid.filter((c)=>this.linkedCells(c).isDefined && this.linkedCells(c).get.size == 1).toList
 
-  def dump(contentFunc: (CellEx) => String) = {
+  @deprecated
+  def dump(contentFunc: (Cell2DCart) => String) = {
     val _out = new StringBuilder("+")
     _out.append(new String((0 until grid.cols).flatMap(_ => "---+").toArray) + "\n")
     for (r <- 0 until grid.rows) {
       val topSb = new StringBuilder("|")
       val bottomSb = new StringBuilder("+")
       for (c <- 0 until grid.cols) {
-        val cell: CellEx = grid(r, c)
+        val cell: Cell2DCart = grid(r, c).asInstanceOf[Cell2DCart]
         val connected = linkedCells(cell) match {
           case Some(cells) => cells
-          case None => Set[CellEx]()
+          case None => Set[Cell2DCart]()
         }
         val bottomWall = cell.south match {
           case Some(south) => if (connected.contains(south)) "   " else "---"
@@ -62,15 +55,15 @@ class GraphEx(val grid: GridContainer[CellEx]) {
 }
 
 object GraphEx {
-  private def apply(grid: GridContainer[CellEx], g: Map[CellEx, Set[CellEx]]): GraphEx = {
+  private def apply(grid: GridContainer[Cell2D], g: Map[Cell2D, Set[Cell2D]]): GraphEx = {
     val ret = new GraphEx(grid)
     ret._graph = g
     ret
   }
 
-  private def linkHelper(iGraph: Map[CellEx, Set[CellEx]],
-                         c1: CellEx, c2: CellEx): Map[CellEx, Set[CellEx]] = {
+  private def linkHelper(iGraph: Map[Cell2D, Set[Cell2D]],
+                         c1: Cell2D, c2: Cell2D): Map[Cell2D, Set[Cell2D]] = {
     if (iGraph.contains(c1)) iGraph.updated(c1, iGraph(c1) + c2)
-    else iGraph + (c1 -> Set[CellEx](c2))
+    else iGraph + (c1 -> Set[Cell2D](c2))
   }
 }

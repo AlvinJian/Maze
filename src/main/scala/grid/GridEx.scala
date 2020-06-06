@@ -1,25 +1,24 @@
 package grid
 
 case class GridEx(override val rows: Int,
-                  override val cols: Int) extends GridContainer[CellEx] {
-
-  protected val data: Vector[CellEx] = Vector.from(
+                  override val cols: Int) extends GridContainer[Cell2DCart] {
+  protected val data: Vector[Cell2DCart] = Vector.from(
     for {
       r <- 0 until rows
       c <- 0 until cols
     } yield new GridExCell(r, c)
   )
 
-  def apply(r: Int, c: Int): CellEx = data(r * cols + c)
+  def apply(r: Int, c: Int): Cell2DCart = data(r * cols + c)
 
-  def iterator: Iterator[CellEx] = new Iterator[CellEx] {
+  def iterator: Iterator[Cell2DCart] = new Iterator[Cell2DCart] {
     private val outer: GridEx = GridEx.this
     private var _row = 0;
     private var _col = 0;
 
     override def hasNext: Boolean = _row < outer.rows && _col < outer.cols
 
-    override def next(): CellEx = {
+    override def next(): Cell2DCart = {
       val c = outer(_row, _col)
       forward()
       c
@@ -34,17 +33,17 @@ case class GridEx(override val rows: Int,
     }
   }
 
-  private class GridExCell(override val row: Int, override val col: Int) extends CellEx {
+  private class GridExCell(override val row: Int, override val col: Int) extends Cell2DCart {
     val outer: GridEx = GridEx.this
 
-    override def north: Option[CellEx] = outer.adjacencyOf(this, NorthDir)
+    override def north: Option[Cell2DCart] = outer.adjacencyOf(this, NorthDir)
 
-    override def south: Option[CellEx] = outer.adjacencyOf(this, SouthDir)
+    override def south: Option[Cell2DCart] = outer.adjacencyOf(this, SouthDir)
 
-    override def east: Option[CellEx] = outer.adjacencyOf(this, EastDir)
+    override def east: Option[Cell2DCart] = outer.adjacencyOf(this, EastDir)
 
-    override def west: Option[CellEx] = outer.adjacencyOf(this, WestDir)
+    override def west: Option[Cell2DCart] = outer.adjacencyOf(this, WestDir)
 
-    override def neighbors: List[CellEx] = List(this.north, this.south, this.east, this.west).flatten
+    override def neighbors: List[Cell2DCart] = List(this.north, this.south, this.east, this.west).flatten
   }
 }

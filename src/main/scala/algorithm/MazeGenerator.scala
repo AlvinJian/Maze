@@ -1,7 +1,10 @@
 package algorithm
 
-import grid.{CellEx, GraphEx, GridContainer}
+import grid.{Cell2D, GraphEx, GridContainer}
+
+import scala.util.Random
 
 trait MazeGenerator {
-  def generate(grid: GridContainer[CellEx]): GraphEx
+  type T <: GridContainer[Cell2D]
+  def generate(r: Random, grid: T): GraphEx
 }

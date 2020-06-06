@@ -1,18 +1,19 @@
 package algorithm
 
-import grid.{CellEx, GraphEx, GridContainer, GridEx}
+import grid.{Cell2D, GraphEx, GridContainer, GridEx}
 
-import scala.collection.mutable
 import scala.util.Random
 
-class HuntAndKillMaze(val rand: Random) extends MazeGenerator {
-  override def generate(grid: GridContainer[CellEx]): GraphEx = {
+object HuntAndKillMaze extends MazeGenerator {
+  override type T = GridContainer[Cell2D]
+
+  override def generate(rand: Random, grid: T): GraphEx = {
     var graph = new GraphEx(grid)
-    var cell: Option[CellEx] = Some(grid.randomCell(rand))
+    var cell: Option[Cell2D] = Some(grid.randomCell(rand))
     while (cell.isDefined) {
       val ns = cell.get.neighbors
       if (ns.exists((c)=>graph.linkedCells(c).isEmpty)) {
-        val next: CellEx = {
+        val next: Cell2D = {
           val candidates = ns.filter((c)=>graph.linkedCells(c).isEmpty)
           candidates(rand.nextInt(candidates.size))
         }
