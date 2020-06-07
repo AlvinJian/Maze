@@ -11,27 +11,7 @@ case class GridEx(override val rows: Int,
 
   def apply(r: Int, c: Int): Cell2DCart = data(r * cols + c)
 
-  def iterator: Iterator[Cell2DCart] = new Iterator[Cell2DCart] {
-    private val outer: GridEx = GridEx.this
-    private var _row = 0;
-    private var _col = 0;
-
-    override def hasNext: Boolean = _row < outer.rows && _col < outer.cols
-
-    override def next(): Cell2DCart = {
-      val c = outer(_row, _col)
-      forward()
-      c
-    }
-
-    private def forward(): Unit = {
-      if (_col+1 < outer.cols) {
-        _col += 1
-      } else {
-        _col = 0; _row += 1
-      }
-    }
-  }
+  def iterator: Iterator[Cell2DCart] = data.iterator
 
   private class GridExCell(override val row: Int, override val col: Int) extends Cell2DCart {
     val outer: GridEx = GridEx.this

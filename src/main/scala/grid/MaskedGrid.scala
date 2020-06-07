@@ -35,32 +35,25 @@ case class MaskedGrid(override val rows: Int, override val cols: Int,
 
   override def iterator: Iterator[Cell2DCart] = new Iterator[Cell2DCart] {
     private val outer: MaskedGrid = MaskedGrid.this
-    private var _row = 0;
-    private var _col = 0;
-    private var buffer: Option[Cell2DCart] = Some(MaskedGrid.this(_row, _col))
-    bypassInvalid()
+    private val iter = outer.data.iterator
+    private var cache: Option[Cell2DCart] = None
+    updateCache()
 
-    override def hasNext: Boolean = buffer.isDefined
+    override def hasNext: Boolean = cache.isDefined
 
     override def next(): Cell2DCart = {
-      val ret: Cell2DCart = buffer.get
-      forward(); bypassInvalid()
+      val ret: Cell2DCart = cache.get
+      updateCache()
       ret
     }
 
-    private def bypassInvalid(): Unit = {
-      while (_row < outer.rows && _col < outer.cols &&
-        !outer.isValid(MaskedGrid.this(_row, _col))) forward()
-      buffer = if (_row < outer.rows && _col < outer.cols)
-        Some(outer(_row, _col)) else None
-    }
-
-    private def forward(): Unit = {
-      if (_col+1 < outer.cols) {
-        _col += 1
-      } else {
-        _col = 0
-        _row += 1
+    private def updateCache(): Unit = {
+      cache = None
+      while (iter.hasNext && cache.isEmpty) {
+        val cell = iter.next()
+        if (outer.isValid(cell)) {
+          cache = Some(cell)
+        }
       }
     }
   }
