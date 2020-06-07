@@ -3,22 +3,22 @@ package grid
 import scala.annotation.tailrec
 
 case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] {
-  override val cols: Int = 1
+  override val cols: Int = 1// dirty hack
 
   protected val (data: Vector[Cell2DPolar], offsets: Vector[Int]) = {
-    val rowHeight: Double = 1.0 / rows.toDouble
+    val rowHeight: Double = 1.0
     @tailrec
     def buildData(r: Int, tmpData: Vector[Cell2DPolar],
                   offsets: Vector[Int], prevCount: Int): (Vector[Cell2DPolar], Vector[Int]) = {
       if (r == 0) {
         buildData(r+1, tmpData :+ new PolarCellImp(0,0), offsets :+ 0, 1)
       } else if (r < this.rows) {
-        val radius = r.toDouble / this.rows.toDouble
+        val radius = r.toDouble
         val circum = 2.0 * math.Pi * radius
         val estCellWidth = circum / prevCount.toDouble
-        val ratio = estCellWidth / rowHeight
+        val ratio = (estCellWidth / rowHeight).round.toInt
 
-        val newCellCount = (prevCount * ratio).round.toInt
+        val newCellCount = prevCount * ratio
         val newCells = for (col <- 0 until newCellCount) yield new PolarCellImp(r, col)
         buildData(r+1, tmpData ++ Vector.from(newCells), offsets :+ tmpData.size, newCellCount)
       } else (tmpData, offsets :+ tmpData.size)

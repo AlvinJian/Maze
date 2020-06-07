@@ -1,4 +1,5 @@
 package grid
+import scala.annotation.tailrec
 import scala.util.{Random, Try}
 
 case class MaskedGrid(override val rows: Int, override val cols: Int,
@@ -36,25 +37,23 @@ case class MaskedGrid(override val rows: Int, override val cols: Int,
   override def iterator: Iterator[Cell2DCart] = new Iterator[Cell2DCart] {
     private val outer: MaskedGrid = MaskedGrid.this
     private val iter = outer.data.iterator
-    private var cache: Option[Cell2DCart] = None
-    updateCache()
+    private var cache: Option[Cell2DCart] = getNextValid
 
     override def hasNext: Boolean = cache.isDefined
 
     override def next(): Cell2DCart = {
       val ret: Cell2DCart = cache.get
-      updateCache()
+      cache = getNextValid
       ret
     }
 
-    private def updateCache(): Unit = {
-      cache = None
-      while (iter.hasNext && cache.isEmpty) {
+    @tailrec
+    private def getNextValid: Option[Cell2DCart] = {
+      if (iter.hasNext) {
         val cell = iter.next()
-        if (outer.isValid(cell)) {
-          cache = Some(cell)
-        }
-      }
+        if (outer.isValid(cell)) Some(cell)
+        else getNextValid
+      } else None
     }
   }
 

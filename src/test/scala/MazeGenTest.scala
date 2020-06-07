@@ -2,7 +2,7 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, MaskedGrid}
+import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, MaskedGrid, PolarGrid}
 import org.scalatest.FunSuite
 import utils.{Background, ColoredImageCreator, FileHelper, ImageCreator, MazeImageCreator}
 
@@ -207,5 +207,13 @@ class MazeGenTest extends FunSuite {
     }
     print(maze.dump(content)); println()
     println(s"grid size=${grid.size}")
+  }
+
+  test("PolarMazeTest") {
+    val polarGrid = PolarGrid(20)
+    val maze = RecurBackTrackMaze.generate(rand, polarGrid)
+    var image = ImageCreator.create(maze, 32, Some(5))
+    var f = FileHelper.saveToFile(image, writer, s"PolarMaze$ext", dir)
+    assert(f.isSuccess)
   }
 }
