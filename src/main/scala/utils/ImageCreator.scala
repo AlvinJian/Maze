@@ -134,41 +134,44 @@ class MazeImageCreator(val graph: GraphEx, cellSize: Int) extends ImageCreator(g
     val polarGrid = baseGrid.asInstanceOf[PolarGrid]
     val imageSize = 2 * polarGrid.rows * cellSize
     val center = imageSize / 2
-    for (polarCell <- polarGrid) {
-      val r = polarCell.row
-      val c = polarCell.col
-      val theta: Double = (360.0 / polarGrid.columnCountAt(r).toDouble).toRadians
-      val innRadius = r * cellSize
-      val outRadius = (r+1) * cellSize
-      val thetaCcw = (c+1).toDouble * theta
-      val thetaCw = c.toDouble * theta
-      val ax = center + (innRadius.toDouble * math.cos(thetaCw)).toInt
-      val ay = center + (innRadius.toDouble * math.sin(thetaCw)).toInt
-      val bx = center + (outRadius.toDouble * math.cos(thetaCw)).toInt
-      val by = center + (outRadius.toDouble * math.sin(thetaCw)).toInt
-      val cx = center + (innRadius.toDouble * math.cos(thetaCcw)).toInt
-      val cy = center + (innRadius.toDouble * math.sin(thetaCcw)).toInt
-      val dx = center + (outRadius.toDouble * math.cos(thetaCcw)).toInt
-      val dy = center + (outRadius.toDouble * math.sin(thetaCcw)).toInt
+    if (polarGrid.rows > 1) {
+      for (polarCell <- polarGrid) {
+        val r = polarCell.row
+        val c = polarCell.col
+        if (r > 0) {
+          val theta: Double = (360.0 / polarGrid.columnCountAt(r).toDouble).toRadians
+          val innRadius = r * cellSize
+          val outRadius = (r+1) * cellSize
+          val thetaCcw = (c+1).toDouble * theta
+          val thetaCw = c.toDouble * theta
 
-      if (r > 0) {
-        val cellCw: Cell2D = polarCell.cw.get // cw is always valid
-        if (!graph.isLinked(polarCell, cellCw)) {
-          new Line(ax, ay, bx, by).draw(wallGraphics)
-        }
-        val cellInward: Cell2D = polarCell.inward.get
-        if (!graph.isLinked(polarCell, cellInward)) {
-//          wallGraphics.drawArc(center-innRadius, center-innRadius, innRadius*2, innRadius*2,
-//            thetaCw.toDegrees.toInt, theta.toDegrees.toInt)
-          new Line(ax, ay, cx, cy).draw(wallGraphics)
+          val ax = center + (innRadius.toDouble * math.cos(thetaCw)).toInt
+          val ay = center + (innRadius.toDouble * math.sin(thetaCw)).toInt
+          val bx = center + (outRadius.toDouble * math.cos(thetaCw)).toInt
+          val by = center + (outRadius.toDouble * math.sin(thetaCw)).toInt
+          val cx = center + (innRadius.toDouble * math.cos(thetaCcw)).toInt
+          val cy = center + (innRadius.toDouble * math.sin(thetaCcw)).toInt
+          val dx = center + (outRadius.toDouble * math.cos(thetaCcw)).toInt
+          val dy = center + (outRadius.toDouble * math.sin(thetaCcw)).toInt
+
+          val cellCw: Cell2D = polarCell.cw.get // cw is always valid
+          if (!graph.isLinked(polarCell, cellCw)) {
+            new Line(ax, ay, bx, by).draw(wallGraphics)
+          }
+          val cellInward: Cell2D = polarCell.inward.get
+          if (!graph.isLinked(polarCell, cellInward)) {
+            //          wallGraphics.drawArc(center-innRadius, center-innRadius, innRadius*2, innRadius*2,
+            //            thetaCw.toDegrees.toInt, theta.toDegrees.toInt)
+            new Line(ax, ay, cx, cy).draw(wallGraphics)
+          }
+          if (polarCell.outward.isEmpty) {
+            new Line(bx, by, dx, dy).draw(wallGraphics)
+          }
         }
       }
-
-      if (polarCell.outward.isEmpty) {
-        new Line(bx, by, dx, dy).draw(wallGraphics)
-      }
+    } else {
+      wallGraphics.drawArc(0, 0, imageSize, imageSize, 0, 360)
     }
-//    wallGraphics.drawArc(0, 0, imageSize, imageSize, 0, 360)
     mutableImage.toImmutableImage
   }
 }
