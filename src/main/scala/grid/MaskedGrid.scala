@@ -81,9 +81,6 @@ case class MaskedGrid(override val rows: Int, override val cols: Int,
 
     override def west: Option[Cell2DCart] =
       if (masked) None else outer.adjacencyOf(this, WestDir)
-
-    override def neighbors: List[Cell2DCart] =
-      List(this.north, this.south, this.east, this.west).flatten
   }
 }
 

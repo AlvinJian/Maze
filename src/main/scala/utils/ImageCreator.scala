@@ -112,6 +112,17 @@ class MazeImageCreator(val graph: GraphEx, cellSize: Int) extends ImageCreator(g
   }
 }
 
+case class PolarMazeCreater(val graph: GraphEx, override val cellSize: Int)
+  extends ImageCreator(graph.grid, cellSize) {
+  override def drawOn(baseImage: ImmutableImage): ImmutableImage = {
+    val mutableImage = new MutableImage(baseImage.awt())
+    val wallColor = new RGBColor(0, 0, 0)
+    val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
+    wallGraphics.setColor(wallColor)
+    ???
+  }
+}
+
 object ImageCreator {
   def batch(padding: Option[Int]=None)(imageCreators: ImageCreator*): ImmutableImage = {
     var ret = imageCreators.foldLeft[Option[ImmutableImage]](None)(

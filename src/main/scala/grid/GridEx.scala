@@ -43,7 +43,5 @@ case class GridEx(override val rows: Int,
     override def east: Option[Cell2DCart] = outer.adjacencyOf(this, EastDir)
 
     override def west: Option[Cell2DCart] = outer.adjacencyOf(this, WestDir)
-
-    override def neighbors: List[Cell2DCart] = List(this.north, this.south, this.east, this.west).flatten
   }
 }

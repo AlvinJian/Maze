@@ -1,5 +1,5 @@
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{GraphEx, GridEx, MaskedGrid}
+import grid.{GraphEx, GridEx, MaskedGrid, PolarGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageCreator}
 
@@ -58,5 +58,19 @@ class GridExTest extends FunSuite {
     assert(!grid.isValid(grid(3, 0)))
     assert(!grid.isValid(grid(3, 3)))
     for (cell <- grid) assert(grid.isValid(cell))
+  }
+
+  test("PolarGridTest") {
+    val polarGrid = PolarGrid(20)
+    var prevCount = 0
+    var sum = 0
+    for (r <- 0 until polarGrid.rows) {
+      val count = polarGrid.columnCountAt(r)
+      sum += count
+      println(s"count=${count}")
+      assert(count > prevCount)
+      prevCount = count
+    }
+    assert(sum == polarGrid.size)
   }
 }
