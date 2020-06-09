@@ -17,8 +17,8 @@ case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] 
         val circum = 2.0 * math.Pi * radius
         val estCellWidth = circum / prevCount.toDouble
         val ratio = (estCellWidth / rowHeight).round.toInt
-
-        val newCellCount = prevCount * ratio
+        // small tweak to make it "rounder"
+        val newCellCount = if (r == 1) 2 * prevCount * ratio else prevCount * ratio
         val newCells = for (col <- 0 until newCellCount) yield new PolarCellImp(r, col)
         buildData(r+1, tmpData ++ Vector.from(newCells), offsets :+ tmpData.size, newCellCount)
       } else (tmpData, offsets :+ tmpData.size)
