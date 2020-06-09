@@ -142,10 +142,7 @@ class MazeGenTest extends FunSuite {
       if (pathSet.contains(c)) distMap.colorMapper(c)
       else RGBColor.fromAwt(java.awt.Color.GRAY)
     }
-    image = ImageCreator.batch(padding)(
-      new ColoredImageCreator(grid, cellSize, colorMapper),
-      new MazeImageCreator(maze, cellSize),
-    )
+    image = ImageCreator.create(maze, cellSize, colorMapper, padding)
     f = FileHelper.saveToFile(image, writer, s"LongestPath$ext", dir)
     assert(f.isSuccess)
   }
