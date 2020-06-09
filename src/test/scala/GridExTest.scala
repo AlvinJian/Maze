@@ -1,7 +1,7 @@
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{GraphEx, GridEx, MaskedGrid, PolarGrid}
 import org.scalatest.FunSuite
-import utils.{FileHelper, ImageCreator, MazeImageCreator}
+import utils.{FileHelper, ImageUtils}
 
 import scala.util.Random
 
@@ -86,7 +86,7 @@ class GridExTest extends FunSuite {
     }
 
     val maze = new GraphEx(polarGrid)
-    var image = ImageCreator.create(maze, 32, Some(5))
+    var image = ImageUtils.create(maze, 32, Some(5))
     var f = FileHelper.saveToFile(image, writer, s"PolarGrid$ext", "images")
     assert(f.isSuccess)
   }

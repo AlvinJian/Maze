@@ -4,7 +4,7 @@ import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, MaskedGrid, PolarGrid}
 import org.scalatest.FunSuite
-import utils.{Background, ColoredImageCreator, FileHelper, ImageCreator, MazeImageCreator}
+import utils.{FileHelper, ImageUtils}
 
 import scala.collection.mutable
 import scala.util.{Failure, Random, Success}
@@ -40,7 +40,7 @@ class MazeGenTest extends FunSuite {
       case Some(path) => pathCheck(path, distMap, start, end)
       case None => assert(false)
     }
-    val img = ImageCreator.create(maze, cellSize = 32, padding = Some(5))
+    val img = ImageUtils.create(maze, cellSize = 32, padding = Some(5))
     val file = FileHelper.saveToFile(img, writer, s"BinaryTree${ext}", "images")
     assert(file.isSuccess)
   }
@@ -64,7 +64,7 @@ class MazeGenTest extends FunSuite {
       }
       case None => assert(false)
     }
-    val img = ImageCreator.create(maze, cellSize=cellSize, padding=padding)
+    val img = ImageUtils.create(maze, cellSize=cellSize, padding=padding)
     val file = FileHelper.saveToFile(img, writer, s"Sidewinder$ext", "images")
     assert(file.isSuccess)
   }
@@ -72,12 +72,12 @@ class MazeGenTest extends FunSuite {
   test("Algorithm.AldousBroder") {
     val grid = new GridEx(20, 20)
     val maze = AldousBroderMaze.generate(rand, grid)
-    var image = ImageCreator.create(maze, cellSize, padding)
+    var image = ImageUtils.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"AldousBroder$ext", dir)
     assert(f.isSuccess)
     val distMap = DistanceEx.createMax(maze,
       grid((grid.rows-1)/2, (grid.cols-1)/2)).get
-    image = ImageCreator.create(distMap, cellSize, padding)
+    image = ImageUtils.create(distMap, cellSize, padding)
     f = FileHelper.saveToFile(image, writer, s"AldousBroder_DistMap$ext", dir)
     assert(f.isSuccess)
   }
@@ -85,7 +85,7 @@ class MazeGenTest extends FunSuite {
   test("Algorithm.Wilson") {
     val grid = new GridEx(20, 20)
     val maze = WilsonMaze.generate(rand, grid)
-    var image = ImageCreator.create(maze, cellSize, padding)
+    var image = ImageUtils.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"Wilson$ext", dir)
     assert(f.isSuccess)
   }
@@ -93,11 +93,11 @@ class MazeGenTest extends FunSuite {
   test("Algorithm.HuntAndKill") {
     val grid = new GridEx(20, 20)
     val maze = HuntAndKillMaze.generate(rand, grid)
-    var image = ImageCreator.create(maze, cellSize, padding)
+    var image = ImageUtils.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"HuntAndKill$ext", dir)
     assert(f.isSuccess)
     val distMap = DistanceEx.createMax(maze, grid(9,9)).get
-    image = ImageCreator.create(distMap, cellSize, padding)
+    image = ImageUtils.create(distMap, cellSize, padding)
     f = FileHelper.saveToFile(image, writer, s"HuntAndKill_DistMap$ext", dir)
     assert(f.isSuccess)
   }
@@ -105,11 +105,11 @@ class MazeGenTest extends FunSuite {
   test("Algorithm.RecursiveBackTrack") {
     val grid = new GridEx(20, 20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
-    var image = ImageCreator.create(maze, cellSize, padding)
+    var image = ImageUtils.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"RecursiveBackTrack$ext", dir)
     assert(f.isSuccess)
     val distMap = DistanceEx.createMax(maze, grid(9,9)).get
-    image = ImageCreator.create(distMap, 32, Some(5))
+    image = ImageUtils.create(distMap, 32, Some(5))
     f = FileHelper.saveToFile(image, writer, s"RecursiveBackTrack_DistMap$ext", dir)
     assert(f.isSuccess)
   }
@@ -117,7 +117,7 @@ class MazeGenTest extends FunSuite {
   test("Algorithm.LongestPath") {
     val grid = new GridEx(20,20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
-    var image = ImageCreator.create(maze, cellSize, padding)
+    var image = ImageUtils.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"LongestPath_RecurBackTrackMaze$ext", dir)
     assert(f.isSuccess)
     val thru: Cell2DCart = grid((grid.rows-1)/2, (grid.cols-1)/2)
@@ -129,7 +129,7 @@ class MazeGenTest extends FunSuite {
     assert(testMaxDist == maxDist)
     assert(testMaxCells.contains(farCell))
     assert(distMap(farCell) == maxDist)
-    image = ImageCreator.create(distMap, cellSize, padding)
+    image = ImageUtils.create(distMap, cellSize, padding)
     f = FileHelper.saveToFile(image, writer, s"LongestPath_MaxDistMap$ext", dir)
     assert(f.isSuccess)
     val path = distMap.pathTo(farCell).get
@@ -142,7 +142,7 @@ class MazeGenTest extends FunSuite {
       if (pathSet.contains(c)) distMap.colorMapper(c)
       else RGBColor.fromAwt(java.awt.Color.GRAY)
     }
-    image = ImageCreator.create(maze, cellSize, colorMapper, padding)
+    image = ImageUtils.create(maze, cellSize, colorMapper, padding)
     f = FileHelper.saveToFile(image, writer, s"LongestPath$ext", dir)
     assert(f.isSuccess)
   }
@@ -186,13 +186,13 @@ class MazeGenTest extends FunSuite {
         |X........X""".stripMargin
     val grid = MaskedGrid.from(mask)
     val maze = RecurBackTrackMaze.generate(rand, grid)
-    var image = ImageCreator.create(maze, 32, Some(5))
+    var image = ImageUtils.create(maze, 32, Some(5))
     var f = FileHelper.saveToFile(image, PngWriter.MaxCompression,
       "MaskedGrid.png", "images")
     assert(f.isSuccess)
     val middle = grid(1, 1)
     val distMap = DistanceEx.createMax(maze, middle).get
-    image = ImageCreator.create(distMap, 32, Some(5))
+    image = ImageUtils.create(distMap, 32, Some(5))
     f = FileHelper.saveToFile(image, PngWriter.MaxCompression,
       "MaskedGrid_DistMap.png", "images")
     assert(f.isSuccess)
@@ -209,8 +209,12 @@ class MazeGenTest extends FunSuite {
   test("PolarMazeTest") {
     val polarGrid = PolarGrid(20)
     val maze = RecurBackTrackMaze.generate(rand, polarGrid)
-    var image = ImageCreator.create(maze, 32, Some(5))
+    var image = ImageUtils.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"PolarMaze$ext", dir)
+    assert(f.isSuccess)
+    val distMap = DistanceEx.createMax(maze, polarGrid(0, 0)).get
+    image = ImageUtils.create(distMap, cellSize, padding)
+    f = FileHelper.saveToFile(image, writer, s"PolarMaze_DistMap$ext", dir)
     assert(f.isSuccess)
   }
 }
