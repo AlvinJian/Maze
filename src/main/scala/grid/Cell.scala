@@ -18,9 +18,12 @@ trait Cell2DCart extends Cell2D {
 
 trait Cell2DPolar extends Cell2D {
   type T = Cell2DPolar
-  def cw: Option[T]
-  def ccw: Option[T]
-  def outward: Option[T]
+  def cw: T
+  def ccw: T
+  // TODO for a polar cell, its outward neighbor can be 2. Fix it!!!
+  def outward: List[T]
   def inward: Option[T]
-  override def neighbors: List[Cell2DPolar] = List(this.cw, this.ccw, this.inward, this.outward).flatten
+  override def neighbors: List[Cell2DPolar] = List(cw, ccw) ++ outward ++ {
+    if (inward.isDefined) List(inward.get) else Nil
+  }
 }

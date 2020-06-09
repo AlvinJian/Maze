@@ -1,3 +1,5 @@
+import java.awt.Color
+
 import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
@@ -208,13 +210,28 @@ class MazeGenTest extends FunSuite {
 
   test("PolarMazeTest") {
     val polarGrid = PolarGrid(20)
-    val maze = RecurBackTrackMaze.generate(rand, polarGrid)
+    val maze = HuntAndKillMaze.generate(rand, polarGrid)
     var image = ImageUtils.create(maze, cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"PolarMaze$ext", dir)
     assert(f.isSuccess)
     val distMap = DistanceEx.createMax(maze, polarGrid(0, 0)).get
     image = ImageUtils.create(distMap, cellSize, padding)
     f = FileHelper.saveToFile(image, writer, s"PolarMaze_DistMap$ext", dir)
+    assert(f.isSuccess)
+
+    val (farCell, _) = distMap.max
+    val optPath = distMap.pathTo(farCell)
+    assert(optPath.isDefined)
+    val path = optPath.get
+    pathCheck(path, distMap, distMap.root, farCell)
+    val pathSet = path.toSet
+    def colorMapper: (Cell2D)=>RGBColor = (cell) => {
+      if (cell == distMap.root || cell == farCell) RGBColor.fromAwt(Color.RED)
+      else if (pathSet.contains(cell)) distMap.colorMapper(cell)
+      else RGBColor.fromAwt(Color.DARK_GRAY)
+    }
+    image = ImageUtils.create(maze, cellSize, colorMapper, padding)
+    f = FileHelper.saveToFile(image, writer, s"PolarMaze_Path$ext", dir)
     assert(f.isSuccess)
   }
 }

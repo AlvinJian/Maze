@@ -47,12 +47,14 @@ private class DistanceExImpl(val graph: GraphEx, val root: Cell2D, val max: (Cel
   override def contains(cell: Cell2D): Boolean = distMap.contains(cell)
 
   def colorMapper(cell: Cell2D): RGBColor = {
-    val dist = this(cell).toDouble
-    val maxDist = max._2.toDouble
-    val ratio: Double = (maxDist - dist)/maxDist
-    val dark: Int = (255.0 * ratio).round.toInt
-    val bright: Int = 128 + (127 * ratio).round.toInt
-    new RGBColor(dark, bright, dark)
+    if (contains(cell)) {
+      val dist = this (cell).toDouble
+      val maxDist = max._2.toDouble
+      val ratio: Double = (maxDist - dist) / maxDist
+      val dark: Int = (255.0 * ratio).round.toInt
+      val bright: Int = 128 + (127 * ratio).round.toInt
+      new RGBColor(dark, bright, dark)
+    } else RGBColor.fromAwt(java.awt.Color.BLACK)
   }
 }
 

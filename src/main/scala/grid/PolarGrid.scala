@@ -17,8 +17,7 @@ case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] 
         val circum = 2.0 * math.Pi * radius
         val estCellWidth = circum / prevCount.toDouble
         val ratio = (estCellWidth / rowHeight).round.toInt
-        // small tweak to make it "rounder"
-        val newCellCount = if (r == 1) 2 * prevCount * ratio else prevCount * ratio
+        val newCellCount = prevCount * ratio
         val newCells = for (col <- 0 until newCellCount) yield new PolarCellImp(r, col)
         buildData(r+1, tmpData ++ Vector.from(newCells), offsets :+ tmpData.size, newCellCount)
       } else (tmpData, offsets :+ tmpData.size)
@@ -62,13 +61,32 @@ case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] 
   private class PolarCellImp(override val row: Int,
                              override val col: Int) extends Cell2DPolar {
     val outer = PolarGrid.this
-    override def cw: Option[Cell2DPolar] = outer.adjacencyOf(this, ClockwiseDir)
 
-    override def ccw: Option[Cell2DPolar] = outer.adjacencyOf(this, CounterClockwiseDir)
+    override def cw: Cell2DPolar = outer(row, col-1)
 
-    override def outward: Option[Cell2DPolar] = outer.adjacencyOf(this, OutwardDir)
+    override def ccw: Cell2DPolar = outer(row, col+1)
 
-    override def inward: Option[Cell2DPolar] = outer.adjacencyOf(this,InwardDir)
+    override def outward: List[Cell2DPolar] = {
+      // TODO this is just a hotfix
+      if (row == 0) List.from(outer.data.filter((c)=>c.row==1))
+      else if (row < outer.rows-1) {
+        val rc = outer.columnCountAt(row)
+        val outerRc = outer.columnCountAt(row+1)
+        if (outerRc > rc) List(outer(row+1, col*2), outer(row+1, col*2+1))
+        else List(outer(row+1, col))
+      } else List[Cell2DPolar]()
+    }
+
+    override def inward: Option[Cell2DPolar] = {
+      if (row == 0) None
+      else if (row == 1) Some(outer(0, 0))
+      else {
+        val rc = outer.columnCountAt(row)
+        val innerRc = outer.columnCountAt(row-1)
+        if (rc != innerRc) Some(outer(row-1, col/2))
+        else Some(outer(row-1, col))
+      }
+    }
   }
 
   override def iterator: Iterator[Cell2DPolar] = data.iterator

@@ -17,6 +17,7 @@ trait CellContainer[+T <: Cell2D] extends Iterable[T] {
 
   // default implementation for cartesian 2d cell
   // should be overridden if using other coordinate system
+  @deprecated
   def adjacencyOf(t: Cell2D, direction: Direction): Option[T] = {
     if (!isValid(t)) return None
     val r = t.row; val c = t.col

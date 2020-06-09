@@ -1,18 +1,21 @@
 package utils
 
-import java.awt
-import java.awt.Color
+import java.{awt, util}
+import java.awt.{Color, Point}
 import java.awt.image.BufferedImage
 
 import algorithm.DistanceEx
-import com.sksamuel.scrimage.canvas.drawables.{Arc, FilledArc, FilledRect, Line, Polygon}
+import com.sksamuel.scrimage.canvas.GraphicsContext
+import com.sksamuel.scrimage.canvas.drawables.{Arc, FilledArc, FilledPolygon, FilledRect, Line, Polygon}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.graphics.RichGraphics2D
 import grid.{Cell2D, Cell2DCart, Cell2DPolar, CellContainer, GraphEx, GridEx, MaskedGrid, PolarGrid}
 
 object ImageUtils {
-  private def calcRectCellPosition(row: Int, col: Int, cellSize: Int): (Int, Int, Int, Int) = {
+  private def calcRectCellPosition(cell2DCart: Cell2DCart, cellSize: Int): (Int, Int, Int, Int) = {
+    val row = cell2DCart.row
+    val col = cell2DCart.col
     val x1 = col * cellSize
     val y1 = row * cellSize
     val x2 = (col+1) * cellSize
@@ -21,11 +24,11 @@ object ImageUtils {
   }
 
   private def calcPolarCellPosition(centerX: Int, centerY: Int,
-                                    polarRow: Int, polarCol: Int,
+                                    polarCell: Cell2DPolar,
                                     cellSize: Int, theta: Double):
     (Int, Int, Int, Int, Int, Int, Int, Int) = {
-    val r = polarRow
-    val c = polarCol
+    val r = polarCell.row
+    val c = polarCell.col
     val innRadius = r * cellSize
     val outRadius = (r+1) * cellSize
     val thetaCcw = (c+1).toDouble * theta
@@ -48,33 +51,32 @@ object ImageUtils {
       val imgWidth = grid.cols * cellSize
       val imgHeight = grid.rows * cellSize
       val baseImage = ImmutableImage.filled(imgWidth+1, imgHeight+1,
-        new awt.Color(255, 255, 255, 0), BufferedImage.TYPE_INT_ARGB)
+        new awt.Color(255, 255, 255), BufferedImage.TYPE_INT_RGB)
       val mutableImage = new MutableImage(baseImage.awt())
       val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
-      cellGraphics.setColor(Color.BLACK)
       // need to draw invalid cells
       for {
         r <- 0 until maskedGrid.rows
         c <- 0 until maskedGrid.cols
       } {
         val cell = maskedGrid(r,c)
-        if (!maskedGrid.isValid(cell)) {
-          val (x1: Int, y1: Int, _, _) = calcRectCellPosition(cell.row, cell.col, cellSize)
-          new FilledRect(x1, y1, cellSize, cellSize).draw(cellGraphics)
-        }
+        val (x1: Int, y1: Int, _, _) = calcRectCellPosition(cell, cellSize)
+        if (!maskedGrid.isValid(cell)) cellGraphics.setColor(Color.BLACK)
+        else cellGraphics.setColor(Color.WHITE)
+        new FilledRect(x1, y1, cellSize, cellSize).draw(cellGraphics)
       }
       mutableImage.toImmutableImage
     }
     case polarGrid: PolarGrid => {
       val imgWidth = 2 * polarGrid.rows * cellSize
       ImmutableImage.filled(imgWidth+1, imgWidth+1,
-        new awt.Color(255, 255, 255, 0), BufferedImage.TYPE_INT_ARGB)
+        new awt.Color(255, 255, 255, 0), BufferedImage.TYPE_INT_RGB)
     }
     case _ => {
       val imgWidth = grid.cols * cellSize
       val imgHeight = grid.rows * cellSize
       ImmutableImage.filled(imgWidth+1, imgHeight+1,
-        new awt.Color(255, 255, 255, 0), BufferedImage.TYPE_INT_ARGB)
+        new awt.Color(255, 255, 255), BufferedImage.TYPE_INT_RGB)
     }
   }
 
@@ -86,7 +88,7 @@ object ImageUtils {
     val grid = graph.grid.asInstanceOf[CellContainer[Cell2DCart]]
 
     for (cell <- grid) {
-      val (x1, y1, x2, y2) = calcRectCellPosition(cell.row, cell.col, cellSize)
+      val (x1, y1, x2, y2) = calcRectCellPosition(cell, cellSize)
 
       if (cell.north.isEmpty) {
         new Line(x1, y1, x2, y1).draw(wallGraphics)
@@ -124,9 +126,9 @@ object ImageUtils {
         if (r > 0) {
           val theta: Double = (360.0 / polarGrid.columnCountAt(r).toDouble).toRadians
           val (ax, ay, bx, by, cx, cy, dx, dy) =
-            calcPolarCellPosition(center, center, r, c, cellSize, theta)
+            calcPolarCellPosition(center, center, polarCell, cellSize, theta)
 
-          val cellCw: Cell2D = polarCell.cw.get // cw is always valid
+          val cellCw: Cell2D = polarCell.cw
           if (!graph.isLinked(polarCell, cellCw)) {
             new Line(ax, ay, bx, by).draw(wallGraphics)
           }
@@ -170,13 +172,33 @@ object ImageUtils {
       if (r > 0) {
         val theta: Double = (360.0 / polarGrid.columnCountAt(r).toDouble).toRadians
         val (ax, ay, bx, by, cx, cy, dx, dy) =
-          calcPolarCellPosition(center, center, r, c, cellSize, theta)
-        val xs: Array[Int] = Array(ax, bx, dx, cx)
-        val ys: Array[Int] = Array(ay, by, dy, cy)
-        cellGraphics.fillPolygon(xs, ys, 4)
+          calcPolarCellPosition(center, center, polarCell, cellSize, theta)
+        if (polarCell.outward.size > 1) {
+          val outerTheta: Double = (360.0 / polarGrid.columnCountAt(r+1).toDouble).toRadians
+          val (_, _, _, _, ex, ey, _, _) =
+            calcPolarCellPosition(center, center, polarCell.outward.head, cellSize, outerTheta)
+          val xpoints: Array[Int] = Array(ax, bx, ex, dx, cx)
+          val ypoints: Array[Int] = Array(ay, by, ey, dy, cy)
+          cellGraphics.fillPolygon(xpoints, ypoints, xpoints.length)
+        } else {
+          val xpoints: Array[Int] = Array(ax, bx, dx, cx)
+          val ypoints: Array[Int] = Array(ay, by, dy, cy)
+          cellGraphics.fillPolygon(xpoints, ypoints, xpoints.length)
+        }
       } else {
         val radius: Int = cellSize
-        cellGraphics.fillOval(center-radius, center-radius, radius*2, radius*2)
+        val theta: Double = (360.0 / polarCell.outward.size.toDouble).toRadians
+        val xpoints: Array[Int] = polarCell.neighbors.map(
+          (cell) => {
+            center + (radius * math.cos(theta * cell.col.toDouble)).toInt
+          }
+        ).toArray
+        val ypoints: Array[Int] = polarCell.neighbors.map(
+          (cell) => {
+            center + (radius * math.sin(theta * cell.col.toDouble)).toInt
+          }
+        ).toArray
+        cellGraphics.fillPolygon(xpoints, ypoints, xpoints.length)
       }
     }
     mutableImage.toImmutableImage
