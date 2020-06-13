@@ -8,24 +8,24 @@ object AldousBroderMaze extends MazeGenerator {
   override type T = CellContainer[Cell2D]
 
   override def generate(r: Random, grid: T): GraphEx = {
-    var graph = new GraphEx(grid)
-    var unvisited: Int = grid.size
-    var cell = grid.randomCell(r)
-    unvisited -= 1
-    while (unvisited > 0) {
-      val ns = cell.neighbors
-      val neighbor = ns(r.nextInt(ns.size))
-      if (graph.linkedCells(neighbor).isEmpty) {
-        graph = graph.link(cell, neighbor) match {
-          case Some(value) => {
-            unvisited -= 1
-            value
+    val graph = new GraphEx(grid)
+    val cell = grid.randomCell(r)
+    val unvisited: Int = grid.size-1
+    @scala.annotation.tailrec
+    def loop(unvisited: Int, cell: Cell2D, graph: GraphEx): GraphEx = {
+      if (unvisited > 0) {
+        val ns = cell.neighbors
+        val neighbor = ns(r.nextInt(ns.size))
+        if (graph.linkedCells(neighbor).isEmpty) {
+          val ret = graph.link(cell, neighbor)
+          if (ret.isDefined) {
+            loop(unvisited-1, neighbor, ret.get)
+          } else {
+            loop(unvisited, cell, graph)
           }
-          case None => graph
-        }
-      }
-      cell = neighbor
+        } else loop(unvisited, neighbor, graph)
+      } else graph
     }
-    graph
+    loop(unvisited, cell, graph)
   }
 }

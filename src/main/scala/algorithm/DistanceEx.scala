@@ -32,10 +32,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: Cell2D, val max: (Cel
       path = current +: path
       if (current != root) {
         val dist = this(current)
-        val candidates = graph.linkedCells(current) match {
-          case Some(cells) => cells.filter((p)=>this(p) == (dist-1)).toList
-          case None => List[Cell2D]()
-        }
+        val candidates = graph.linkedCells(current).filter((p)=>this(p) == (dist-1)).toList
         if (candidates.nonEmpty) que.enqueue(candidates.head)
       } else {
         que.clear()
@@ -72,16 +69,12 @@ object DistanceEx {
         if (curDist > maxItem._2) {
           maxItem = (cell, curDist)
         }
-        graph.linkedCells(cell) match {
-          case Some(cells) =>
-            cells.foreach((c: Cell2D) => {
-              if (!distMap.contains(c)) {
-                distMap = distMap + (c -> (curDist+1))
-                que.enqueue(c)
-              }
-            })
-          case _ =>
-        }
+        graph.linkedCells(cell).foreach((c: Cell2D) => {
+          if (!distMap.contains(c)) {
+            distMap = distMap + (c -> (curDist+1))
+            que.enqueue(c)
+          }
+        })
       }
     }
     if (distMap.nonEmpty) Some(new DistanceExImpl(graph, root, maxItem, distMap))

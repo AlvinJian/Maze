@@ -15,10 +15,11 @@ class GraphEx(val grid: CellContainer[Cell2D]) {
     if (_graph.contains(c1) && _graph(c1).contains(c2)) true
     else false
 
-  def linkedCells(cell: Cell2D): Option[Set[Cell2D]] = _graph.get(cell)
-  def linkedCells(r: Int, c: Int): Option[Set[Cell2D]] = _graph.get(grid(r, c))
-  def deadEnds: List[Cell2D] =
-    grid.filter((c)=>this.linkedCells(c).isDefined && this.linkedCells(c).get.size == 1).toList
+  def linkedCells(cell: Cell2D): Set[Cell2D] = {
+    _graph.getOrElse(cell, Set[Cell2D]())
+  }
+  def linkedCells(r: Int, c: Int): Set[Cell2D] = linkedCells(grid(r, c))
+  def deadEnds: List[Cell2D] = grid.filter((c)=>this.linkedCells(c).size == 1).toList
 
   @deprecated
   def dump(contentFunc: (Cell2DCart) => String) = {
@@ -29,10 +30,7 @@ class GraphEx(val grid: CellContainer[Cell2D]) {
       val bottomSb = new StringBuilder("+")
       for (c <- 0 until grid.cols) {
         val cell: Cell2DCart = grid(r, c).asInstanceOf[Cell2DCart]
-        val connected = linkedCells(cell) match {
-          case Some(cells) => cells
-          case None => Set[Cell2DCart]()
-        }
+        val connected = linkedCells(cell)
         val bottomWall = cell.south match {
           case Some(south) => if (connected.contains(south)) "   " else "---"
           case _ => "---"

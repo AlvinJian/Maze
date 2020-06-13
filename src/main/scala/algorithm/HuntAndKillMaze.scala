@@ -23,14 +23,12 @@ object HuntAndKillMaze extends MazeGenerator {
         }
         cell = Some(next)
       } else {
-        val ret = grid.find((c) => {
-          if (graph.linkedCells(c).isEmpty &&
-            c.neighbors.exists((nc)=>graph.linkedCells(nc).isDefined)) true
-          else false
-        })
+        val ret = grid.find(c => graph.linkedCells(c).isEmpty &&
+            c.neighbors.exists(nc => graph.linkedCells(nc).nonEmpty)
+        )
         if (ret.isDefined) {
           cell = Some(ret.get)
-          val candidates = cell.get.neighbors.filter((nc)=>graph.linkedCells(nc).isDefined)
+          val candidates = cell.get.neighbors.filter((nc)=>graph.linkedCells(nc).nonEmpty)
           val other = candidates(rand.nextInt(candidates.size))
           graph = graph.link(cell.get, other) match {
             case Some(value) => value
