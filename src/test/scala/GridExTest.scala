@@ -1,7 +1,8 @@
+import algorithm.DistanceEx
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{GraphEx, GridEx, MaskedGrid, PolarGrid}
+import grid.{GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
 import org.scalatest.FunSuite
-import utils.{FileHelper, ImageUtils}
+import utils.{FileHelper, ImageUtils, ImageUtilsEx}
 
 import scala.util.Random
 
@@ -72,23 +73,35 @@ class GridExTest extends FunSuite {
       prevCount = count
     }
     assert(sum == polarGrid.size)
-    // TODO need to fix this
-//    for (polarCell <- polarGrid) {
-//      val r = polarCell.row
-//      val c = polarCell.col
-//      assert(polarCell.ccw.get == polarGrid(r, c+1))
-//      assert(polarCell.cw.get == polarGrid(r, c-1))
-//      assert(polarCell.inward == {
-//        if (r == 0) None else Some(polarGrid(r-1, c))
-//      })
-//      assert(polarCell.outward == {
-//        if (r == polarGrid.rows-1) None else Some(polarGrid(r+1, c))
-//      })
-//    }
+    for (polarCell <- polarGrid) {
+      val r = polarCell.row
+      val c = polarCell.col
+      if (r == polarGrid.rows-1) {
+        assert(polarCell.outward.isEmpty)
+      } else if (r > 0) {
+        val rcOuter = polarGrid.columnCountAt(r+1)
+        val rc = polarGrid.columnCountAt(r)
+        if (rcOuter > rc) assert(polarCell.outward.size == 2)
+        else polarCell.outward.size == 1
+      } else {
+        assert(polarCell.outward.size == polarCell.neighbors.size)
+        assert(polarCell.inward.isEmpty)
+      }
+      assert(polarCell.ccw == polarGrid(r, c+1))
+      assert(polarCell.cw == polarGrid(r, c-1))
+    }
 
     val maze = new GraphEx(polarGrid)
     var image = ImageUtils.create(maze, 32, Some(5))
     var f = FileHelper.saveToFile(image, writer, s"PolarGrid$ext", "images")
+    assert(f.isSuccess)
+  }
+
+  test("HexGridTest") {
+    val hexGrid: HexGrid = HexGrid(5,5)
+    val maze: GraphEx = new GraphEx(hexGrid)
+    var image = ImageUtilsEx.MakeCreationFunction(maze)(32, Some(5))
+    var f = FileHelper.saveToFile(image, writer, s"HexGrid$ext", directoryName = "images")
     assert(f.isSuccess)
   }
 }

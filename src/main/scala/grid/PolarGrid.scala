@@ -25,6 +25,8 @@ case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] 
     buildData(0, Vector[Cell2DPolar](), Vector[Int](), 0)
   }
 
+  override def isValid(r: Int, c: Int): Boolean = (r >= 0 && r < rows)
+
   override def apply(r: Int, c: Int): Cell2DPolar = {
     val offset = this.offsets(r)
     val colCount = columnCountAt(r)
@@ -37,10 +39,7 @@ case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] 
     data(offset + index)
   }
 
-  override def isValid(t: Cell2D): Boolean = {
-    if (t.row < this.rows && apply(t.row, t.col) == t) true
-    else false
-  }
+  override def isValid(t: Cell2D): Boolean = t.row < this.rows && apply(t.row, t.col) == t
 
   override def adjacencyOf(t: Cell2D, direction: Direction): Option[Cell2DPolar] = {
     if (isValid(t)) {

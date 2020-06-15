@@ -1,5 +1,6 @@
 package grid
 
+@deprecated
 sealed trait Direction
 // for cartesian coordinate
 case object NorthDir extends Direction
@@ -12,6 +13,7 @@ case object CounterClockwiseDir extends Direction
 case object InwardDir extends Direction
 case object OutwardDir extends Direction
 
+@deprecated
 object Direction {
   def reverse(dir: Direction): Direction = dir match {
     case EastDir => WestDir

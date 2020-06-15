@@ -5,13 +5,13 @@ import java.awt.{Color, Point}
 import java.awt.image.BufferedImage
 
 import algorithm.DistanceEx
-import com.sksamuel.scrimage.canvas.GraphicsContext
 import com.sksamuel.scrimage.canvas.drawables.{Arc, FilledArc, FilledPolygon, FilledRect, Line, Polygon}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, Cell2DCart, Cell2DPolar, CellContainer, GraphEx, GridEx, MaskedGrid, PolarGrid}
+import grid.{Cell2D, Cell2DCart, Cell2DHex, Cell2DPolar, CellContainer, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
 
+@deprecated
 object ImageUtils {
   private def calcRectCellPosition(cell2DCart: Cell2DCart, cellSize: Int): (Int, Int, Int, Int) = {
     val row = cell2DCart.row
@@ -46,7 +46,7 @@ object ImageUtils {
     (ax, ay, bx, by, cx, cy, dx, dy)
   }
 
-  def createBaseImage(grid: CellContainer[Cell2D], cellSize: Int): ImmutableImage = grid match {
+  private def createBaseImage(grid: CellContainer[Cell2D], cellSize: Int): ImmutableImage = grid match {
     case maskedGrid: MaskedGrid => {
       val imgWidth = grid.cols * cellSize
       val imgHeight = grid.rows * cellSize
@@ -72,6 +72,7 @@ object ImageUtils {
       ImmutableImage.filled(imgWidth+1, imgWidth+1,
         new awt.Color(255, 255, 255, 0), BufferedImage.TYPE_INT_RGB)
     }
+    case hexGrid: HexGrid => ???
     case _ => {
       val imgWidth = grid.cols * cellSize
       val imgHeight = grid.rows * cellSize
@@ -80,7 +81,7 @@ object ImageUtils {
     }
   }
 
-  def drawCartMaze(baseImage: ImmutableImage, graph: GraphEx, cellSize: Int): ImmutableImage = {
+  private def drawCartMaze(baseImage: ImmutableImage, graph: GraphEx, cellSize: Int): ImmutableImage = {
     val mutableImage = new MutableImage(baseImage.awt())
     val wallColor = new RGBColor(0, 0, 0)
     val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
@@ -110,7 +111,7 @@ object ImageUtils {
     mutableImage.toImmutableImage
   }
 
-  def drawPolarMaze(baseImage: ImmutableImage, graph: GraphEx, cellSize: Int): ImmutableImage = {
+  private def drawPolarMaze(baseImage: ImmutableImage, graph: GraphEx, cellSize: Int): ImmutableImage = {
     val mutableImage = new MutableImage(baseImage.awt())
     val wallColor = new RGBColor(0, 0, 0)
     val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
@@ -147,7 +148,9 @@ object ImageUtils {
     mutableImage.toImmutableImage
   }
 
-  def drawColorCartGrid(baseImage: ImmutableImage, grid: CellContainer[Cell2DCart],
+  private def drawHexMaze(baseImage: ImmutableImage, graph: GraphEx, cellSize: Int): ImmutableImage= ???
+
+  private def drawColorCartGrid(baseImage: ImmutableImage, grid: CellContainer[Cell2DCart],
                         cellSize: Int, f: (Cell2D) => RGBColor): ImmutableImage = {
     val mutableImage = new MutableImage(baseImage.awt())
     val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
@@ -160,7 +163,7 @@ object ImageUtils {
     mutableImage.toImmutableImage
   }
 
-  def drawColorPolarGrid(baseImage: ImmutableImage, polarGrid: PolarGrid,
+  private def drawColorPolarGrid(baseImage: ImmutableImage, polarGrid: PolarGrid,
                          cellSize: Int, f: (Cell2D) => RGBColor): ImmutableImage = {
     val mutableImage = new MutableImage(baseImage.awt())
     val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())

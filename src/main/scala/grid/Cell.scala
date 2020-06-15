@@ -17,13 +17,28 @@ trait Cell2DCart extends Cell2D {
 }
 
 trait Cell2DPolar extends Cell2D {
-  type T = Cell2DPolar
+  override type T = Cell2DPolar
   def cw: T
   def ccw: T
-  // TODO for a polar cell, its outward neighbor can be 2. Fix it!!!
-  def outward: List[T]
-  def inward: Option[T]
-  override def neighbors: List[Cell2DPolar] = List(cw, ccw) ++ outward ++ {
-    if (inward.isDefined) List(inward.get) else Nil
+  def outward: List[T] // can have more than one cells
+  def inward: Option[T] // either one cell or none
+  override def neighbors: List[Cell2DPolar] = {
+    val candidates = List(cw, ccw) ++ outward ++ {
+      if (inward.isDefined) List(inward.get) else Nil
+    }
+    candidates.filter(c => c != this)
   }
+}
+
+trait Cell2DHex extends Cell2D {
+  override type T = Cell2DHex
+  def northeast: Option[T]
+  def north: Option[T]
+  def northwest: Option[T]
+  def southwest: Option[T]
+  def south: Option[T]
+  def southeast: Option[T]
+  override def neighbors: List[Cell2DHex] = List(
+    northeast, north, northwest, southwest, south, southeast
+  ).flatten
 }

@@ -4,9 +4,9 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, MaskedGrid, PolarGrid}
+import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
 import org.scalatest.FunSuite
-import utils.{FileHelper, ImageUtils}
+import utils.{FileHelper, ImageUtils, ImageUtilsEx}
 
 import scala.collection.mutable
 import scala.util.{Failure, Random, Success}
@@ -232,6 +232,18 @@ class MazeGenTest extends FunSuite {
     }
     image = ImageUtils.create(maze, cellSize, colorMapper, padding)
     f = FileHelper.saveToFile(image, writer, s"PolarMaze_Path$ext", dir)
+    assert(f.isSuccess)
+  }
+
+  test("HexMazeTest") {
+    val grid = HexGrid(10, 10)
+    val maze = HuntAndKillMaze.generate(rand, grid)
+    var image = ImageUtilsEx.MakeCreationFunction(maze)(cellSize, padding)
+    var f = FileHelper.saveToFile(image, writer, s"HexMaze$ext", dir)
+    assert(f.isSuccess)
+    val distMap: DistanceEx = DistanceEx.createMax(maze, grid(5,5)).get
+    image = ImageUtilsEx.MakeCreationFunction(distMap)(cellSize, padding)
+    f = FileHelper.saveToFile(image, writer, s"HexMaze_DistMap$ext", dir)
     assert(f.isSuccess)
   }
 }
