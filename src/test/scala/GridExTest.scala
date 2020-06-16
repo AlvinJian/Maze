@@ -92,7 +92,7 @@ class GridExTest extends FunSuite {
     }
 
     val maze = new GraphEx(polarGrid)
-    var image = ImageUtils.create(maze, 32, Some(5))
+    var image = ImageUtilsEx.creationFunction(maze)(32, Some(5))
     var f = FileHelper.saveToFile(image, writer, s"PolarGrid$ext", "images")
     assert(f.isSuccess)
   }
@@ -100,7 +100,7 @@ class GridExTest extends FunSuite {
   test("HexGridTest") {
     val hexGrid: HexGrid = HexGrid(5,5)
     val maze: GraphEx = new GraphEx(hexGrid)
-    var image = ImageUtilsEx.MakeCreationFunction(maze)(32, Some(5))
+    var image = ImageUtilsEx.creationFunction(maze)(32, Some(5))
     var f = FileHelper.saveToFile(image, writer, s"HexGrid$ext", directoryName = "images")
     assert(f.isSuccess)
   }

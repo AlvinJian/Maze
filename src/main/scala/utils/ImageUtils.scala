@@ -214,7 +214,7 @@ object ImageUtils {
         graph.grid match {
           case gridEx: GridEx => drawCartMaze(baseImage, graph, cellSize)
           case maskedGrid: MaskedGrid => drawCartMaze(baseImage, graph, cellSize)
-          case polarGrid: PolarGrid => drawPolarMaze(baseImage, graph, cellSize)
+          case polarGrid: PolarGrid => ???
           case _ => ???
         }
       }
@@ -229,14 +229,14 @@ object ImageUtils {
       graph.grid match {
         case gridEx: GridEx => drawColorCartGrid(baseImage, gridEx, cellSize, f)
         case maskedGrid: MaskedGrid => drawColorCartGrid(baseImage, maskedGrid, cellSize, f)
-        case polarGrid: PolarGrid => drawColorPolarGrid(baseImage, polarGrid, cellSize, f)
+        case polarGrid: PolarGrid => ???
         case _ => ???
       }
     }.andThen { (baseImage) =>
         graph.grid match {
           case gridEx: GridEx => drawCartMaze(baseImage, graph, cellSize)
           case maskedGrid: MaskedGrid => drawCartMaze(baseImage, graph, cellSize)
-          case polarGrid: PolarGrid => drawPolarMaze(baseImage, graph, cellSize)
+          case polarGrid: PolarGrid => ???
           case _ => ???
         }
       }

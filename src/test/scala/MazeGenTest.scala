@@ -211,11 +211,12 @@ class MazeGenTest extends FunSuite {
   test("PolarMazeTest") {
     val polarGrid = PolarGrid(20)
     val maze = HuntAndKillMaze.generate(rand, polarGrid)
-    var image = ImageUtils.create(maze, cellSize, padding)
+    val colorImageFunc = ImageUtilsEx.creationFunctionWithColor(maze)
+    var image = colorImageFunc(cellSize, _ => RGBColor.fromAwt(java.awt.Color.WHITE) ,padding)
     var f = FileHelper.saveToFile(image, writer, s"PolarMaze$ext", dir)
     assert(f.isSuccess)
     val distMap = DistanceEx.createMax(maze, polarGrid(0, 0)).get
-    image = ImageUtils.create(distMap, cellSize, padding)
+    image = colorImageFunc(cellSize, distMap.colorMapper, padding)
     f = FileHelper.saveToFile(image, writer, s"PolarMaze_DistMap$ext", dir)
     assert(f.isSuccess)
 
@@ -230,7 +231,7 @@ class MazeGenTest extends FunSuite {
       else if (pathSet.contains(cell)) distMap.colorMapper(cell)
       else RGBColor.fromAwt(Color.DARK_GRAY)
     }
-    image = ImageUtils.create(maze, cellSize, colorMapper, padding)
+    image = colorImageFunc(cellSize, colorMapper, padding)
     f = FileHelper.saveToFile(image, writer, s"PolarMaze_Path$ext", dir)
     assert(f.isSuccess)
   }
@@ -238,11 +239,12 @@ class MazeGenTest extends FunSuite {
   test("HexMazeTest") {
     val grid = HexGrid(10, 10)
     val maze = HuntAndKillMaze.generate(rand, grid)
-    var image = ImageUtilsEx.MakeCreationFunction(maze)(cellSize, padding)
+    val colorImageFunc = ImageUtilsEx.creationFunctionWithColor(maze)
+    var image = colorImageFunc(cellSize, _=>RGBColor.fromAwt(java.awt.Color.WHITE), padding)
     var f = FileHelper.saveToFile(image, writer, s"HexMaze$ext", dir)
     assert(f.isSuccess)
     val distMap: DistanceEx = DistanceEx.createMax(maze, grid(5,5)).get
-    image = ImageUtilsEx.MakeCreationFunction(distMap)(cellSize, padding)
+    image = colorImageFunc(cellSize, distMap.colorMapper, padding)
     f = FileHelper.saveToFile(image, writer, s"HexMaze_DistMap$ext", dir)
     assert(f.isSuccess)
   }
