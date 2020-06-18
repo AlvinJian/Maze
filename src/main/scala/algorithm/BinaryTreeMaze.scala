@@ -4,7 +4,7 @@ import grid.{Cell2DCart, GraphEx, CellContainer, GridEx}
 import scala.util.Random
 
 object BinaryTreeMaze extends MazeGenerator {
-  override type T = GridEx
+  override type T = CellContainer[Cell2DCart]
 
   override def generate(_r: Random, grid: T): GraphEx = {
     var graph = new GraphEx(grid)

@@ -5,7 +5,7 @@ import scala.collection.immutable.VectorBuilder
 import scala.util.Random
 
 object SidewinderMaze extends MazeGenerator {
-  override type T = GridEx
+  override type T = CellContainer[Cell2DCart]
 
   override def generate(_r: Random, grid: T): GraphEx = {
     var graph: GraphEx = new GraphEx(grid)
