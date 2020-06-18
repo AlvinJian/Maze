@@ -16,15 +16,11 @@ case class MaskedGrid(override val rows: Int, override val cols: Int,
 
   override def apply(r: Int, c: Int): Cell2DCart = data(r * cols + c)
 
-  override def isValid(cell: Cell2D): Boolean = if (super.isValid(cell) &&
-    !cell.asInstanceOf[MaskedGridCell].masked) true else false
+  override def isValid(cell: Cell2D): Boolean = super.isValid(cell) &&
+    !cell.asInstanceOf[MaskedGridCell].masked
 
-  // if the adjacent cell is masked, return None
-  override def adjacencyOf(cell: Cell2D, direction: Direction): Option[Cell2DCart] = {
-    var ret = super.adjacencyOf(cell, direction)
-    if (ret.isDefined && !isValid(ret.get)) ret = None
-    ret
-  }
+  override def isValid(r: Int, c: Int): Boolean = super.isValid(r, c) &&
+    !this(r, c).asInstanceOf[MaskedGridCell].masked
 
   override def randomCell(r: Random): Cell2DCart = {
     var cell = this(0, 0)
@@ -58,21 +54,28 @@ case class MaskedGrid(override val rows: Int, override val cols: Int,
   }
 
   class MaskedGridCell(override val row: Int, override val col: Int,
-                       val masked: Boolean)
-    extends Cell2DCart {
+                       val masked: Boolean) extends Cell2DCart {
     val outer: MaskedGrid = MaskedGrid.this
 
-    override def north: Option[Cell2DCart] =
-      if (masked) None else outer.adjacencyOf(this, NorthDir)
+    override def north: Option[Cell2DCart] = {
+      val (r, c) = (row-1, col)
+      if (!masked && outer.isValid(r, c)) Some(outer(r, c)) else None
+    }
 
-    override def south: Option[Cell2DCart] =
-      if (masked) None else outer.adjacencyOf(this, SouthDir)
+    override def south: Option[Cell2DCart] = {
+      val (r, c) = (row+1, col)
+      if (!masked && outer.isValid(r, c)) Some(outer(r, c)) else None
+    }
 
-    override def east: Option[Cell2DCart] =
-      if (masked) None else outer.adjacencyOf(this, EastDir)
+    override def east: Option[Cell2DCart] = {
+      val (r, c) = (row, col+1)
+      if (!masked && outer.isValid(r, c)) Some(outer(r, c)) else None
+    }
 
-    override def west: Option[Cell2DCart] =
-      if (masked) None else outer.adjacencyOf(this, WestDir)
+    override def west: Option[Cell2DCart] = {
+      val (r, c) = (row, col-1)
+      if (!masked && outer.isValid(r, c)) Some(outer(r, c)) else None
+    }
   }
 }
 

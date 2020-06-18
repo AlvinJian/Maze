@@ -2,7 +2,7 @@ import algorithm.DistanceEx
 import com.sksamuel.scrimage.nio.PngWriter
 import grid.{GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
 import org.scalatest.FunSuite
-import utils.{FileHelper, ImageUtils, ImageUtilsEx}
+import utils.{FileHelper, ImageUtilsEx}
 
 import scala.util.Random
 
@@ -13,7 +13,7 @@ class GridExTest extends FunSuite {
   val dir: String = "images"
 
   test("GridExTest") {
-    val grid = new GridEx(2,2)
+    val grid = new GridEx(10,10)
     val cell0 = grid(0, 0)
     val cell1 = grid(0, 1)
     val cell2 = grid(1, 0)
@@ -28,20 +28,16 @@ class GridExTest extends FunSuite {
       val r = cell.row
       val c = cell.col
       assert(cell.north === {
-        val other = if (r-1 >= 0) Some(grid(r-1, c)) else None
-        other
+        if (r-1 >= 0) Some(grid(r-1, c)) else None
       })
       assert(cell.south === {
-        val other = if (r+1 < grid.rows) Some(grid(r+1, c)) else None
-        other
+        if (r+1 < grid.rows) Some(grid(r+1, c)) else None
       })
       assert(cell.east === {
-        val other = if (c+1 < grid.cols) Some(grid(r, c+1)) else None
-        other
+        if (c+1 < grid.cols) Some(grid(r, c+1)) else None
       })
       assert(cell.west === {
-        val other = if (c-1 >= 0) Some(grid(r, c-1)) else None
-        other
+        if (c-1 >= 0) Some(grid(r, c-1)) else None
       })
     }
   }

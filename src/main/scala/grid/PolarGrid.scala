@@ -41,20 +41,6 @@ case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] 
 
   override def isValid(t: Cell2D): Boolean = t.row < this.rows && apply(t.row, t.col) == t
 
-  override def adjacencyOf(t: Cell2D, direction: Direction): Option[Cell2DPolar] = {
-    if (isValid(t)) {
-      val r = t.row;
-      val c = t.col;
-      direction match {
-        case ClockwiseDir => Some(this(r, c-1))
-        case CounterClockwiseDir => Some(this(r, c+1))
-        case InwardDir => if (r-1 >= 0) Some(this(r-1, c)) else None
-        case OutwardDir => if (r+1 < this.rows) Some(this(r+1, c)) else None
-        case _ => None
-      }
-    } else None
-  }
-
   def columnCountAt(r: Int): Int = this.offsets(r+1) - this.offsets(r)
 
   private class PolarCellImp(override val row: Int,

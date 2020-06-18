@@ -16,12 +16,24 @@ case class GridEx(override val rows: Int,
   private class GridExCell(override val row: Int, override val col: Int) extends Cell2DCart {
     val outer: GridEx = GridEx.this
 
-    override def north: Option[Cell2DCart] = outer.adjacencyOf(this, NorthDir)
+    override def north: Option[Cell2DCart] = {
+      val (r, c) = (row-1, col)
+      if (outer.isValid(r, c)) Some(outer(r, c)) else None
+    }
 
-    override def south: Option[Cell2DCart] = outer.adjacencyOf(this, SouthDir)
+    override def south: Option[Cell2DCart] = {
+      val (r, c) = (row+1, col)
+      if (outer.isValid(r, c)) Some(outer(r, c)) else None
+    }
 
-    override def east: Option[Cell2DCart] = outer.adjacencyOf(this, EastDir)
+    override def east: Option[Cell2DCart] = {
+      val (r, c) = (row, col+1)
+      if (outer.isValid(r, c)) Some(outer(r, c)) else None
+    }
 
-    override def west: Option[Cell2DCart] = outer.adjacencyOf(this, WestDir)
+    override def west: Option[Cell2DCart] = {
+      val (r, c) = (row, col-1)
+      if (outer.isValid(r, c)) Some(outer(r, c)) else None
+    }
   }
 }
