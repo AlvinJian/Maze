@@ -44,10 +44,9 @@ class MazeGenTest extends FunSuite {
     val start = grid(0, 0)
     val distMap = DistanceEx.from(maze, start).get
     val end = grid((grid.rows-1)/2, (grid.cols-1)/2)
-    distMap.pathTo(end) match {
-      case Some(path) => pathCheck(path, distMap, start, end)
-      case None => assert(false)
-    }
+    val path = distMap.pathTo(end)
+    assert(path.nonEmpty)
+    pathCheck(path, distMap, start, end)
     val img = ImageUtilsEx.creationFunction(maze)(32, Some(5))
     val file = FileHelper.saveToFile(img, writer, s"BinaryTree${ext}", "images")
     assert(file.isSuccess)
@@ -63,15 +62,9 @@ class MazeGenTest extends FunSuite {
     }
     print(maze/*.dump(content)*/); println()
     val goal = grid((grid.rows-1)/2, (grid.cols-1)/2)
-    distMap.pathTo(goal) match {
-      case Some(path) => {
-        val pathSet = path.toSet;
-        print(maze.dump((c: Cell2DCart) =>
-          if (pathSet.contains(c)) content(c) else " " ))
-        pathCheck(path, distMap, start, goal)
-      }
-      case None => assert(false)
-    }
+    val path = distMap.pathTo(goal)
+    assert(path.nonEmpty)
+    pathCheck(path, distMap, start, goal)
     val img = ImageUtilsEx.creationFunction(maze)(cellSize, padding)
     val file = FileHelper.saveToFile(img, writer, s"Sidewinder$ext", "images")
     assert(file.isSuccess)
@@ -143,7 +136,7 @@ class MazeGenTest extends FunSuite {
     image = imgFunc(cellSize, distMap.colorMapper, padding)
     f = FileHelper.saveToFile(image, writer, s"LongestPath_MaxDistMap$ext", dir)
     assert(f.isSuccess)
-    val path = distMap.pathTo(farCell).get
+    val path = distMap.pathTo(farCell)
     pathCheck(path, distMap, distMap.root, farCell)
     val pathSet = path.toSet
     println(maze.dump((c) => {
@@ -209,7 +202,7 @@ class MazeGenTest extends FunSuite {
       "MaskedGrid_DistMap.png", "images")
     assert(f.isSuccess)
     val (farCell, _) = distMap.max
-    val path = distMap.pathTo(farCell).get
+    val path = distMap.pathTo(farCell)
     pathCheck(path, distMap, distMap.root, farCell)
     val content = (cell: Cell2DCart) => {
       if (distMap.contains(cell)) distMap(cell).toString else "-"
@@ -231,9 +224,8 @@ class MazeGenTest extends FunSuite {
     assert(f.isSuccess)
 
     val (farCell, _) = distMap.max
-    val optPath = distMap.pathTo(farCell)
-    assert(optPath.isDefined)
-    val path = optPath.get
+    val path = distMap.pathTo(farCell)
+    assert(path.nonEmpty)
     pathCheck(path, distMap, distMap.root, farCell)
     val pathSet = path.toSet
     def colorMapper: (Cell2D)=>RGBColor = (cell) => {

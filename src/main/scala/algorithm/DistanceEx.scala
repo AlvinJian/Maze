@@ -16,7 +16,7 @@ trait DistanceEx {
   def max: (Cell2D, Int)
   def apply(cell: Cell2D): Int
   def contains(cell: Cell2D): Boolean
-  def pathTo(position: Cell2D): Option[List[Cell2D]]
+  def pathTo(position: Cell2D): List[Cell2D]
   def colorMapper(cell: Cell2D): RGBColor
 }
 
@@ -24,7 +24,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: Cell2D, val max: (Cel
                              val distMap: Map[Cell2D, Int]) extends DistanceEx {
   override def apply(cell: Cell2D): Int = distMap(cell)
 
-  override def pathTo(position: Cell2D): Option[List[Cell2D]] = {
+  override def pathTo(position: Cell2D): List[Cell2D] = {
     var path = List[Cell2D]()
     val que = mutable.Queue(position)
     while (que.nonEmpty) {
@@ -38,19 +38,28 @@ private class DistanceExImpl(val graph: GraphEx, val root: Cell2D, val max: (Cel
         que.clear()
       }
     }
-    if (path.head == root) Some(path) else None
+    if (path.head == root) path else Nil
   }
 
   override def contains(cell: Cell2D): Boolean = distMap.contains(cell)
 
   def colorMapper(cell: Cell2D): RGBColor = {
     if (contains(cell)) {
-      val dist = this (cell).toDouble
+//      val ratio: Double = (maxDist - dist) / maxDist
+//      val dark: Int = (255.0 * ratio).round.toInt
+//      val bright: Int = 128 + (127 * ratio).round.toInt
+//      new RGBColor(dark, bright, dark)
+      val dist = this(cell).toDouble
       val maxDist = max._2.toDouble
-      val ratio: Double = (maxDist - dist) / maxDist
-      val dark: Int = (255.0 * ratio).round.toInt
-      val bright: Int = 128 + (127 * ratio).round.toInt
-      new RGBColor(dark, bright, dark)
+      val ratioRed = (maxDist-dist)/maxDist.toDouble
+      val ratioGreen = dist.toDouble/maxDist.toDouble
+      val r = (255.0 * ratioRed).toInt
+      val g = (255.0 * ratioGreen).toInt
+      val b = {
+        if (dist == 0 || dist == maxDist) 255
+        else (r + g)/2
+      }
+      new RGBColor(r, g, b)
     } else RGBColor.fromAwt(java.awt.Color.BLACK)
   }
 }

@@ -2,27 +2,42 @@ package cli
 
 import java.io.File
 
-import algorithm.{AldousBroderMaze, BinaryTreeMaze, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
+import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
+import com.sksamuel.scrimage.ImmutableImage
 import grid.{Cell2D, CellContainer, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
+import com.sksamuel.scrimage.color.RGBColor
+import utils.ImageUtilsEx
 
 import scala.swing.FileChooser
-import scala.util.Random
+import scala.util.{Failure, Random, Success, Try}
 
 
 object Wizard {
   private val rand: Random = new Random(System.currentTimeMillis())
 
   @scala.annotation.tailrec
-  def numberFromStdIn(min: Int, max: Int): Int = {
-    val i = try {
-      scala.io.StdIn.readInt()
-    } catch {
-      case _: Throwable => Int.MinValue
+  def numberFromStdIn(optMin: Option[Int]=None, optMax: Option[Int]=None): Int = {
+    val iTrial: Try[Int] = Try(scala.io.StdIn.readInt())
+    val min = optMin match {
+      case Some(value) => value
+      case None => Int.MinValue
     }
-    if (i >= min && i <= max) i
-    else {
-      println(s"out of bound! [$min, $max] or invalid for a number")
-      numberFromStdIn(min, max)
+    val max = optMax match {
+      case Some(value) => value
+      case None => Int.MaxValue
+    }
+    iTrial match {
+      case Success(value) => {
+        if (value >= min && value <= max) value
+        else {
+          println(s"out of bound: [$min, $max]")
+          numberFromStdIn(optMin, optMax)
+        }
+      }
+      case Failure(exception) => {
+        println("invalid input. again...")
+        numberFromStdIn(optMin, optMax)
+      }
     }
   }
 
@@ -52,26 +67,26 @@ object Wizard {
       println(s"${i}: ${gridTypes(i)}")
     }
     print(s"pick one (${gridTypes.indices.head}-${gridTypes.indices.last}): ")
-    val choice = numberFromStdIn(0, gridTypes.indices.last)
+    val choice = numberFromStdIn(Some(0), Some(gridTypes.indices.last))
     println(s"you choose ${gridTypes(choice)}")
     val grid: CellContainer[Cell2D] = choice match {
       case i if (i == 0 || i == 2) => {
         print("enter column count: ")
-        val cols = numberFromStdIn(1, Int.MaxValue)
+        val cols = numberFromStdIn(Some(1))
         print("enter row count: ")
-        val rows = numberFromStdIn(1, Int.MaxValue)
+        val rows = numberFromStdIn(Some(1))
         if (i == 0) GridEx(rows, cols)
         else HexGrid(rows, cols)
       }
       case 1 => {
         print("enter cell count along radius: ")
-        val rows = numberFromStdIn(1, Int.MaxValue)
+        val rows = numberFromStdIn(Some(1))
         PolarGrid(rows)
       }
       case _ => ???
     }
     print("enter cell size: ")
-    val cellSize = numberFromStdIn(1, 128)
+    val cellSize = numberFromStdIn(Some(1))
     (grid, cellSize)
   }
 
@@ -87,9 +102,65 @@ object Wizard {
       println(s"${i}: ${algos(i).getClass.getSimpleName}")
     }
     print(s"pick an algorithm (${algos.indices.head}-${algos.indices.last}): ")
-    val choice = numberFromStdIn(0, algos.indices.last)
+    val choice = numberFromStdIn(Some(0), Some(algos.indices.last))
     println(s"you choose ${algos(choice).getClass.getSimpleName}")
     val gen: MazeGenerator = algos(choice)
     gen.generate(rand, grid.asInstanceOf[gen.T])
+  }
+
+  @scala.annotation.tailrec
+  def setupSeedCell(grid: CellContainer[Cell2D]): Cell2D = {
+    println("setup the seed to generate the longest path")
+    print("enter r: ")
+    val r = numberFromStdIn(Some(0))
+    print("enter c: ")
+    val c = numberFromStdIn(Some(0))
+    if (grid.isValid(r, c)) {
+      println(s"you pick ($r, $c)")
+      grid(r, c)
+    }
+    else {
+      println("invalid position for the grid. again...")
+      setupSeedCell(grid)
+    }
+  }
+
+  @scala.annotation.tailrec
+  def computeDistMap(maze: GraphEx): DistanceEx = {
+    println("Compute the longest path")
+    val seed = setupSeedCell(maze.grid)
+    val opt = DistanceEx.createMax(maze, seed)
+    opt match {
+      case Some(value) => {
+        println("done!")
+        value
+      }
+      case None => {
+        println("Something wrong with that seed. again...")
+        computeDistMap(maze)
+      }
+    }
+  }
+
+  def createImageWithStartAndEnd(distMap: DistanceEx, cellSize: Int, padding: Option[Int]): ImmutableImage = {
+    val start = distMap.root
+    val (end, _) = distMap.max
+    val imgFunc = ImageUtilsEx.creationFunctionWithColor(distMap.graph)
+    def colorCell(cell: Cell2D) = {
+      if (cell == start || cell == end) distMap.colorMapper(cell)
+      else RGBColor.fromAwt(java.awt.Color.WHITE)
+    }
+    imgFunc(cellSize, colorCell, padding)
+  }
+
+  def createImageWithPath(distMap: DistanceEx, cellSize: Int, padding: Option[Int]): ImmutableImage = {
+    val path = distMap.pathTo(distMap.max._1)
+    val cellSet = path.toSet
+    val imgFunc = ImageUtilsEx.creationFunctionWithColor(distMap.graph)
+    def colorCell(cell: Cell2D): RGBColor = {
+      if (cellSet.contains(cell)) distMap.colorMapper(cell)
+      else RGBColor.fromAwt(java.awt.Color.DARK_GRAY)
+    }
+    imgFunc(cellSize, colorCell, padding)
   }
 }
