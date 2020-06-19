@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <option name="deprecationWarnings" value="true" />
-    <profile name="sbt 1" modules="Maze,maze">
+    <profile name="sbt 1" modules="maze">
       <option name="deprecationWarnings" value="true" />
     </profile>
+    <profile name="sbt 2" modules="Maze" />
   </component>
 </project>
