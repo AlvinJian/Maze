@@ -2,7 +2,7 @@ package utils
 
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
-import grid.{Cell2D, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
+import grid.{Cell2D, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
 
 trait MazeImageCreator {
   val graph: GraphEx
@@ -19,6 +19,7 @@ object MazeImageCreator {
       case polarGrid: PolarGrid => new PolarMazeImageCreator(graph, cellSize)
       case grid: GridEx => new CartesianMazeImageCreator(graph, cellSize)
       case maskedGrid: MaskedGrid => new CartesianMazeImageCreator(graph, cellSize)
+      case triangleGrid: TriangleGrid => new TriangleMazeImageCreator(graph, cellSize)
       case _ => ???
     }
 }

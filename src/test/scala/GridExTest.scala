@@ -1,6 +1,6 @@
 import algorithm.DistanceEx
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
+import grid.{GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageUtilsEx}
 
@@ -13,7 +13,7 @@ class GridExTest extends FunSuite {
   val dir: String = "images"
 
   test("GridExTest") {
-    val grid = new GridEx(10,10)
+    val grid = new GridEx(8,10)
     val cell0 = grid(0, 0)
     val cell1 = grid(0, 1)
     val cell2 = grid(1, 0)
@@ -94,10 +94,47 @@ class GridExTest extends FunSuite {
   }
 
   test("HexGridTest") {
-    val hexGrid: HexGrid = HexGrid(5,5)
+    // TODO dunno how to test so I just make an image and test it visually
+    val hexGrid: HexGrid = HexGrid(5, 5)
     val maze: GraphEx = new GraphEx(hexGrid)
     var image = ImageUtilsEx.creationFunction(maze)(32, Some(5))
     var f = FileHelper.saveToFile(image, writer, s"HexGrid$ext", directoryName = "images")
+    assert(f.isSuccess)
+  }
+
+  test("TriangleGridTest") {
+    val triangleGrid = TriangleGrid(8, 12)
+    for (cell <- triangleGrid) {
+      val upRight: Boolean = (cell.row + cell.col) % 2 == 0
+      val (r, c) = (cell.row, cell.col)
+      assert(upRight == cell.isUpright)
+      // test north
+      if (upRight || r-1 < 0) {
+        assert(cell.north.isEmpty)
+      } else {
+        assert(cell.north.get == triangleGrid(r-1, c))
+      }
+      // test south
+      if (!upRight || r+1 >= triangleGrid.rows) {
+        assert(cell.south.isEmpty)
+      } else {
+        assert(cell.south.get == triangleGrid(r+1, c))
+      }
+      // test east
+      if (c+1 < triangleGrid.cols) {
+        assert(cell.east.get == triangleGrid(r, c+1))
+      } else {
+        assert(cell.east.isEmpty)
+      }
+      // test west
+      if (c-1 >= 0) {
+        assert(cell.west.get == triangleGrid(r, c-1))
+      } else {
+        assert(cell.west.isEmpty)
+      }
+    }
+    val image = ImageUtilsEx.creationFunction(new GraphEx(triangleGrid))(32, Some(5))
+    val f = FileHelper.saveToFile(image, writer, s"TriangleGrid$ext", dir)
     assert(f.isSuccess)
   }
 }

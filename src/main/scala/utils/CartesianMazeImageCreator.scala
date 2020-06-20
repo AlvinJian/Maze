@@ -39,7 +39,7 @@ class CartesianMazeImageCreator(override val graph: GraphEx,
 
   override def drawMazeWalls(prevImage: ImmutableImage): ImmutableImage = {
     val mutableImage = new MutableImage(prevImage.awt())
-    val wallColor = new RGBColor(0, 0, 0)
+    val wallColor = RGBColor.fromAwt(java.awt.Color.BLACK)
     val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
     wallGraphics.setColor(wallColor)
     val grid = graph.grid.asInstanceOf[CellContainer[Cell2DCart]]

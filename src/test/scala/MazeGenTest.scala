@@ -4,7 +4,7 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
+import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageUtilsEx}
 
@@ -229,8 +229,7 @@ class MazeGenTest extends FunSuite {
     pathCheck(path, distMap, distMap.root, farCell)
     val pathSet = path.toSet
     def colorMapper: (Cell2D)=>RGBColor = (cell) => {
-      if (cell == distMap.root || cell == farCell) RGBColor.fromAwt(Color.RED)
-      else if (pathSet.contains(cell)) distMap.colorMapper(cell)
+      if (pathSet.contains(cell)) distMap.colorMapper(cell)
       else RGBColor.fromAwt(Color.DARK_GRAY)
     }
     image = colorImageFunc(cellSize, colorMapper, padding)
@@ -248,6 +247,30 @@ class MazeGenTest extends FunSuite {
     val distMap: DistanceEx = DistanceEx.createMax(maze, grid(5,5)).get
     image = colorImageFunc(cellSize, distMap.colorMapper, padding)
     f = FileHelper.saveToFile(image, writer, s"HexMaze_DistMap$ext", dir)
+    assert(f.isSuccess)
+  }
+
+  test("TriangleMazeTest") {
+    val grid = TriangleGrid(15, 20)
+    val maze = HuntAndKillMaze.generate(rand, grid)
+    val colorImageFunc = ImageUtilsEx.creationFunctionWithColor(maze)
+    var image = colorImageFunc(cellSize,_=>RGBColor.fromAwt(java.awt.Color.WHITE), padding)
+    var f = FileHelper.saveToFile(image, writer, s"TriangleMaze$ext", dir)
+    assert(f.isSuccess)
+    val distMap: DistanceEx = DistanceEx.createMax(maze, grid(5,5)).get
+    image = colorImageFunc(cellSize, distMap.colorMapper, padding)
+    f = FileHelper.saveToFile(image, writer, s"TriangleMaze_DistMap$ext", dir)
+    assert(f.isSuccess)
+
+    val (farCell, _) = distMap.max
+    val path = distMap.pathTo(farCell)
+    pathCheck(path, distMap, distMap.root, farCell)
+    def colorPath(cell: Cell2D): RGBColor = {
+      if (path.contains(cell)) distMap.colorMapper(cell)
+      else RGBColor.fromAwt(java.awt.Color.DARK_GRAY)
+    }
+    image = colorImageFunc(cellSize, colorPath, padding)
+    f = FileHelper.saveToFile(image, writer, s"TriangleMaze_Path$ext", dir)
     assert(f.isSuccess)
   }
 }

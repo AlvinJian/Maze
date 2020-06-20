@@ -42,3 +42,13 @@ trait Cell2DHex extends Cell2D {
     northeast, north, northwest, southwest, south, southeast
   ).flatten
 }
+
+trait Cell2DTriangle extends Cell2D {
+  override type T = Cell2DTriangle
+  def isUpright: Boolean
+  def north: Option[T]
+  def south: Option[T]
+  def east: Option[T]
+  def west: Option[T]
+  override def neighbors: List[T] = List(this.north, this.south, this.east, this.west).flatten
+}
