@@ -1,5 +1,7 @@
 package grid
 
+import scala.util.Random
+
 class GraphEx(val grid: CellContainer[Cell2D]) {
   private var _graph = Map[Cell2D, Set[Cell2D]]()
 
@@ -63,5 +65,30 @@ object GraphEx {
                          c1: Cell2D, c2: Cell2D): Map[Cell2D, Set[Cell2D]] = {
     if (iGraph.contains(c1)) iGraph.updated(c1, iGraph(c1) + c2)
     else iGraph + (c1 -> Set[Cell2D](c2))
+  }
+
+  def braid(rand: Random, graph: GraphEx, param: Double = 1.0): GraphEx = {
+    val deadEnds = rand shuffle graph.deadEnds
+    @scala.annotation.tailrec
+    def loop(maze: GraphEx, i: Int): GraphEx = {
+      if (i == deadEnds.length) maze
+      else if (maze.linkedCells(deadEnds(i)).size != 1 || rand.nextDouble() > param) {
+        loop(maze, i+1)
+      } else {
+        val cell = deadEnds(i)
+        val candidates = cell.neighbors.filter(nc => !maze.isLinked(cell, nc))
+        val bestCandidates = candidates.filter(c => maze.linkedCells(c).size == 1)
+        val best: Cell2D = {
+          if (bestCandidates.nonEmpty) bestCandidates(rand.nextInt(bestCandidates.size))
+          else candidates(rand.nextInt(candidates.size))
+        }
+        val _maze = maze.link(cell, best) match {
+          case Some(value) => value
+          case None => maze
+        }
+        loop(_maze, i+1)
+      }
+    }
+    loop(graph, 0)
   }
 }

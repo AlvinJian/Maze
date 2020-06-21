@@ -113,7 +113,14 @@ object Wizard {
     val choice = numberFromStdIn(Some(0), Some(algos.indices.last))
     println(s"you choose ${algos(choice).getClass.getSimpleName}")
     val gen: MazeGenerator = algos(choice)
-    gen.generate(rand, grid.asInstanceOf[gen.T])
+    val maze = gen.generate(rand, grid.asInstanceOf[gen.T])
+    if (promptForAnswer("Do you want to braid the maze? (Y/N): ").toUpperCase == "Y") {
+      val maze_ = GraphEx.braid(rand, maze)
+      val deadEndCount = maze.deadEnds.size
+      val deadEndCount2 = maze_.deadEnds.size
+      println(s"before braid: $deadEndCount; after braid: $deadEndCount2")
+      maze_
+    } else maze
   }
 
   @scala.annotation.tailrec

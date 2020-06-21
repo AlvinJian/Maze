@@ -273,4 +273,18 @@ class MazeGenTest extends FunSuite {
     f = FileHelper.saveToFile(image, writer, s"TriangleMaze_Path$ext", dir)
     assert(f.isSuccess)
   }
+
+  test("BraidTest") {
+    val grid = PolarGrid(15)
+    var maze = HuntAndKillMaze.generate(rand, grid)
+    val deadEndCount = maze.deadEnds.size
+    maze = GraphEx.braid(rand, maze, 0.85)
+    val deadEndCount2 = maze.deadEnds.size
+    assert(deadEndCount2 < deadEndCount)
+    println(s"before braid: $deadEndCount; after braid: $deadEndCount2")
+    val colorImageFunc = ImageUtilsEx.creationFunctionWithColor(maze)
+    var image = colorImageFunc(cellSize,_=>RGBColor.fromAwt(java.awt.Color.WHITE), padding)
+    var f = FileHelper.saveToFile(image, writer, s"BraidMaze$ext", dir)
+    assert(f.isSuccess)
+  }
 }
