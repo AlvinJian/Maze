@@ -14,6 +14,7 @@ case class GridEx(override val rows: Int,
   def iterator: Iterator[Cell2DCart] = data.iterator
 
   private class GridExCell(override val row: Int, override val col: Int) extends Cell2DCart {
+    override type T = Cell2DCart
     val outer: GridEx = GridEx.this
 
     override def north: Option[Cell2DCart] = {

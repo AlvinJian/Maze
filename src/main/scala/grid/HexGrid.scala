@@ -15,6 +15,7 @@ case class HexGrid(override val rows: Int,
 
   private class HexCellImpl(override val row: Int,
                             override val col: Int) extends Cell2DHex {
+    override type T = Cell2DHex
     val outer: HexGrid = HexGrid.this
 
     private def northDiagonalRow: Int = if (col % 2  == 0) row - 1 else row

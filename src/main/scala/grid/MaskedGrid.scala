@@ -55,6 +55,7 @@ case class MaskedGrid(override val rows: Int, override val cols: Int,
 
   class MaskedGridCell(override val row: Int, override val col: Int,
                        val masked: Boolean) extends Cell2DCart {
+    override type T = Cell2DCart
     val outer: MaskedGrid = MaskedGrid.this
 
     override def north: Option[Cell2DCart] = {

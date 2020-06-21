@@ -4,7 +4,7 @@ import java.io.File
 
 import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
-import grid.{Cell2D, CellContainer, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid}
+import grid.{Cell2D, CellContainer, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
 import com.sksamuel.scrimage.color.RGBColor
 import utils.ImageUtilsEx
 
@@ -62,7 +62,12 @@ object Wizard {
   }
 
   def setupGrid: (CellContainer[Cell2D], Int) = {
-    val gridTypes = Vector("Rectangle Grid", "Circular Grid", "Hexagon Grid")
+    val gridTypes = Vector(GridEx.getClass.getSimpleName, PolarGrid.getClass.getSimpleName,
+      HexGrid.getClass.getSimpleName, TriangleGrid.getClass.getSimpleName)
+    val rectId = gridTypes.indexOf(GridEx.getClass.getSimpleName)
+    val hexId = gridTypes.indexOf(HexGrid.getClass.getSimpleName)
+    val triId = gridTypes.indexOf(TriangleGrid.getClass.getSimpleName)
+    val polarId = gridTypes.indexOf(PolarGrid.getClass.getSimpleName)
     for (i <- gridTypes.indices) {
       println(s"${i}: ${gridTypes(i)}")
     }
@@ -70,15 +75,18 @@ object Wizard {
     val choice = numberFromStdIn(Some(0), Some(gridTypes.indices.last))
     println(s"you choose ${gridTypes(choice)}")
     val grid: CellContainer[Cell2D] = choice match {
-      case i if (i == 0 || i == 2) => {
+      case i if (i == rectId || i == triId || i == hexId) => {
         print("enter column count: ")
         val cols = numberFromStdIn(Some(1))
         print("enter row count: ")
         val rows = numberFromStdIn(Some(1))
-        if (i == 0) GridEx(rows, cols)
-        else HexGrid(rows, cols)
+        i match {
+          case j if j == rectId => GridEx(rows, cols)
+          case k if k == triId => TriangleGrid(rows, cols)
+          case l if l == hexId => HexGrid(rows, cols)
+        }
       }
-      case 1 => {
+      case j if j == polarId => {
         print("enter cell count along radius: ")
         val rows = numberFromStdIn(Some(1))
         PolarGrid(rows)
@@ -91,11 +99,11 @@ object Wizard {
   }
 
   def generateMaze(grid: CellContainer[Cell2D]): GraphEx = {
-    val common = List[MazeGenerator](AldousBroderMaze, HuntAndKillMaze,
-      RecurBackTrackMaze, WilsonMaze)
+    val common = List[MazeGenerator](AldousBroderMaze, HuntAndKillMaze, RecurBackTrackMaze, WilsonMaze)
     val algos = grid match {
       case GridEx(_, _) => common ++ List(SidewinderMaze, BinaryTreeMaze)
       case MaskedGrid(_, _, _) => common ++ List(SidewinderMaze, BinaryTreeMaze)
+      case TriangleGrid(_, _) => common ++ List(SidewinderMaze, BinaryTreeMaze)
       case _ => common
     }
     for (i <- algos.indices) {

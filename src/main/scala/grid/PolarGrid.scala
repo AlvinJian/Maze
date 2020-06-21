@@ -45,6 +45,8 @@ case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] 
 
   private class PolarCellImp(override val row: Int,
                              override val col: Int) extends Cell2DPolar {
+    override type T = Cell2DPolar
+
     val outer = PolarGrid.this
 
     override def cw: Cell2DPolar = outer(row, col-1)

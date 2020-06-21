@@ -1,5 +1,5 @@
 package algorithm
-import grid.{Cell2DCart, GraphEx, CellContainer, GridEx}
+import grid.{Cell2DCart, Cell2DTriangle, CellContainer, GraphEx, GridEx}
 
 import scala.util.Random
 
@@ -9,7 +9,7 @@ object BinaryTreeMaze extends MazeGenerator {
   override def generate(_r: Random, grid: T): GraphEx = {
     var graph = new GraphEx(grid)
     for (cell <- grid) {
-      val candidates: List[Cell2DCart] = List(cell.north, cell.east).flatten
+      val candidates = List(cell.north, cell.east).flatten
       if (candidates.nonEmpty) {
         val otherCell = candidates(_r.nextInt(candidates.size))
         graph = graph.link(cell, otherCell) match {

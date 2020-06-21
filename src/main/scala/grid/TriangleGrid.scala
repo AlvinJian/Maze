@@ -14,6 +14,8 @@ case class TriangleGrid(override val rows: Int,
 
   private class Cell2DTriangleImpl(override val row: Int,
                                    override val col: Int) extends Cell2DTriangle {
+    override type T = Cell2DTriangle
+
     val outer: TriangleGrid = TriangleGrid.this
     override def isUpright: Boolean = {
       val sum = row + col
