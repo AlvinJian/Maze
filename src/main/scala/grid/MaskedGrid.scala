@@ -4,7 +4,7 @@ import scala.util.{Random, Try}
 
 case class MaskedGrid(override val rows: Int, override val cols: Int,
                       blacklist: Set[(Int,Int)]) extends CellContainer[Cell2DCart] {
-  override protected val data: Vector[Cell2DCart] = Vector.from(
+  protected val data: Vector[Cell2DCart] = Vector.from(
     for {
       r <- 0 until rows
       c <- 0 until cols
@@ -25,7 +25,7 @@ case class MaskedGrid(override val rows: Int, override val cols: Int,
   override def randomCell(r: Random): Cell2DCart = {
     var cell = this(0, 0)
     do {
-      cell = super.randomCell(r)
+      cell = data(r.nextInt(data.size))
     } while (!isValid(cell))
     cell
   }

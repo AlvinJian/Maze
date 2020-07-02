@@ -1,6 +1,7 @@
 package grid
 
 import scala.annotation.tailrec
+import scala.util.Random
 
 case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] {
   override val cols: Int = 1// dirty hack
@@ -77,4 +78,6 @@ case class PolarGrid(override val rows: Int) extends CellContainer[Cell2DPolar] 
   }
 
   override def iterator: Iterator[Cell2DPolar] = data.iterator
+
+  override def randomCell(r: Random): Cell2DPolar = data(r.nextInt(data.size))
 }

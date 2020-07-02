@@ -1,4 +1,5 @@
 package grid
+import scala.util.Random
 
 case class GridEx(override val rows: Int,
                   override val cols: Int) extends CellContainer[Cell2DCart] {
@@ -37,4 +38,6 @@ case class GridEx(override val rows: Int,
       if (outer.isValid(r, c)) Some(outer(r, c)) else None
     }
   }
+
+  override def randomCell(r: Random): Cell2DCart = data(r.nextInt(data.size))
 }

@@ -1,8 +1,9 @@
 package grid
+import scala.util.Random
 
 case class HexGrid(override val rows: Int,
                    override val cols: Int) extends CellContainer[Cell2DHex] {
-  override protected val data: Vector[Cell2DHex] = Vector.from{
+  protected val data: Vector[Cell2DHex] = Vector.from{
     for {
       r <- 0 until rows
       c <- 0 until cols
@@ -54,4 +55,6 @@ case class HexGrid(override val rows: Int,
       if (outer.isValid(r, c)) Some(outer.apply(r, c)) else None
     }
   }
+
+  override def randomCell(r: Random): Cell2DHex = data(r.nextInt(data.size))
 }
