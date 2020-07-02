@@ -68,7 +68,7 @@ object GraphEx {
   }
 
   def braid(rand: Random, graph: GraphEx, param: Double = 1.0): GraphEx = {
-    val deadEnds = rand shuffle graph.deadEnds
+    val deadEnds: Array[Cell2D] = (rand shuffle graph.deadEnds).toArray
     @scala.annotation.tailrec
     def loop(maze: GraphEx, i: Int): GraphEx = {
       if (i == deadEnds.length) maze

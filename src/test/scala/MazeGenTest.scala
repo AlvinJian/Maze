@@ -286,5 +286,16 @@ class MazeGenTest extends FunSuite {
     var image = colorImageFunc(cellSize,_=>RGBColor.fromAwt(java.awt.Color.WHITE), padding)
     var f = FileHelper.saveToFile(image, writer, s"BraidMaze$ext", dir)
     assert(f.isSuccess)
+    val distMap = DistanceEx.createMax(maze, grid(0,0)).get
+    val (farCell, _) = distMap.max
+    val path = distMap.pathTo(farCell)
+    pathCheck(path, distMap, distMap.root, farCell)
+    def colorPath(cell: Cell2D): RGBColor = {
+      if (path.contains(cell)) distMap.colorMapper(cell)
+      else RGBColor.fromAwt(java.awt.Color.DARK_GRAY)
+    }
+    image = colorImageFunc(cellSize, colorPath, padding)
+    f = FileHelper.saveToFile(image, writer, s"BraidMaze_Path$ext", dir)
+    assert(f.isSuccess)
   }
 }
