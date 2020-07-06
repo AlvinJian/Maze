@@ -298,4 +298,13 @@ class MazeGenTest extends FunSuite {
     f = FileHelper.saveToFile(image, writer, s"BraidMaze_Path$ext", dir)
     assert(f.isSuccess)
   }
+
+  test("InsetMazeImageTest") {
+    val grid = GridEx(10, 10)
+    val maze = RecurBackTrackMaze.generate(rand, grid)
+    val func = ImageUtilsEx.creationFunctionEx(maze)
+    val img = func(cellSize, padding.get, 4)
+    val file = FileHelper.saveToFile(img, writer, s"InsetMaze$ext", dir)
+    assert(file.isSuccess)
+  }
 }

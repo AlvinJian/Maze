@@ -13,7 +13,7 @@ trait MazeImageCreator {
 }
 
 object MazeImageCreator {
-  def make(graph: GraphEx, cellSize: Int): MazeImageCreator =
+  def apply(graph: GraphEx, cellSize: Int): MazeImageCreator =
     graph.grid match {
       case hexGrid: HexGrid => new HexMazeImageCreator(graph, cellSize)
       case polarGrid: PolarGrid => new PolarMazeImageCreator(graph, cellSize)
@@ -22,12 +22,22 @@ object MazeImageCreator {
       case triangleGrid: TriangleGrid => new TriangleMazeImageCreator(graph, cellSize)
       case _ => ???
     }
+
+  def apply(graph: GraphEx, cellSize: Int, inSet: Int): MazeImageCreator = {
+    if (inSet <= 0) apply(graph, cellSize)
+    else {
+      graph.grid match {
+        case GridEx(_, _) => new CarteMazeInsetImageCreator(graph, cellSize, inSet)
+        case _ => ???
+      }
+    }
+  }
 }
 
 object ImageUtilsEx {
   def creationFunctionWithColor(graph: GraphEx): (Int, Cell2D=>RGBColor, Option[Int]) => ImmutableImage = {
     val ret: (Int, Cell2D=>RGBColor, Option[Int]) => ImmutableImage = (size, f, padding)=> {
-      val start = (cellSize: Int) => MazeImageCreator.make(graph, cellSize)
+      val start = (cellSize: Int) => MazeImageCreator.apply(graph, cellSize)
       val pipeline = start.andThen{
         creator => (creator, creator.baseImage)
       }.andThen{
@@ -51,7 +61,7 @@ object ImageUtilsEx {
 
   def creationFunction(graph: GraphEx): (Int, Option[Int])=>ImmutableImage = {
     val start = (cellSize: Int) => {
-      MazeImageCreator.make(graph, cellSize)
+      MazeImageCreator.apply(graph, cellSize)
     }
     val baseFunc = start.andThen{
       (creator: MazeImageCreator) => (creator, creator.baseImage)
@@ -68,5 +78,15 @@ object ImageUtilsEx {
       else img
     }
     ret
+  }
+
+  def creationFunctionEx(graph: GraphEx): (Int, Int, Int)=>ImmutableImage = {
+    val f = (cellSize: Int, inSet: Int, padding: Int) => {
+      val creator: MazeImageCreator = MazeImageCreator(graph, cellSize, inSet)
+      val img = creator.drawMazeWalls(creator.baseImage)
+      if (padding > 0) img.pad(padding, java.awt.Color.GRAY)
+      else img
+    }
+    f
   }
 }

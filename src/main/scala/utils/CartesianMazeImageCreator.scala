@@ -13,6 +13,7 @@ class CartesianMazeImageCreator(override val graph: GraphEx,
                                 override val cellSize: Int) extends MazeImageCreator {
   val imgWidth: Int = graph.grid.cols * cellSize
   val imgHeight: Int = graph.grid.rows * cellSize
+  val grid = graph.grid.asInstanceOf[CellContainer[Cell2DCart]]
 
   override def baseImage: ImmutableImage = graph.grid match {
     case GridEx(_, _) => blankImage
@@ -42,7 +43,6 @@ class CartesianMazeImageCreator(override val graph: GraphEx,
     val wallColor = RGBColor.fromAwt(java.awt.Color.BLACK)
     val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
     wallGraphics.setColor(wallColor)
-    val grid = graph.grid.asInstanceOf[CellContainer[Cell2DCart]]
 
     for (cell <- grid) {
       val (x1, y1, x2, y2) = calcRectCellPosition(cell, cellSize)
@@ -79,7 +79,7 @@ class CartesianMazeImageCreator(override val graph: GraphEx,
     mutableImage.toImmutableImage
   }
 
-  private def calcRectCellPosition(cell2DCart: Cell2DCart, cellSize: Int): (Int, Int, Int, Int) = {
+  def calcRectCellPosition(cell2DCart: Cell2DCart, cellSize: Int): (Int, Int, Int, Int) = {
     val row = cell2DCart.row
     val col = cell2DCart.col
     val x1 = col * cellSize
@@ -89,6 +89,6 @@ class CartesianMazeImageCreator(override val graph: GraphEx,
     (x1, y1, x2, y2)
   }
 
-  private def blankImage: ImmutableImage =
-    ImmutableImage.filled(imgWidth+1, imgHeight+1, new awt.Color(255, 255, 255), BufferedImage.TYPE_INT_RGB)
+  def blankImage: ImmutableImage =
+    ImmutableImage.filled(imgWidth+1, imgHeight+1, java.awt.Color.WHITE, BufferedImage.TYPE_INT_RGB)
 }
