@@ -5,13 +5,21 @@ case class WeaveGrid(override val rows: Int,
                      override val cols: Int) extends CellContainer[Cell2DOverlay] with Graph {
   override val grid: CellContainer[Cell2DOverlay] = this
   private var _graph: Graph = new GraphEx(this)
+
+  protected val data: Seq[Cell2DOverlay] = Vector.from{
+    for {
+      r <- 0.until(rows)
+      c <- 0.until(cols)
+    } yield new Cell2DOverlayImpl(r, c)
+  }
+
   private var _hiddenCells = Map[Cell2DOverlay, Cell2DHidden]()
 
-  override def apply(r: Int, c: Int): Cell2DOverlay = ???
+  override def apply(r: Int, c: Int): Cell2DOverlay = data(r * cols + c)
 
-  override def randomCell(r: Random): Cell2DOverlay = ???
+  override def randomCell(r: Random): Cell2DOverlay = data(r.nextInt(data.size))
 
-  override def iterator: Iterator[Cell2DOverlay] = ???
+  override def iterator: Iterator[Cell2DOverlay] = data.iterator
 
   private def checkHiddenCellRequired(cell1: Cell2D,
                                       cell2: Cell2D): Option[Cell2DOverlay] = {
@@ -114,7 +122,7 @@ case class WeaveGrid(override val rows: Int,
 
     override def west: Option[Cell2DOverlay] = ???
 
-    override def hiddenCell: Option[Cell2DHidden] = outer._hiddenCells.get(this)
+    override def underneath: Option[Cell2DHidden] = outer._hiddenCells.get(this)
 
     override def neighbors: List[Cell2DOverlay] = {
       var neighbors = super.neighbors

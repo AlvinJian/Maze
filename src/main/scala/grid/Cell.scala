@@ -51,7 +51,7 @@ trait Cell2DTriangle extends Cell2DCart {
 trait Cell2DOverlay extends Cell2DCart {
   override type T <: Cell2DOverlay
 
-  def hiddenCell: Option[Cell2DHidden]
+  def underneath: Option[Cell2DHidden]
 }
 
 trait Cell2DHidden extends Cell2DCart {
