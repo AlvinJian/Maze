@@ -4,7 +4,7 @@ import java.io.File
 
 import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
-import grid.{Cell2D, CellContainer, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
+import grid.{Cell2D, CellContainer, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
 import com.sksamuel.scrimage.color.RGBColor
 import utils.ImageUtilsEx
 
@@ -98,7 +98,7 @@ object Wizard {
     (grid, cellSize)
   }
 
-  def generateMaze(grid: CellContainer[Cell2D]): GraphEx = {
+  def generateMaze(grid: CellContainer[Cell2D]): Graph = {
     val common = List[MazeGenerator](AldousBroderMaze, HuntAndKillMaze, RecurBackTrackMaze, WilsonMaze)
     val algos = grid match {
       case GridEx(_, _) => common ++ List(SidewinderMaze, BinaryTreeMaze)
@@ -115,7 +115,7 @@ object Wizard {
     val gen: MazeGenerator = algos(choice)
     val maze = gen.generate(rand, grid.asInstanceOf[gen.T])
     if (promptForAnswer("Do you want to braid the maze? (Y/N): ").toUpperCase == "Y") {
-      val maze_ = GraphEx.braid(rand, maze)
+      val maze_ = Graph.braid(rand, maze)
       val deadEndCount = maze.deadEnds.size
       val deadEndCount2 = maze_.deadEnds.size
       println(s"before braid: $deadEndCount; after braid: $deadEndCount2")
@@ -141,7 +141,7 @@ object Wizard {
   }
 
   @scala.annotation.tailrec
-  def computeDistMap(maze: GraphEx): DistanceEx = {
+  def computeDistMap(maze: Graph): DistanceEx = {
     println("Compute the longest path")
     val seed = setupSeedCell(maze.grid)
     val opt = DistanceEx.createMax(maze, seed)

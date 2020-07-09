@@ -1,5 +1,5 @@
 package algorithm
-import grid.{Cell2DCart, GraphEx, CellContainer, GridEx}
+import grid.{Cell2DCart, CellContainer, Graph, GraphEx, GridEx}
 
 import scala.collection.immutable.VectorBuilder
 import scala.util.Random
@@ -7,8 +7,8 @@ import scala.util.Random
 object SidewinderMaze extends MazeGenerator {
   override type T = CellContainer[Cell2DCart]
 
-  override def generate(_r: Random, grid: T): GraphEx = {
-    var graph: GraphEx = new GraphEx(grid)
+  override def generate(_r: Random, grid: T): Graph = {
+    var graph: Graph = Graph(grid)
     for (r <- 0 until grid.rows) {
       var run = Vector[Cell2DCart]()
       for (c <- 0 until grid.cols) {

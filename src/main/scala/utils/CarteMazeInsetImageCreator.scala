@@ -4,9 +4,9 @@ import java.awt.image.BufferedImage
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, Cell2DCart, GraphEx}
+import grid.{Cell2D, Cell2DCart, Graph, GraphEx}
 
-class CarteMazeInsetImageCreator(g: GraphEx,
+class CarteMazeInsetImageCreator(g: Graph,
                                  cs: Int,
                                  val inSet: Int) extends CartesianMazeImageCreator(g, cs) {
   def calcInsetPosition(cell2DCart: Cell2DCart, cellSize: Int):

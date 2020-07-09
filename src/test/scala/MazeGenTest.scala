@@ -4,13 +4,13 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{Cell2D, Cell2DCart, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
+import grid.{Cell2D, Cell2DCart, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageUtilsEx}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.util.{Failure, Random, Success}
+import scala.util.Random
 
 class MazeGenTest extends FunSuite {
   private implicit val writer: PngWriter = PngWriter.MaxCompression
@@ -40,7 +40,7 @@ class MazeGenTest extends FunSuite {
   test("Algorithm.BinaryTreeEx") {
     val grid = new GridEx(20,20)
     val maze = BinaryTreeMaze.generate(rand, grid)
-    print(maze)
+//    print(maze)
     val start = grid(0, 0)
     val distMap = DistanceEx.from(maze, start).get
     val end = grid((grid.rows-1)/2, (grid.cols-1)/2)
@@ -60,7 +60,7 @@ class MazeGenTest extends FunSuite {
     val content = (cell: Cell2DCart) => {
       if (distMap.contains(cell)) distMap(cell).toString else "-"
     }
-    print(maze/*.dump(content)*/); println()
+//    print(maze/*.dump(content)*/); println()
     val goal = grid((grid.rows-1)/2, (grid.cols-1)/2)
     val path = distMap.pathTo(goal)
     assert(path.nonEmpty)
@@ -139,9 +139,9 @@ class MazeGenTest extends FunSuite {
     val path = distMap.pathTo(farCell)
     pathCheck(path, distMap, distMap.root, farCell)
     val pathSet = path.toSet
-    println(maze.dump((c) => {
-      if (pathSet.contains(c)) distMap(c).toString else ""
-    }))
+//    println(maze.dump((c) => {
+//      if (pathSet.contains(c)) distMap(c).toString else ""
+//    }))
     val colorMapper: (Cell2D) => RGBColor = (c) => {
       if (pathSet.contains(c)) distMap.colorMapper(c)
       else RGBColor.fromAwt(java.awt.Color.GRAY)
@@ -207,7 +207,7 @@ class MazeGenTest extends FunSuite {
     val content = (cell: Cell2DCart) => {
       if (distMap.contains(cell)) distMap(cell).toString else "-"
     }
-    print(maze.dump(content)); println()
+//    print(maze.dump(content)); println()
     println(s"grid size=${grid.size}")
   }
 
@@ -278,7 +278,7 @@ class MazeGenTest extends FunSuite {
     val grid = PolarGrid(15)
     var maze = HuntAndKillMaze.generate(rand, grid)
     val deadEndCount = maze.deadEnds.size
-    maze = GraphEx.braid(rand, maze, 0.85)
+    maze = Graph.braid(rand, maze, 0.85)
     val deadEndCount2 = maze.deadEnds.size
     assert(deadEndCount2 < deadEndCount)
     println(s"before braid: $deadEndCount; after braid: $deadEndCount2")

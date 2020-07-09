@@ -6,9 +6,9 @@ import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.canvas.drawables.Line
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, Cell2DPolar, GraphEx, PolarGrid}
+import grid.{Cell2D, Cell2DPolar, Graph, GraphEx, PolarGrid}
 
-class PolarMazeImageCreator(override val graph: GraphEx,
+class PolarMazeImageCreator(override val graph: Graph,
                             override val cellSize: Int) extends MazeImageCreator {
   val polarGrid: PolarGrid = graph.grid.asInstanceOf[PolarGrid]
 

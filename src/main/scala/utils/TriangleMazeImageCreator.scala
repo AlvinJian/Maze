@@ -4,9 +4,9 @@ import java.awt.image.BufferedImage
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, Cell2DTriangle, CellContainer, GraphEx}
+import grid.{Cell2D, Cell2DTriangle, CellContainer, Graph, GraphEx}
 
-class TriangleMazeImageCreator(override val graph: GraphEx,
+class TriangleMazeImageCreator(override val graph: Graph,
                                override val cellSize: Int) extends MazeImageCreator {
   private val halfWidth: Double = cellSize.toDouble / 2.0
   private val height: Double = cellSize.toDouble * scala.math.sqrt(3) / 2.0

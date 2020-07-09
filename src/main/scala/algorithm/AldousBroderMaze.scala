@@ -1,18 +1,18 @@
 package algorithm
 
-import grid.{Cell2D, GraphEx, CellContainer, GridEx}
+import grid.{Cell2D, CellContainer, Graph, GraphEx, GridEx}
 
 import scala.util.Random
 
 object AldousBroderMaze extends MazeGenerator {
   override type T = CellContainer[Cell2D]
 
-  override def generate(r: Random, grid: T): GraphEx = {
-    val graph = new GraphEx(grid)
+  override def generate(r: Random, grid: T): Graph = {
+    val graph = Graph(grid)
     val cell = grid.randomCell(r)
     val unvisited: Int = grid.size-1
     @scala.annotation.tailrec
-    def loop(unvisited: Int, cell: Cell2D, graph: GraphEx): GraphEx = {
+    def loop(unvisited: Int, cell: Cell2D, graph: Graph): Graph = {
       if (unvisited > 0) {
         val ns = cell.neighbors
         val neighbor = ns(r.nextInt(ns.size))

@@ -2,9 +2,9 @@ package utils
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, Cell2DHex, CellContainer, GraphEx}
+import grid.{Cell2D, Cell2DHex, CellContainer, Graph, GraphEx}
 
-class HexMazeImageCreator(override val graph: GraphEx,
+class HexMazeImageCreator(override val graph: Graph,
                           override val cellSize: Int) extends MazeImageCreator {
   val hexGrid = graph.grid.asInstanceOf[CellContainer[Cell2DHex]]
   private val aSize = cellSize / 2

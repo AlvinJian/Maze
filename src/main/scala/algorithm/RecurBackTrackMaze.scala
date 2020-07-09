@@ -1,6 +1,6 @@
 package algorithm
 
-import grid.{Cell2D, GraphEx, CellContainer, GridEx}
+import grid.{Cell2D, CellContainer, Graph, GraphEx, GridEx}
 
 import scala.collection.mutable
 import scala.util.Random
@@ -8,8 +8,8 @@ import scala.util.Random
 object RecurBackTrackMaze extends MazeGenerator {
   override type T = CellContainer[Cell2D]
 
-  override def generate(rand: Random, grid: T): GraphEx = {
-    var graph = new GraphEx(grid)
+  override def generate(rand: Random, grid: T): Graph = {
+    var graph = Graph(grid)
     var current: Option[Cell2D] = Some(grid.randomCell(rand))
     val stack = mutable.Stack[Cell2D]()
     while (current.isDefined) {

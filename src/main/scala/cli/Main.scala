@@ -3,7 +3,7 @@ package cli
 import java.io.File
 
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.GraphEx
+import grid.Graph
 import utils.{FileHelper, ImageUtilsEx}
 
 import scala.annotation.tailrec
@@ -26,7 +26,7 @@ object Main extends App {
       println()
       if (Wizard.promptForAnswer("Do you want to see the grid as image? (Y/N): ").toUpperCase
         == "Y") {
-        val image = ImageUtilsEx.creationFunction(new GraphEx(grid))(cellSize, padding)
+        val image = ImageUtilsEx.creationFunction(Graph(grid))(cellSize, padding)
         val optFile = FileHelper.saveToFile(image, writer, "grid.png", dirPath)
         java.awt.Desktop.getDesktop.open(optFile.get)
       }

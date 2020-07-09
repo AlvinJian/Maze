@@ -2,10 +2,10 @@ package utils
 
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
-import grid.{Cell2D, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
+import grid.{Cell2D, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
 
 trait MazeImageCreator {
-  val graph: GraphEx
+  val graph: Graph
   val cellSize: Int
   def baseImage: ImmutableImage
   def drawMazeWalls(prevImage: ImmutableImage): ImmutableImage
@@ -13,7 +13,7 @@ trait MazeImageCreator {
 }
 
 object MazeImageCreator {
-  def apply(graph: GraphEx, cellSize: Int): MazeImageCreator =
+  def apply(graph: Graph, cellSize: Int): MazeImageCreator =
     graph.grid match {
       case hexGrid: HexGrid => new HexMazeImageCreator(graph, cellSize)
       case polarGrid: PolarGrid => new PolarMazeImageCreator(graph, cellSize)
@@ -23,7 +23,7 @@ object MazeImageCreator {
       case _ => ???
     }
 
-  def apply(graph: GraphEx, cellSize: Int, inSet: Int): MazeImageCreator = {
+  def apply(graph: Graph, cellSize: Int, inSet: Int): MazeImageCreator = {
     if (inSet <= 0) apply(graph, cellSize)
     else {
       graph.grid match {
@@ -35,9 +35,9 @@ object MazeImageCreator {
 }
 
 object ImageUtilsEx {
-  def creationFunctionWithColor(graph: GraphEx): (Int, Cell2D=>RGBColor, Option[Int]) => ImmutableImage = {
+  def creationFunctionWithColor(graph: Graph): (Int, Cell2D=>RGBColor, Option[Int]) => ImmutableImage = {
     val ret: (Int, Cell2D=>RGBColor, Option[Int]) => ImmutableImage = (size, f, padding)=> {
-      val start = (cellSize: Int) => MazeImageCreator.apply(graph, cellSize)
+      val start = (cellSize: Int) => MazeImageCreator(graph, cellSize)
       val pipeline = start.andThen{
         creator => (creator, creator.baseImage)
       }.andThen{
@@ -59,7 +59,7 @@ object ImageUtilsEx {
     ret
   }
 
-  def creationFunction(graph: GraphEx): (Int, Option[Int])=>ImmutableImage = {
+  def creationFunction(graph: Graph): (Int, Option[Int])=>ImmutableImage = {
     val start = (cellSize: Int) => {
       MazeImageCreator.apply(graph, cellSize)
     }
@@ -80,7 +80,7 @@ object ImageUtilsEx {
     ret
   }
 
-  def creationFunctionEx(graph: GraphEx): (Int, Int, Int)=>ImmutableImage = {
+  def creationFunctionEx(graph: Graph): (Int, Int, Int)=>ImmutableImage = {
     val f = (cellSize: Int, inSet: Int, padding: Int) => {
       val creator: MazeImageCreator = MazeImageCreator(graph, cellSize, inSet)
       val img = creator.drawMazeWalls(creator.baseImage)

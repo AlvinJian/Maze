@@ -1,18 +1,13 @@
 package algorithm
 
-import java.awt.image.BufferedImage
-
-import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line, Rect}
-import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
-import com.sksamuel.scrimage.color.{Color, RGBColor}
-import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, GraphEx, CellContainer}
+import com.sksamuel.scrimage.color.RGBColor
+import grid.{Cell2D, Graph}
 
 import scala.collection.mutable
 
 trait DistanceEx {
   def root: Cell2D
-  def graph: GraphEx
+  def graph: Graph
   def max: (Cell2D, Int)
   def apply(cell: Cell2D): Int
   def contains(cell: Cell2D): Boolean
@@ -20,7 +15,7 @@ trait DistanceEx {
   def colorMapper(cell: Cell2D): RGBColor
 }
 
-private class DistanceExImpl(val graph: GraphEx, val root: Cell2D, val max: (Cell2D, Int),
+private class DistanceExImpl(val graph: Graph, val root: Cell2D, val max: (Cell2D, Int),
                              val distMap: Map[Cell2D, Int]) extends DistanceEx {
   override def apply(cell: Cell2D): Int = distMap(cell)
 
@@ -65,7 +60,7 @@ private class DistanceExImpl(val graph: GraphEx, val root: Cell2D, val max: (Cel
 }
 
 object DistanceEx {
-  def from(graph: GraphEx, root: Cell2D): Option[DistanceEx] = {
+  def from(graph: Graph, root: Cell2D): Option[DistanceEx] = {
     if (!graph.grid.isValid(root)) return None
     var distMap = Map(root -> 0)
     val que = mutable.Queue(root)
@@ -90,7 +85,7 @@ object DistanceEx {
     else None
   }
 
-  def createMax(graph: GraphEx, thru: Cell2D): Option[DistanceEx] = {
+  def createMax(graph: Graph, thru: Cell2D): Option[DistanceEx] = {
     var distMap = DistanceEx.from(graph, thru) match {
       case Some(value) => value
       case None => return None
