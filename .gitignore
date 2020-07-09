@@ -87,3 +87,9 @@ project/plugins/project/
 
 # Custom
 images/
+
+# metals
+.metals/
+.bloop/
+.ammonite/
+project/metals.sbt
