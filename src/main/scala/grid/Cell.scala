@@ -48,15 +48,15 @@ trait Cell2DTriangle extends Cell2DCart {
   def isUpright: Boolean
 }
 
-trait Cell2DOverlay extends Cell2DCart {
-  override type T <: Cell2DOverlay
+trait Cell2DWeave extends Cell2DCart {
+  override type T <: Cell2DWeave
+}
 
+trait Cell2DOverlay extends Cell2DWeave {
   def underneath: Option[Cell2DHidden]
 }
 
 trait Cell2DHidden extends Cell2DCart {
-  override type T <: Cell2DHidden
-
   val overlay: Cell2DOverlay
   def isHorizontalLink: Boolean
   def isVerticalLink: Boolean

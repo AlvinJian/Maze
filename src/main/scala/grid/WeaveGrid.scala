@@ -26,11 +26,15 @@ case class WeaveGrid(override val rows: Int,
     if (!cell1.isInstanceOf[Cell2DOverlay] || !cell2.isInstanceOf[Cell2DOverlay]) return None
     val c1 = cell1.asInstanceOf[Cell2DOverlay]
     val c2 = cell2.asInstanceOf[Cell2DOverlay]
-    if (c1.north == c2.south) c1.north
-    else if (c1.south == c2.north) c1.south
-    else if (c1.west == c2.east) c1.west
-    else if (c1.east == c2.west) c1.east
-    else None
+    val tmp = {
+      if (c1.north == c2.south) c1.north
+      else if (c1.south == c2.north) c1.south
+      else if (c1.west == c2.east) c1.west
+      else if (c1.east == c2.west) c1.east
+      else None
+    }
+    if (tmp.isEmpty || tmp.get.isInstanceOf[Cell2DHidden]) None
+    else Some(tmp.get.asInstanceOf[Cell2DOverlay])
   }
 
   override def link(from: Cell2D, to: Cell2D): Option[Graph] = {
@@ -60,7 +64,7 @@ case class WeaveGrid(override val rows: Int,
 
   private class Cell2DOverlayImpl(override val row: Int,
                                   override val col: Int) extends Cell2DOverlay {
-    override type T = Cell2DOverlay
+    override type T = Cell2DWeave
 
     val outer: WeaveGrid = WeaveGrid.this
 
@@ -114,17 +118,9 @@ case class WeaveGrid(override val rows: Int,
       } else false
     }
 
-    override def north: Option[Cell2DOverlay] = ???
-
-    override def south: Option[Cell2DOverlay] = ???
-
-    override def east: Option[Cell2DOverlay] = ???
-
-    override def west: Option[Cell2DOverlay] = ???
-
     override def underneath: Option[Cell2DHidden] = outer._hiddenCells.get(this)
 
-    override def neighbors: List[Cell2DOverlay] = {
+    override def neighbors: List[Cell2DWeave] = {
       var neighbors = super.neighbors
       neighbors = neighbors ++ {
         if (canTunnelNorth) List(north.get.north).flatten else Nil
@@ -140,10 +136,18 @@ case class WeaveGrid(override val rows: Int,
       }
       neighbors
     }
+
+    override def north: Option[Cell2DWeave] = ???
+
+    override def south: Option[Cell2DWeave] = ???
+
+    override def east: Option[Cell2DWeave] = ???
+
+    override def west: Option[Cell2DWeave] = ???
   }
 
   private class Cell2DHiddenImpl(override val overlay: Cell2DOverlay) extends Cell2DHidden {
-    override type T = Cell2DHidden
+    override type T = Cell2DWeave
 
     val outer: WeaveGrid = WeaveGrid.this
     outer._hiddenCells = outer._hiddenCells + (overlay -> this)
@@ -151,13 +155,13 @@ case class WeaveGrid(override val rows: Int,
     override val row: Int = overlay.row
     override val col: Int = overlay.col
 
-    override def north: Option[Cell2DHidden] = ???
+    override def north: Option[Cell2DWeave] = ???
 
-    override def south: Option[Cell2DHidden] = ???
+    override def south: Option[Cell2DWeave] = ???
 
-    override def east: Option[Cell2DHidden] = ???
+    override def east: Option[Cell2DWeave] = ???
 
-    override def west: Option[Cell2DHidden] = ???
+    override def west: Option[Cell2DWeave] = ???
 
     override def isHorizontalLink: Boolean = ???
 
