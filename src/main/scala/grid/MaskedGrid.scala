@@ -58,25 +58,13 @@ case class MaskedGrid(override val rows: Int, override val cols: Int,
     override type T = Cell2DCart
     val outer: MaskedGrid = MaskedGrid.this
 
-    override def north: Option[Cell2DCart] = {
-      val (r, c) = (row-1, col)
-      if (!masked && outer.isValid(r, c)) Some(outer(r, c)) else None
-    }
+    override def north: Option[Cell2DCart] = if (!masked) Cell2DCart.north(outer, row, col) else None
 
-    override def south: Option[Cell2DCart] = {
-      val (r, c) = (row+1, col)
-      if (!masked && outer.isValid(r, c)) Some(outer(r, c)) else None
-    }
+    override def south: Option[Cell2DCart] = if (!masked) Cell2DCart.south(outer, row, col) else None
 
-    override def east: Option[Cell2DCart] = {
-      val (r, c) = (row, col+1)
-      if (!masked && outer.isValid(r, c)) Some(outer(r, c)) else None
-    }
+    override def east: Option[Cell2DCart] = if (!masked) Cell2DCart.east(outer, row, col) else None
 
-    override def west: Option[Cell2DCart] = {
-      val (r, c) = (row, col-1)
-      if (!masked && outer.isValid(r, c)) Some(outer(r, c)) else None
-    }
+    override def west: Option[Cell2DCart] = if (!masked) Cell2DCart.west(outer, row, col) else None
   }
 }
 

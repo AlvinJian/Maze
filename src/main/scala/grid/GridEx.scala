@@ -18,25 +18,13 @@ case class GridEx(override val rows: Int,
     override type T = Cell2DCart
     val outer: GridEx = GridEx.this
 
-    override def north: Option[Cell2DCart] = {
-      val (r, c) = (row-1, col)
-      if (outer.isValid(r, c)) Some(outer(r, c)) else None
-    }
+    override def north: Option[Cell2DCart] = Cell2DCart.north(outer, row, col)
 
-    override def south: Option[Cell2DCart] = {
-      val (r, c) = (row+1, col)
-      if (outer.isValid(r, c)) Some(outer(r, c)) else None
-    }
+    override def south: Option[Cell2DCart] = Cell2DCart.south(outer, row, col)
 
-    override def east: Option[Cell2DCart] = {
-      val (r, c) = (row, col+1)
-      if (outer.isValid(r, c)) Some(outer(r, c)) else None
-    }
+    override def east: Option[Cell2DCart] = Cell2DCart.east(outer, row, col)
 
-    override def west: Option[Cell2DCart] = {
-      val (r, c) = (row, col-1)
-      if (outer.isValid(r, c)) Some(outer(r, c)) else None
-    }
+    override def west: Option[Cell2DCart] = Cell2DCart.west(outer, row, col)
   }
 
   override def randomCell(r: Random): Cell2DCart = data(r.nextInt(data.size))

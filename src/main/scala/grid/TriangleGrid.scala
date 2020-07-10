@@ -23,29 +23,13 @@ case class TriangleGrid(override val rows: Int,
       sum % 2 == 0
     }
 
-    override def north: Option[Cell2DTriangle] = {
-      val (r, c) = (row-1, col)
-      if (!isUpright && outer.isValid(r, c)) Some(outer.apply(r, c))
-      else None
-    }
+    override def north: Option[Cell2DTriangle] = if (!isUpright) Cell2DCart.north(outer, row, col) else None
 
-    override def south: Option[Cell2DTriangle] = {
-      val (r, c) = (row+1, col)
-      if (isUpright && outer.isValid(r, c)) Some(outer.apply(r, c))
-      else None
-    }
+    override def south: Option[Cell2DTriangle] = if (isUpright) Cell2DCart.south(outer, row, col) else None
 
-    override def east: Option[Cell2DTriangle] = {
-      val (r ,c) = (row, col+1)
-      if (outer.isValid(r, c)) Some(outer.apply(r, c))
-      else None
-    }
+    override def east: Option[Cell2DTriangle] = Cell2DCart.east(outer, row, col)
 
-    override def west: Option[Cell2DTriangle] = {
-      val (r ,c) = (row, col-1)
-      if (outer.isValid(r, c)) Some(outer.apply(r, c))
-      else None
-    }
+    override def west: Option[Cell2DTriangle] = Cell2DCart.west(outer, row, col)
   }
 
   override def apply(r: Int, c: Int): Cell2DTriangle = data(r * cols + c)

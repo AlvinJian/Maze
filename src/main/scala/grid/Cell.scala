@@ -16,6 +16,29 @@ trait Cell2DCart extends Cell2D {
   override def neighbors: List[T] = List(this.north, this.south, this.east, this.west).flatten
 }
 
+// since these functions are used in so many places, it'd better to put them together
+object Cell2DCart {
+  def north[T <: Cell2DCart](grid: CellContainer[T], row: Int, col: Int): Option[T] = {
+    val (r, c) = (row-1, col)
+    if (grid.isValid(r, c)) Some(grid(r,c)) else None
+  }
+
+  def south[T <: Cell2DCart](grid: CellContainer[T], row: Int, col: Int): Option[T] = {
+    val (r, c) = (row+1, col)
+    if (grid.isValid(r, c)) Some(grid(r, c)) else None
+  }
+
+  def east[T <: Cell2DCart](grid: CellContainer[T], row: Int, col: Int): Option[T] = {
+    val (r, c) = (row, col+1)
+    if (grid.isValid(r, c)) Some(grid(r, c)) else None
+  }
+
+  def west[T <: Cell2DCart](grid: CellContainer[T], row: Int, col: Int): Option[T] = {
+    val (r, c) = (row, col-1)
+    if (grid.isValid(r, c)) Some(grid(r, c)) else None
+  }
+}
+
 trait Cell2DPolar extends Cell2D {
   override type T <: Cell2DPolar
   def cw: T
@@ -50,14 +73,6 @@ trait Cell2DTriangle extends Cell2DCart {
 
 trait Cell2DWeave extends Cell2DCart {
   override type T <: Cell2DWeave
-}
-
-trait Cell2DOverlay extends Cell2DWeave {
-  def underneath: Option[Cell2DHidden]
-}
-
-trait Cell2DHidden extends Cell2DCart {
-  val overlay: Cell2DOverlay
-  def isHorizontalLink: Boolean
-  def isVerticalLink: Boolean
+  def isHorizontalLinked: Boolean
+  def isVerticalLinked: Boolean
 }

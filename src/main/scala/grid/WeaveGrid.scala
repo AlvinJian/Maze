@@ -2,45 +2,74 @@ package grid
 import scala.util.Random
 
 case class WeaveGrid(override val rows: Int,
-                     override val cols: Int) extends CellContainer[Cell2DOverlay] with Graph {
-  override val grid: CellContainer[Cell2DOverlay] = this
+                     override val cols: Int) extends CellContainer[Cell2DWeave] with Graph {
+  override val grid: CellContainer[Cell2DWeave] = this
   private var _graph: Graph = new GraphEx(this)
 
-  protected val data: Seq[Cell2DOverlay] = Vector.from{
+  protected val data: Seq[Cell2DWeave] = Vector.from{
     for {
       r <- 0.until(rows)
       c <- 0.until(cols)
-    } yield new Cell2DOverlayImpl(r, c)
+    } yield new Cell2DOverlay(this, r, c)
   }
 
-  private var _hiddenCells = Map[Cell2DOverlay, Cell2DHidden]()
+  private var _hiddenCells = Map[Cell2DWeave, Cell2DWeave]()
 
-  override def apply(r: Int, c: Int): Cell2DOverlay = data(r * cols + c)
+  override def apply(r: Int, c: Int): Cell2DWeave = data(r * cols + c)
 
-  override def randomCell(r: Random): Cell2DOverlay = data(r.nextInt(data.size))
+  def hiddenCell(r: Int, c: Int): Option[Cell2DHidden] = {
+    _hiddenCells.get(apply(r, c)) match {
+      case Some(value) => Some(value.asInstanceOf[Cell2DHidden])
+      case None => None
+    }
+  }
 
-  override def iterator: Iterator[Cell2DOverlay] = data.iterator
+  override def randomCell(r: Random): Cell2DWeave = {
+    val id = r.nextInt(data.size + _hiddenCells.size)
+    if (id < data.size) data(id)
+    else {
+      val arr = _hiddenCells.values.toArray
+      arr(id % data.size)
+    }
+  }
+
+  override def iterator: Iterator[Cell2DWeave] = {
+    {
+      data.toArray ++ _hiddenCells.values.toArray
+    }.iterator
+  }
+
+  override def isValid(t: Cell2D): Boolean = {
+    if (t.isInstanceOf[Cell2DHidden]) {
+      val hidden = t.asInstanceOf[Cell2DHidden]
+      _hiddenCells(hidden.overlay) == hidden
+    } else super.isValid(t)
+  }
 
   private def checkHiddenCellRequired(cell1: Cell2D,
                                       cell2: Cell2D): Option[Cell2DOverlay] = {
     if (!cell1.isInstanceOf[Cell2DOverlay] || !cell2.isInstanceOf[Cell2DOverlay]) return None
     val c1 = cell1.asInstanceOf[Cell2DOverlay]
     val c2 = cell2.asInstanceOf[Cell2DOverlay]
-    val tmp = {
-      if (c1.north == c2.south) c1.north
-      else if (c1.south == c2.north) c1.south
-      else if (c1.west == c2.east) c1.west
-      else if (c1.east == c2.west) c1.east
+    val tmp: Option[Cell2DWeave] = {
+      if (c1.north.isDefined && c1.north == c2.south) c1.north
+      else if (c1.south.isDefined && c1.south == c2.north) c1.south
+      else if (c1.west.isDefined && c1.west == c2.east) c1.west
+      else if (c1.east.isDefined && c1.east == c2.west) c1.east
       else None
     }
-    if (tmp.isEmpty || tmp.get.isInstanceOf[Cell2DHidden]) None
-    else Some(tmp.get.asInstanceOf[Cell2DOverlay])
+    tmp match {
+      case Some(value) if value.isInstanceOf[Cell2DOverlay] &&
+        (value.isHorizontalLinked || value.isVerticalLinked) => Some(value.asInstanceOf[Cell2DOverlay])
+      case _ => None
+    }
   }
 
   override def link(from: Cell2D, to: Cell2D): Option[Graph] = {
     val optCell = checkHiddenCellRequired(from, to)
-    if (optCell.isDefined) {
-      val _ = new Cell2DHiddenImpl(optCell.get)
+    if (optCell.isDefined && optCell.get.underneath.isEmpty) {
+      val h = new Cell2DHidden(optCell.get)
+      _hiddenCells = _hiddenCells + (optCell.get -> h)
     } else {
       _graph = _graph.link(from, to) match {
         case Some(value) => value
@@ -60,111 +89,5 @@ case class WeaveGrid(override val rows: Int,
     val old = _graph
     _graph = new GraphEx(this)
     old
-  }
-
-  private class Cell2DOverlayImpl(override val row: Int,
-                                  override val col: Int) extends Cell2DOverlay {
-    override type T = Cell2DWeave
-
-    val outer: WeaveGrid = WeaveGrid.this
-
-    def canTunnelNorth: Boolean = {
-      north.isDefined && north.get.north.isDefined && {
-        val n = north.get.asInstanceOf[this.type]
-        n.hasHorizontalLink
-      }
-    }
-
-    def canTunnelSouth: Boolean = {
-      south.isDefined && south.get.south.isDefined && {
-        val s = south.get.asInstanceOf[this.type]
-        s.hasHorizontalLink
-      }
-    }
-
-    def canTunnelEast: Boolean = {
-      east.isDefined && east.get.east.isDefined && {
-        val e = east.get.asInstanceOf[this.type]
-        e.hasVerticalLink
-      }
-    }
-
-    def canTunnelWest: Boolean = {
-      west.isDefined && west.get.west.isDefined && {
-        val w = west.get.asInstanceOf[this.type]
-        w.hasVerticalLink
-      }
-    }
-
-    def hasHorizontalLink: Boolean = {
-      if (east.isDefined && west.isDefined) {
-        outer._graph.isLinked(this, east.get) &&
-          outer._graph.isLinked(this, west.get) && {
-          north.isEmpty || !outer._graph.isLinked(this, north.get)
-        } && {
-          south.isEmpty || !outer._graph.isLinked(this, south.get)
-        }
-      } else false
-    }
-
-    def hasVerticalLink: Boolean = {
-      if (north.isDefined && south.isDefined) {
-        outer._graph.isLinked(this, north.get) &&
-          outer._graph.isLinked(this, south.get) && {
-          east.isEmpty || outer._graph.isLinked(this, east.get)
-        } && {
-          west.isEmpty || outer._graph.isLinked(this, west.get)
-        }
-      } else false
-    }
-
-    override def underneath: Option[Cell2DHidden] = outer._hiddenCells.get(this)
-
-    override def neighbors: List[Cell2DWeave] = {
-      var neighbors = super.neighbors
-      neighbors = neighbors ++ {
-        if (canTunnelNorth) List(north.get.north).flatten else Nil
-      }
-      neighbors = neighbors ++ {
-        if (canTunnelSouth) List(south.get.south).flatten else Nil
-      }
-      neighbors = neighbors ++ {
-        if (canTunnelEast) List(east.get.east).flatten else Nil
-      }
-      neighbors = neighbors ++ {
-        if (canTunnelWest) List(west.get.west).flatten else Nil
-      }
-      neighbors
-    }
-
-    override def north: Option[Cell2DWeave] = ???
-
-    override def south: Option[Cell2DWeave] = ???
-
-    override def east: Option[Cell2DWeave] = ???
-
-    override def west: Option[Cell2DWeave] = ???
-  }
-
-  private class Cell2DHiddenImpl(override val overlay: Cell2DOverlay) extends Cell2DHidden {
-    override type T = Cell2DWeave
-
-    val outer: WeaveGrid = WeaveGrid.this
-    outer._hiddenCells = outer._hiddenCells + (overlay -> this)
-
-    override val row: Int = overlay.row
-    override val col: Int = overlay.col
-
-    override def north: Option[Cell2DWeave] = ???
-
-    override def south: Option[Cell2DWeave] = ???
-
-    override def east: Option[Cell2DWeave] = ???
-
-    override def west: Option[Cell2DWeave] = ???
-
-    override def isHorizontalLink: Boolean = ???
-
-    override def isVerticalLink: Boolean = ???
   }
 }

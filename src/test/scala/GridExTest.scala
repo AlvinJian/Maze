@@ -1,6 +1,6 @@
 import algorithm.DistanceEx
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
+import grid.{Cell2DOverlay, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageUtilsEx}
 
@@ -136,5 +136,18 @@ class GridExTest extends FunSuite {
     val image = ImageUtilsEx.creationFunction(new GraphEx(triangleGrid))(32, Some(5))
     val f = FileHelper.saveToFile(image, writer, s"TriangleGrid$ext", dir)
     assert(f.isSuccess)
+  }
+
+  test("WeaveGridTest") {
+    val weaveGrid = WeaveGrid(3,3)
+    val maze = Graph(weaveGrid)
+    maze.link(weaveGrid(1,0), weaveGrid(1,1))
+    maze.link(weaveGrid(1,1), weaveGrid(1,2))
+    assert(weaveGrid(2,1).neighbors.size == 4)
+    maze.link(weaveGrid(0,1), weaveGrid(2,1))
+    val cellOverlay = weaveGrid(1,1).asInstanceOf[Cell2DOverlay]
+    assert(cellOverlay.isHorizontalLinked)
+    assert(!cellOverlay.isVerticalLinked)
+    assert(cellOverlay.underneath.isDefined)
   }
 }
