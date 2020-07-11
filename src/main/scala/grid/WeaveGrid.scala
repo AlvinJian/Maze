@@ -86,10 +86,4 @@ case class WeaveGrid(override val rows: Int,
   override def linkedCells(cell: Cell2D): Set[Cell2D] = _graph.linkedCells(cell)
 
   override def deadEnds: List[Cell2D] = _graph.deadEnds
-
-  def reset(): Graph = {
-    val old = _graph
-    _graph = new GraphEx(this)
-    old
-  }
 }
