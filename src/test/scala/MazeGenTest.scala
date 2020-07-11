@@ -4,7 +4,7 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{Cell2D, Cell2DCart, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
+import grid.{Cell2D, Cell2DCart, Cell2DOverlay, Cell2DWeave, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageUtilsEx}
 
@@ -311,6 +311,15 @@ class MazeGenTest extends FunSuite {
   test("WeaveMazeImageTest") {
     val grid = WeaveGrid(20, 20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
+    for (cell:Cell2DWeave <- grid) {
+      if (!cell.isHidden) {
+        val overlay = cell.asInstanceOf[Cell2DOverlay]
+        if (overlay.underneath.isDefined) {
+          assert(overlay.isHorizontalLinked || overlay.isVerticalLinked)
+          assert(!(overlay.isHorizontalLinked && overlay.isVerticalLinked))
+        }
+      }
+    }
     val func = ImageUtilsEx.creationFunctionEx(maze)
     val img = func(cellSize, padding.get, 2)
     val file = FileHelper.saveToFile(img, writer, s"WeaveMaze$ext", dir)
