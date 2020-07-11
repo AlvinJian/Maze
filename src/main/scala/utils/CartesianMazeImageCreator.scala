@@ -28,7 +28,7 @@ class CartesianMazeImageCreator(override val graph: Graph,
         c <- 0 until maskedGrid.cols
       } {
         val cell = maskedGrid(r,c)
-        val (x1: Int, y1: Int, _, _) = calcRectCellPosition(cell, cellSize)
+        val (x1: Int, y1: Int, _, _) = calcRectCellPosition(cell)
         if (!maskedGrid.isValid(cell)) cellGraphics.setColor(Color.BLACK)
         else cellGraphics.setColor(Color.WHITE)
         new FilledRect(x1, y1, cellSize, cellSize).draw(cellGraphics)
@@ -45,7 +45,7 @@ class CartesianMazeImageCreator(override val graph: Graph,
     wallGraphics.setColor(wallColor)
 
     for (cell <- grid) {
-      val (x1, y1, x2, y2) = calcRectCellPosition(cell, cellSize)
+      val (x1, y1, x2, y2) = calcRectCellPosition(cell)
 
       if (cell.north.isEmpty) {
         new Line(x1, y1, x2, y1).draw(wallGraphics)
@@ -79,7 +79,7 @@ class CartesianMazeImageCreator(override val graph: Graph,
     mutableImage.toImmutableImage
   }
 
-  def calcRectCellPosition(cell2DCart: Cell2DCart, cellSize: Int): (Int, Int, Int, Int) = {
+  def calcRectCellPosition(cell2DCart: Cell2DCart): (Int, Int, Int, Int) = {
     val row = cell2DCart.row
     val col = cell2DCart.col
     val x1 = col * cellSize

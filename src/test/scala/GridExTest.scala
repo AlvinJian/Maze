@@ -149,5 +149,6 @@ class GridExTest extends FunSuite {
     assert(cellOverlay.isHorizontalLinked)
     assert(!cellOverlay.isVerticalLinked)
     assert(cellOverlay.underneath.isDefined)
+    assert(weaveGrid(2,1).neighbors.size == 4)
   }
 }

@@ -69,7 +69,9 @@ case class WeaveGrid(override val rows: Int,
     val optCell = checkHiddenCellRequired(from, to)
     if (optCell.isDefined && optCell.get.underneath.isEmpty) {
       val h = new Cell2DHidden(optCell.get)
-      _hiddenCells = _hiddenCells + (optCell.get -> h)
+      _hiddenCells = _hiddenCells + (h.overlay -> h)
+      _graph = _graph.link(from, h).get
+      _graph = _graph.link(h, to).get
     } else {
       _graph = _graph.link(from, to) match {
         case Some(value) => value

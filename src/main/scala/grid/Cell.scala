@@ -75,4 +75,5 @@ trait Cell2DWeave extends Cell2DCart {
   override type T <: Cell2DWeave
   def isHorizontalLinked: Boolean
   def isVerticalLinked: Boolean
+  def isHidden: Boolean
 }

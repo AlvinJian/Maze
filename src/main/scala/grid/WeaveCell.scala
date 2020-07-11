@@ -6,35 +6,51 @@ class Cell2DOverlay(val outer: WeaveGrid,
   override type T = Cell2DWeave
 
   def canTunnelNorth: Boolean =
-    north.isDefined && north.get.north.isDefined && north.get.isHorizontalLinked
+    north.isDefined && north.get.north.isDefined && {
+      north.get.isHidden || north.get.isHorizontalLinked
+    }
 
   def canTunnelSouth: Boolean =
-    south.isDefined && south.get.south.isDefined && south.get.isHorizontalLinked
+    south.isDefined && south.get.south.isDefined && {
+      south.get.isHidden || south.get.isHorizontalLinked
+    }
 
   def canTunnelEast: Boolean =
-    east.isDefined && east.get.east.isDefined && east.get.isVerticalLinked
+    east.isDefined && east.get.east.isDefined && {
+      east.get.isHidden || east.get.isVerticalLinked
+    }
 
   def canTunnelWest: Boolean =
-    west.isDefined && west.get.west.isDefined && west.get.isVerticalLinked
+    west.isDefined && west.get.west.isDefined && {
+      west.get.isHidden || west.get.isVerticalLinked
+    }
 
   override def isHorizontalLinked: Boolean = {
-    if (east.isDefined && west.isDefined) {
-      outer.isLinked(this, east.get) &&
-        outer.isLinked(this, west.get) && {
-        north.isEmpty || !outer.isLinked(this, north.get)
+    val _east = Cell2DCart.east(outer, row, col)
+    val _west = Cell2DCart.west(outer, row, col)
+    val _north = Cell2DCart.north(outer, row, col)
+    val _south = Cell2DCart.south(outer, row, col)
+    if (_east.isDefined && _west.isDefined) {
+      outer.isLinked(this, _east.get) &&
+        outer.isLinked(this, _west.get) && {
+        _north.isEmpty || !outer.isLinked(this, _north.get)
       } && {
-        south.isEmpty || !outer.isLinked(this, south.get)
+        _south.isEmpty || !outer.isLinked(this, _south.get)
       }
     } else false
   }
 
   override def isVerticalLinked: Boolean = {
-    if (north.isDefined && south.isDefined) {
-      outer.isLinked(this, north.get) &&
-        outer.isLinked(this, south.get) && {
-        east.isEmpty || !outer.isLinked(this, east.get)
+    val _east = Cell2DCart.east(outer, row, col)
+    val _west = Cell2DCart.west(outer, row, col)
+    val _north = Cell2DCart.north(outer, row, col)
+    val _south = Cell2DCart.south(outer, row, col)
+    if (_north.isDefined && _south.isDefined) {
+      outer.isLinked(this, _north.get) &&
+        outer.isLinked(this, _south.get) && {
+        _east.isEmpty || !outer.isLinked(this, _east.get)
       } && {
-        west.isEmpty || !outer.isLinked(this, west.get)
+        _west.isEmpty || !outer.isLinked(this, _west.get)
       }
     } else false
   }
@@ -44,18 +60,18 @@ class Cell2DOverlay(val outer: WeaveGrid,
   override def neighbors: List[Cell2DWeave] = {
     var neighbors = super.neighbors
     neighbors = neighbors ++ {
-      if (canTunnelNorth) List(north.get.north).flatten else Nil
+      if (canTunnelNorth) List(north.get.north.get) else Nil
     }
     neighbors = neighbors ++ {
-      if (canTunnelSouth) List(south.get.south).flatten else Nil
+      if (canTunnelSouth) List(south.get.south.get) else Nil
     }
     neighbors = neighbors ++ {
-      if (canTunnelEast) List(east.get.east).flatten else Nil
+      if (canTunnelEast) List(east.get.east.get) else Nil
     }
     neighbors = neighbors ++ {
-      if (canTunnelWest) List(west.get.west).flatten else Nil
+      if (canTunnelWest) List(west.get.west.get) else Nil
     }
-    neighbors
+    neighbors.filter(c => true/*!c.isHidden*/)
   }
 
   override def north: Option[Cell2DWeave] = {
@@ -93,6 +109,8 @@ class Cell2DOverlay(val outer: WeaveGrid,
       else optWeaveCell
     } else optWeaveCell
   }
+
+  override def isHidden: Boolean = false
 }
 
 class Cell2DHidden(val overlay: Cell2DOverlay) extends Cell2DWeave {
@@ -125,4 +143,6 @@ class Cell2DHidden(val overlay: Cell2DOverlay) extends Cell2DWeave {
   override def isHorizontalLinked: Boolean = east.isDefined || west.isDefined
 
   override def isVerticalLinked: Boolean = north.isDefined || south.isDefined
+
+  override def isHidden: Boolean = true
 }

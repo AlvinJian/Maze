@@ -2,7 +2,7 @@ package utils
 
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
-import grid.{Cell2D, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
+import grid.{Cell2D, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
 
 trait MazeImageCreator {
   val graph: Graph
@@ -28,6 +28,7 @@ object MazeImageCreator {
     else {
       graph.grid match {
         case GridEx(_, _) => new CarteMazeInsetImageCreator(graph, cellSize, inSet)
+        case WeaveGrid(_, _) => new WeaveMazeImageCreator(graph, cellSize, inSet)
         case _ => ???
       }
     }

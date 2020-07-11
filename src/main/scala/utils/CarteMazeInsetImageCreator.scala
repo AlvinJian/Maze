@@ -9,9 +9,9 @@ import grid.{Cell2D, Cell2DCart, Graph, GraphEx}
 class CarteMazeInsetImageCreator(g: Graph,
                                  cs: Int,
                                  val inSet: Int) extends CartesianMazeImageCreator(g, cs) {
-  def calcInsetPosition(cell2DCart: Cell2DCart, cellSize: Int):
+  def calcInsetPosition(cell2DCart: Cell2DCart):
     (Int, Int, Int, Int, Int, Int, Int, Int) = {
-    val (_x1, _y1, _x2, _y2) = calcRectCellPosition(cell2DCart, cellSize)
+    val (_x1, _y1, _x2, _y2) = calcRectCellPosition(cell2DCart)
     val x1 = _x1
     val x2 = x1 + inSet
     val x3 = _x2 - inSet
@@ -34,37 +34,41 @@ class CarteMazeInsetImageCreator(g: Graph,
       val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
       wallGraphics.setColor(wallColor)
       for (cell <- grid) {
-        val (x1, x2, x3, x4, y1, y2, y3, y4) = calcInsetPosition(cell, cellSize)
-
-        if (cell.north.isDefined && graph.isLinked(cell, cell.north.get)) {
-          wallGraphics.drawLine(x2, y1, x2, y2)
-          wallGraphics.drawLine(x3, y1, x3, y2)
-        } else {
-          wallGraphics.drawLine(x2, y2, x3, y2)
-        }
-
-        if (cell.south.isDefined && graph.isLinked(cell, cell.south.get)) {
-          wallGraphics.drawLine(x2, y3, x2, y4)
-          wallGraphics.drawLine(x3, y3, x3, y4)
-        } else {
-          wallGraphics.drawLine(x2, y3, x3, y3)
-        }
-
-        if (cell.west.isDefined && graph.isLinked(cell, cell.west.get)) {
-          wallGraphics.drawLine(x1, y2, x2, y2)
-          wallGraphics.drawLine(x1, y3, x2, y3)
-        } else {
-          wallGraphics.drawLine(x2, y2, x2, y3)
-        }
-
-        if (cell.east.isDefined && graph.isLinked(cell, cell.east.get)) {
-          wallGraphics.drawLine(x3, y2, x4, y2)
-          wallGraphics.drawLine(x3, y3, x4, y3)
-        } else {
-          wallGraphics.drawLine(x3, y2, x3, y3)
-        }
+        drawWalls(cell, wallGraphics)
       }
       mutableImage.toImmutableImage
+    }
+  }
+
+  protected def drawWalls(cell: Cell2DCart, wallGraphics: RichGraphics2D): Unit = {
+    val (x1, x2, x3, x4, y1, y2, y3, y4) = calcInsetPosition(cell)
+
+    if (cell.north.isDefined && graph.isLinked(cell, cell.north.get)) {
+      wallGraphics.drawLine(x2, y1, x2, y2)
+      wallGraphics.drawLine(x3, y1, x3, y2)
+    } else {
+      wallGraphics.drawLine(x2, y2, x3, y2)
+    }
+
+    if (cell.south.isDefined && graph.isLinked(cell, cell.south.get)) {
+      wallGraphics.drawLine(x2, y3, x2, y4)
+      wallGraphics.drawLine(x3, y3, x3, y4)
+    } else {
+      wallGraphics.drawLine(x2, y3, x3, y3)
+    }
+
+    if (cell.west.isDefined && graph.isLinked(cell, cell.west.get)) {
+      wallGraphics.drawLine(x1, y2, x2, y2)
+      wallGraphics.drawLine(x1, y3, x2, y3)
+    } else {
+      wallGraphics.drawLine(x2, y2, x2, y3)
+    }
+
+    if (cell.east.isDefined && graph.isLinked(cell, cell.east.get)) {
+      wallGraphics.drawLine(x3, y2, x4, y2)
+      wallGraphics.drawLine(x3, y3, x4, y3)
+    } else {
+      wallGraphics.drawLine(x3, y2, x3, y3)
     }
   }
 }
