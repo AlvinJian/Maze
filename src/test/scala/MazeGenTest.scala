@@ -4,7 +4,7 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{Cell2D, Cell2DCart, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
+import grid.{Cell2D, Cell2DCart, Cell2DOverlay, Cell2DWeave, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageUtilsEx}
 
@@ -317,14 +317,23 @@ class MazeGenTest extends FunSuite {
   test("WeaveMazeImageTest") {
     val grid = WeaveGrid(20, 20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
+    for (cell:Cell2DWeave <- grid) {
+      if (!cell.isHidden) {
+        val overlay = cell.asInstanceOf[Cell2DOverlay]
+        if (overlay.underneath.isDefined) {
+          assert(overlay.isHorizontalLinked || overlay.isVerticalLinked)
+          assert(!(overlay.isHorizontalLinked && overlay.isVerticalLinked))
+        }
+      }
+    }
     var func = ImageUtilsEx.creationFunctionEx(maze)
-    var img = func(cellSize, 2, padding.get)
+    var img = func(cellSize, 3, padding.get)
     var file = FileHelper.saveToFile(img, writer, s"WeaveMaze$ext", dir)
     assert(file.isSuccess)
 
     val distanceEx = DistanceEx.createMax(maze, grid(10,10)).get
     val colorFunc = ImageUtilsEx.creationColoredFunctionEx(maze)
-    img = colorFunc(cellSize, 2, distanceEx.colorMapper, padding.get)
+    img = colorFunc(cellSize, 8, distanceEx.colorMapper, padding.get)
     file = FileHelper.saveToFile(img, writer, s"WeaveMaze_Color$ext", dir)
     assert(file.isSuccess)
     val farCell = distanceEx.max._1
