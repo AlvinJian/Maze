@@ -300,20 +300,42 @@ class MazeGenTest extends FunSuite {
   }
 
   test("InsetMazeImageTest") {
-    val grid = GridEx(10, 10)
+    val grid = GridEx(20, 20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
-    val func = ImageUtilsEx.creationFunctionEx(maze)
-    val img = func(cellSize, padding.get, 2)
-    val file = FileHelper.saveToFile(img, writer, s"InsetMaze$ext", dir)
+    var func = ImageUtilsEx.creationFunctionEx(maze)
+    var img = func(cellSize, padding.get, 2)
+    var file = FileHelper.saveToFile(img, writer, s"InsetMaze$ext", dir)
+    assert(file.isSuccess)
+
+    val distanceEx = DistanceEx.createMax(maze, grid(10,10)).get
+    val colorFunc = ImageUtilsEx.creationColoredFunctionEx(maze)
+    img = colorFunc(cellSize, 2, distanceEx.colorMapper, 2)
+    file = FileHelper.saveToFile(img, writer, s"InsetMaze_Color$ext", dir)
     assert(file.isSuccess)
   }
 
   test("WeaveMazeImageTest") {
     val grid = WeaveGrid(20, 20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
-    val func = ImageUtilsEx.creationFunctionEx(maze)
-    val img = func(cellSize, padding.get, 2)
-    val file = FileHelper.saveToFile(img, writer, s"WeaveMaze$ext", dir)
+    var func = ImageUtilsEx.creationFunctionEx(maze)
+    var img = func(cellSize, 2, padding.get)
+    var file = FileHelper.saveToFile(img, writer, s"WeaveMaze$ext", dir)
+    assert(file.isSuccess)
+
+    val distanceEx = DistanceEx.createMax(maze, grid(10,10)).get
+    val colorFunc = ImageUtilsEx.creationColoredFunctionEx(maze)
+    img = colorFunc(cellSize, 2, distanceEx.colorMapper, padding.get)
+    file = FileHelper.saveToFile(img, writer, s"WeaveMaze_Color$ext", dir)
+    assert(file.isSuccess)
+    val farCell = distanceEx.max._1
+    val path = distanceEx.pathTo(farCell)
+    assert(path.nonEmpty)
+    pathCheck(path, distanceEx, distanceEx.root, farCell)
+    img = colorFunc(cellSize, 8, (c: Cell2D)=> {
+      if (path.contains(c)) distanceEx.colorMapper(c)
+      else RGBColor.fromAwt(java.awt.Color.DARK_GRAY)
+    }, padding.get)
+    file = FileHelper.saveToFile(img, writer, s"WeaveMaze_Path$ext", dir)
     assert(file.isSuccess)
   }
 }

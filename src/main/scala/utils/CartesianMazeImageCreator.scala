@@ -70,13 +70,18 @@ class CartesianMazeImageCreator(override val graph: Graph,
   override def drawColoredCells(prevImage: ImmutableImage, f: Cell2D => RGBColor): ImmutableImage = {
     val mutableImage = new MutableImage(prevImage.awt())
     val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
-    for (cell <- graph.grid) {
-      val x1 = cell.col * cellSize
-      val y1 = cell.row * cellSize
-      cellGraphics.setColor(f(cell))
-      new FilledRect(x1, y1, cellSize, cellSize).draw(cellGraphics)
+    val g = graph.grid.asInstanceOf[CellContainer[Cell2DCart]]
+    for (cell <- g) {
+      drawCell(cell, cellGraphics, f)
     }
     mutableImage.toImmutableImage
+  }
+
+  def drawCell(cell: Cell2DCart, cellGraphics: RichGraphics2D, f: Cell2D => RGBColor): Unit = {
+    val x1 = cell.col * cellSize
+    val y1 = cell.row * cellSize
+    cellGraphics.setColor(f(cell))
+    new FilledRect(x1, y1, cellSize, cellSize).draw(cellGraphics)
   }
 
   def calcRectCellPosition(cell2DCart: Cell2DCart): (Int, Int, Int, Int) = {

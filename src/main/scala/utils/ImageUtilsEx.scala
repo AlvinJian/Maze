@@ -90,4 +90,15 @@ object ImageUtilsEx {
     }
     f
   }
+
+  def creationColoredFunctionEx(graph: Graph): (Int, Int, Cell2D => RGBColor, Int)=>ImmutableImage = {
+    val ret = (cellSize: Int, inSet: Int, f: Cell2D => RGBColor, padding: Int) => {
+      val creator: MazeImageCreator = MazeImageCreator(graph, cellSize, inSet)
+      var img = creator.drawColoredCells(creator.baseImage, f)
+      img = creator.drawMazeWalls(img)
+      if (padding > 0) img.pad(padding, java.awt.Color.GRAY)
+      else img
+    }
+    ret
+  }
 }
