@@ -4,7 +4,7 @@ import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze,
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{Cell2D, Cell2DCart, Cell2DOverlay, Cell2DWeave, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
+import grid.{Cell2D, Cell2DCart, Cell2DOverlay, Cell2DWeave, Graph, GraphEx, RectGrid, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageUtilsEx}
 
@@ -38,7 +38,7 @@ class MazeGenTest extends FunSuite {
   }
 
   test("Algorithm.BinaryTreeEx") {
-    val grid = new GridEx(20,20)
+    val grid = new RectGrid(20,20)
     val maze = BinaryTreeMaze.generate(rand, grid)
 //    print(maze)
     val start = grid(0, 0)
@@ -53,7 +53,7 @@ class MazeGenTest extends FunSuite {
   }
 
   test("Algorithm.SidewinderEx") {
-    val grid = new GridEx(20,20)
+    val grid = new RectGrid(20,20)
     val maze = SidewinderMaze.generate(rand, grid);
     val start: Cell2DCart = grid(0, 0)
     val distMap = DistanceEx.from(maze, start).get
@@ -71,7 +71,7 @@ class MazeGenTest extends FunSuite {
   }
 
   test("Algorithm.AldousBroder") {
-    val grid = new GridEx(20, 20)
+    val grid = new RectGrid(20, 20)
     val maze = AldousBroderMaze.generate(rand, grid)
     val imgFunc = ImageUtilsEx.creationFunctionWithColor(maze)
     var image = imgFunc(cellSize, _ => RGBColor.fromAwt(java.awt.Color.WHITE), padding)
@@ -84,7 +84,7 @@ class MazeGenTest extends FunSuite {
   }
 
   test("Algorithm.Wilson") {
-    val grid = new GridEx(20, 20)
+    val grid = new RectGrid(20, 20)
     val maze = WilsonMaze.generate(rand, grid)
     var image = ImageUtilsEx.creationFunction(maze)(cellSize, padding)
     var f = FileHelper.saveToFile(image, writer, s"Wilson$ext", dir)
@@ -92,7 +92,7 @@ class MazeGenTest extends FunSuite {
   }
 
   test("Algorithm.HuntAndKill") {
-    val grid = new GridEx(20, 20)
+    val grid = new RectGrid(20, 20)
     val maze = HuntAndKillMaze.generate(rand, grid)
     val imgFunc = ImageUtilsEx.creationFunctionWithColor(maze)
     var image = imgFunc(cellSize, _ => RGBColor.fromAwt(java.awt.Color.WHITE), padding)
@@ -105,7 +105,7 @@ class MazeGenTest extends FunSuite {
   }
 
   test("Algorithm.RecursiveBackTrack") {
-    val grid = new GridEx(20, 20)
+    val grid = new RectGrid(20, 20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
     val imgFunc = ImageUtilsEx.creationFunctionWithColor(maze)
     var image = imgFunc(cellSize, _ => RGBColor.fromAwt(java.awt.Color.WHITE), padding)
@@ -118,7 +118,7 @@ class MazeGenTest extends FunSuite {
   }
 
   test("Algorithm.LongestPath") {
-    val grid = new GridEx(20,20)
+    val grid = new RectGrid(20,20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
     val imgFunc = ImageUtilsEx.creationFunctionWithColor(maze)
     var image = imgFunc(cellSize, _ => RGBColor.fromAwt(java.awt.Color.WHITE), padding)
@@ -157,7 +157,7 @@ class MazeGenTest extends FunSuite {
       SidewinderMaze, RecurBackTrackMaze, WilsonMaze)
     var averages: Map[MazeGenerator, Int] = Map()
     val size = 20
-    val grid = new GridEx(size,size)
+    val grid = new RectGrid(size,size)
     val tries = 100
     for (algo <- algorithms) {
       val counts = mutable.Seq[Int]() ++ (for (_ <- 0 until tries) yield 0)
@@ -300,7 +300,7 @@ class MazeGenTest extends FunSuite {
   }
 
   test("InsetMazeImageTest") {
-    val grid = GridEx(20, 20)
+    val grid = RectGrid(20, 20)
     val maze = RecurBackTrackMaze.generate(rand, grid)
     var func = ImageUtilsEx.creationFunctionEx(maze)
     var img = func(cellSize, padding.get, 2)

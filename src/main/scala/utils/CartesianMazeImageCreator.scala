@@ -7,7 +7,7 @@ import com.sksamuel.scrimage.canvas.drawables.{FilledRect, Line}
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import grid.{Cell2D, Cell2DCart, CellContainer, Graph, GraphEx, GridEx, MaskedGrid}
+import grid.{Cell2D, Cell2DCart, CellContainer, Graph, GraphEx, RectGrid, MaskedGrid}
 
 class CartesianMazeImageCreator(override val graph: Graph,
                                 override val cellSize: Int) extends MazeImageCreator {
@@ -16,7 +16,7 @@ class CartesianMazeImageCreator(override val graph: Graph,
   val grid = graph.grid.asInstanceOf[CellContainer[Cell2DCart]]
 
   override def baseImage: ImmutableImage = graph.grid match {
-    case GridEx(_, _) => blankImage
+    case RectGrid(_, _) => blankImage
     case maskedGrid: MaskedGrid => {
       val imgWidth = maskedGrid.cols * cellSize
       val imgHeight = maskedGrid.rows * cellSize

@@ -1,6 +1,6 @@
 package algorithm
 
-import grid.{Cell2D, CellContainer, Graph, GraphEx, GridEx}
+import grid.{Cell2D, CellContainer, Graph, GraphEx, RectGrid}
 
 import scala.util.Random
 

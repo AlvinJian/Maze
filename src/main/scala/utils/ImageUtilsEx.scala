@@ -2,7 +2,7 @@ package utils
 
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.color.RGBColor
-import grid.{Cell2D, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
+import grid.{Cell2D, Graph, GraphEx, RectGrid, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
 
 trait MazeImageCreator {
   val graph: Graph
@@ -17,7 +17,7 @@ object MazeImageCreator {
     graph.grid match {
       case hexGrid: HexGrid => new HexMazeImageCreator(graph, cellSize)
       case polarGrid: PolarGrid => new PolarMazeImageCreator(graph, cellSize)
-      case grid: GridEx => new CartesianMazeImageCreator(graph, cellSize)
+      case grid: RectGrid => new CartesianMazeImageCreator(graph, cellSize)
       case maskedGrid: MaskedGrid => new CartesianMazeImageCreator(graph, cellSize)
       case triangleGrid: TriangleGrid => new TriangleMazeImageCreator(graph, cellSize)
       case _ => ???
@@ -27,7 +27,7 @@ object MazeImageCreator {
     if (inSet <= 0) apply(graph, cellSize)
     else {
       graph.grid match {
-        case GridEx(_, _) => new CarteMazeInsetImageCreator(graph, cellSize, inSet)
+        case RectGrid(_, _) => new CarteMazeInsetImageCreator(graph, cellSize, inSet)
         case WeaveGrid(_, _) => new WeaveMazeImageCreator(graph, cellSize, inSet)
         case _ => ???
       }
@@ -36,6 +36,7 @@ object MazeImageCreator {
 }
 
 object ImageUtilsEx {
+  @deprecated
   def creationFunctionWithColor(graph: Graph): (Int, Cell2D=>RGBColor, Option[Int]) => ImmutableImage = {
     val ret: (Int, Cell2D=>RGBColor, Option[Int]) => ImmutableImage = (size, f, padding)=> {
       val start = (cellSize: Int) => MazeImageCreator(graph, cellSize)
@@ -60,6 +61,7 @@ object ImageUtilsEx {
     ret
   }
 
+  @deprecated
   def creationFunction(graph: Graph): (Int, Option[Int])=>ImmutableImage = {
     val start = (cellSize: Int) => {
       MazeImageCreator.apply(graph, cellSize)

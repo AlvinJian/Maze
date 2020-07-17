@@ -4,7 +4,7 @@ import java.io.File
 
 import algorithm.{AldousBroderMaze, BinaryTreeMaze, DistanceEx, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.ImmutableImage
-import grid.{Cell2D, CellContainer, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
+import grid.{Cell2D, CellContainer, Graph, GraphEx, RectGrid, HexGrid, MaskedGrid, PolarGrid, TriangleGrid}
 import com.sksamuel.scrimage.color.RGBColor
 import utils.ImageUtilsEx
 
@@ -62,9 +62,9 @@ object Wizard {
   }
 
   def setupGrid: (CellContainer[Cell2D], Int) = {
-    val gridTypes = Vector(GridEx.getClass.getSimpleName, PolarGrid.getClass.getSimpleName,
+    val gridTypes = Vector(RectGrid.getClass.getSimpleName, PolarGrid.getClass.getSimpleName,
       HexGrid.getClass.getSimpleName, TriangleGrid.getClass.getSimpleName)
-    val rectId = gridTypes.indexOf(GridEx.getClass.getSimpleName)
+    val rectId = gridTypes.indexOf(RectGrid.getClass.getSimpleName)
     val hexId = gridTypes.indexOf(HexGrid.getClass.getSimpleName)
     val triId = gridTypes.indexOf(TriangleGrid.getClass.getSimpleName)
     val polarId = gridTypes.indexOf(PolarGrid.getClass.getSimpleName)
@@ -81,7 +81,7 @@ object Wizard {
         print("enter row count: ")
         val rows = numberFromStdIn(Some(1))
         i match {
-          case j if j == rectId => GridEx(rows, cols)
+          case j if j == rectId => RectGrid(rows, cols)
           case k if k == triId => TriangleGrid(rows, cols)
           case l if l == hexId => HexGrid(rows, cols)
         }
@@ -101,7 +101,7 @@ object Wizard {
   def generateMaze(grid: CellContainer[Cell2D]): Graph = {
     val common = List[MazeGenerator](AldousBroderMaze, HuntAndKillMaze, RecurBackTrackMaze, WilsonMaze)
     val algos = grid match {
-      case GridEx(_, _) => common ++ List(SidewinderMaze, BinaryTreeMaze)
+      case RectGrid(_, _) => common ++ List(SidewinderMaze, BinaryTreeMaze)
       case MaskedGrid(_, _, _) => common ++ List(SidewinderMaze, BinaryTreeMaze)
       case TriangleGrid(_, _) => common ++ List(SidewinderMaze, BinaryTreeMaze)
       case _ => common

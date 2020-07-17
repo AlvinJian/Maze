@@ -1,19 +1,19 @@
 import algorithm.DistanceEx
 import com.sksamuel.scrimage.nio.PngWriter
-import grid.{Cell2DOverlay, Graph, GraphEx, GridEx, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
+import grid.{Cell2DOverlay, Graph, GraphEx, RectGrid, HexGrid, MaskedGrid, PolarGrid, TriangleGrid, WeaveGrid}
 import org.scalatest.FunSuite
 import utils.{FileHelper, ImageUtilsEx}
 
 import scala.util.Random
 
-class GridExTest extends FunSuite {
+class GridTest extends FunSuite {
   private implicit val writer: PngWriter = PngWriter.MaxCompression
   private val ext = ".png"
   val rand: Random = new Random(System.currentTimeMillis())
   val dir: String = "images"
 
-  test("GridExTest") {
-    val grid = new GridEx(8,10)
+  test("RectGridTest") {
+    val grid = new RectGrid(8,10)
     val cell0 = grid(0, 0)
     val cell1 = grid(0, 1)
     val cell2 = grid(1, 0)
