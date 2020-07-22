@@ -2,6 +2,10 @@ package maze
 
 import scala.util.Random
 
+/*
+ * Cell trait is stateful, depending on Maze[T]; Position is not.
+ */
+
 case class Position2D(row: Int, col: Int)
 
 trait Cell2D {
@@ -9,14 +13,12 @@ trait Cell2D {
   def container: Maze[T]
   def pos: Position2D
   def neighbors: List[T]
-  def link(other: T): Option[Maze[T]]
   def linkedCells: Set[T]
-  def sameAs(other: T): Boolean = container == other.container && pos == other.pos
 }
 
-trait MazeDimension{}
+trait MazeDimension {}
 
-trait Maze[T <: Cell2D] extends Iterable[T] {
+trait Maze[+T <: Cell2D] extends Iterable[T] {
   def at(position: Position2D): Option[T]
   def at(r: Int, c: Int): Option[T] = at(Position2D(r,c))
   def dimension: MazeDimension
@@ -24,4 +26,5 @@ trait Maze[T <: Cell2D] extends Iterable[T] {
     val arr = this.toSeq
     arr(r.nextInt(arr.length))
   }
+  def link(pos1: Position2D, pos2: Position2D): Option[Maze[T]]
 }

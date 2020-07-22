@@ -1,6 +1,6 @@
 package maze
 
-class RectGrid(val rows: Int, val cols: Int) {
+case class RectGrid(val rows: Int, val cols: Int) {
   val data: Seq[Position2D] = {
     Vector.from(
       for {
@@ -15,4 +15,7 @@ class RectGrid(val rows: Int, val cols: Int) {
       Some(data(r * rows + c))
     } else None
   }
+
+  // not efficient but convenient~
+  def isValid(pos: Position2D): Boolean = data.contains(pos)
 }
