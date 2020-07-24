@@ -25,11 +25,21 @@ sealed trait Cell2DRect extends Cell2D {
   override def neighbors: List[T] = List(this.north, this.south, this.east, this.west).flatten
 }
 
+private class Cell2DRectImpl(position2D: Position2D, maze: Maze[Cell2DRect]) extends Cell2DRect {
+  override def container: Maze[Cell2DRect] = maze
+
+  override def pos: Position2D = position2D
+
+  override def linkedCells: Set[Cell2DRect] = {
+    container.linked(this.pos).map(p => container.at(p).get)
+  }
+}
+
 case class RectMazeDimension(rows: Int, cols: Int, maze: Maze[Cell2DRect]) extends MazeDimension
 
 private[maze] class RectMaze(grid: RectGrid, graph:Graph = new Graph()) extends Maze[Cell2DRect] {
   protected val defaultMazeImpl = new DefaultMazeImpl[Cell2DRect, RectGrid](grid, graph,
-    (p: Position2D)=>new Cell2DRectImpl(p), (g: RectGrid, gr: Graph)=>new RectMaze(g, gr),
+    (p, maze)=>new Cell2DRectImpl(p, maze), (g: RectGrid, gr: Graph)=>new RectMaze(g, gr),
     ()=>this.dimension)
 
   def this(rows: Int, cols: Int) {
@@ -39,18 +49,6 @@ private[maze] class RectMaze(grid: RectGrid, graph:Graph = new Graph()) extends 
   override def at(pos: Position2D): Option[Cell2DRect] = defaultMazeImpl.at(pos)
 
   override def link(pos1: Position2D, pos2: Position2D): Option[Maze[Cell2DRect]] = defaultMazeImpl.link(pos1, pos2)
-
-  class Cell2DRectImpl(position2D: Position2D) extends Cell2DRect {
-    protected val outer: RectMaze = RectMaze.this
-
-    override def container: Maze[Cell2DRect] = outer
-
-    override def pos: Position2D = position2D
-
-    override def linkedCells: Set[Cell2DRect] = {
-      defaultMazeImpl.linked(this.pos).map(p => defaultMazeImpl.at(p).get)
-    }
-  }
 
   override def iterator: Iterator[Cell2DRect] = defaultMazeImpl.iterator
 
