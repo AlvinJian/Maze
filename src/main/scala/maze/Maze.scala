@@ -27,4 +27,5 @@ trait Maze[+T <: Cell2D] extends Iterable[T] {
     arr(r.nextInt(arr.length))
   }
   def link(pos1: Position2D, pos2: Position2D): Option[Maze[T]]
+  def linked(pos: Position2D): Set[Position2D]
 }

@@ -1,6 +1,6 @@
 package maze
 
-case class RectGrid(val rows: Int, val cols: Int) {
+case class RectGrid(rows: Int, cols: Int) extends PlainGrid[Position2D] {
   val data: Seq[Position2D] = {
     Vector.from(
       for {
@@ -10,12 +10,14 @@ case class RectGrid(val rows: Int, val cols: Int) {
     )
   }
 
-  def at(r: Int, c: Int): Option[Position2D] = {
+  override def at(r: Int, c: Int): Option[Position2D] = {
     if (r >= 0 && r < rows && c >= 0 && c < cols) {
       Some(data(r * rows + c))
     } else None
   }
 
   // not efficient but convenient~
-  def isValid(pos: Position2D): Boolean = data.contains(pos)
+  override def isValid(pos: Position2D): Boolean = data.contains(pos)
+
+  override def iterator: Iterator[Position2D] = data.iterator
 }

@@ -3,11 +3,10 @@ import org.scalatest.FunSuite
 
 class MazeExTest extends FunSuite {
   test("RectMazeStructTest") {
-    val grid = RectGrid(5,5)
-    var rectMaze: Maze[Cell2DRect] = RectMaze(grid)
+    var rectMaze: Maze[Cell2DRect] = RectMaze(5,5)
     val dim = rectMaze.dimension
     dim match {
-      case RectMazeDimension(rows, cols) => assert(rows == grid.rows && cols == grid.cols)
+      case RectMazeDimension(rows, cols, maze) => assert(rows == 5 && cols == 5)
       case _ => assert(false)
     }
     for (cell <- rectMaze) {
