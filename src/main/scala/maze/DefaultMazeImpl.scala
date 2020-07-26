@@ -4,7 +4,7 @@ private[maze] class DefaultMazeImpl[T <: Cell2D, G <: PlainGrid[Position2D]]
                                    (val grid: G, val graph: Graph,
                                     f: (Position2D, Maze[T])=>T,
                                     selfBuilder: (G, Graph)=>Maze[T],
-                                    dimDef: ()=>MazeDimension) extends Maze[T] {
+                                    dimDef: ()=>MazeInfo) extends Maze[T] {
   protected val cells: Map[Position2D, T] = grid.map( p=>(p, f(p, this)) ).toMap
 
   def at(pos: Position2D): Option[T] = cells.get(pos)
@@ -18,7 +18,7 @@ private[maze] class DefaultMazeImpl[T <: Cell2D, G <: PlainGrid[Position2D]]
 
   def iterator: Iterator[T] = cells.valuesIterator
 
-  override def dimension: MazeDimension = dimDef()
+  override def info: MazeInfo = dimDef()
 
   override def linked(pos: Position2D): Set[Position2D] = graph.linked(pos)
 }

@@ -35,12 +35,16 @@ private class Cell2DRectImpl(position2D: Position2D, maze: Maze[Cell2DRect]) ext
   }
 }
 
-case class RectMazeDimension(rows: Int, cols: Int, maze: Maze[Cell2DRect]) extends MazeDimension
+case class RectMazeInfo(override val grid: RectGrid,
+                        override val maze: Maze[Cell2DRect])
+  extends RichMazeInfo[RectGrid, Maze[Cell2DRect]] {
+  override val name: String = "RectMaze"
+}
 
 private[maze] class RectMaze(grid: RectGrid, graph:Graph = new Graph()) extends Maze[Cell2DRect] {
   protected val defaultMazeImpl = new DefaultMazeImpl[Cell2DRect, RectGrid](grid, graph,
     (p, maze)=>new Cell2DRectImpl(p, maze), (g: RectGrid, gr: Graph)=>new RectMaze(g, gr),
-    ()=>this.dimension)
+    ()=>this.info)
 
   def this(rows: Int, cols: Int) {
     this(RectGrid(rows, cols))
@@ -52,7 +56,7 @@ private[maze] class RectMaze(grid: RectGrid, graph:Graph = new Graph()) extends 
 
   override def iterator: Iterator[Cell2DRect] = defaultMazeImpl.iterator
 
-  override def dimension: MazeDimension = RectMazeDimension(grid.rows, grid.cols, this)
+  override def info: MazeInfo = RectMazeInfo(grid, this)
 
   override def linked(pos: Position2D): Set[Position2D] = defaultMazeImpl.linked(pos)
 }

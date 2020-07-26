@@ -16,12 +16,19 @@ trait Cell2D {
   def linkedCells: Set[T]
 }
 
-trait MazeDimension {}
+trait MazeInfo {
+  val name: String
+}
+
+trait RichMazeInfo[G <: PlainGrid[Position2D], M <: Maze[Cell2D]] extends MazeInfo {
+  val grid: G
+  val maze: M
+}
 
 trait Maze[+T <: Cell2D] extends Iterable[T] {
   def at(position: Position2D): Option[T]
   def at(r: Int, c: Int): Option[T] = at(Position2D(r,c))
-  def dimension: MazeDimension
+  def info: MazeInfo
   def randomCell(r: Random): T = {
     val arr = this.toSeq
     arr(r.nextInt(arr.length))

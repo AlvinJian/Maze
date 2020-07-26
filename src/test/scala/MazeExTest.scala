@@ -1,12 +1,15 @@
-import maze.{Cell2D, Cell2DRect, Maze, Position2D, RectGrid, RectMaze, RectMazeDimension}
+import maze.{Cell2D, Cell2DRect, Maze, Position2D, RectGrid, RectMaze, RectMazeInfo}
 import org.scalatest.FunSuite
 
 class MazeExTest extends FunSuite {
   test("RectMazeStructTest") {
     var rectMaze: Maze[Cell2DRect] = RectMaze(5,5)
-    val dim = rectMaze.dimension
-    dim match {
-      case RectMazeDimension(rows, cols, maze) => assert(rows == 5 && cols == 5)
+    val info = rectMaze.info
+    info match {
+      case rectMazeInfo: RectMazeInfo => {
+        assert(rectMazeInfo.grid.rows == 5 && rectMazeInfo.grid.cols == 5)
+        assert(rectMazeInfo.name == "RectMaze")
+      }
       case _ => assert(false)
     }
     for (cell <- rectMaze) {
