@@ -12,19 +12,16 @@ object AldousBroderMaze extends MazeGenerator {
     def loop(unvisited: Int, pos: Position2D, maze: M): M = {
       if (unvisited > 0 && maze.at(pos).isDefined) {
         val cell = maze.at(pos).get
-        val neighborPos: Position2D = {
-          var randIndex = random.nextInt(cell.neighbors.size)
-          while (maze.linked(cell.neighbors(randIndex).pos).nonEmpty) {
-            randIndex = random.nextInt(cell.neighbors.size)
+        val randIndex = random.nextInt(cell.neighbors.size)
+        val neighborPos = cell.neighbors(randIndex).pos
+        if (maze.linked(neighborPos).isEmpty) {
+          maze.link(pos, neighborPos) match {
+            case Some(newMaze) => loop(unvisited-1, neighborPos, newMaze)
+            case None => loop(unvisited, pos, maze)
           }
-          cell.neighbors(randIndex).pos
-        }
-        maze.link(pos, neighborPos) match {
-          case Some(newMaze) => loop(unvisited-1, neighborPos, newMaze)
-          case None => loop(unvisited, pos, maze)
-        }
+        } else loop(unvisited, neighborPos, maze)
       } else maze
     }
-    loop(maze.size, pos, maze)
+    loop(maze.size-1, pos, maze)
   }
 }
