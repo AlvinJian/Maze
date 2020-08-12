@@ -1,4 +1,4 @@
-import algorithmex.{AldousBroderMaze, SidewinderMaze}
+import algorithmex.{AldousBroderMaze, RecurBackTrackMaze, SidewinderMaze}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
 import image.{Drawer, MazeImage}
@@ -29,6 +29,15 @@ class MazeAlgoTest extends FunSuite{
     val func = MazeImage.drawFunc(rectMaze)
     var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
     var fileRes = FileHelper.saveToFile(image, writer, s"NewMaze_Sidewinder$ext", dir)
+    assert(fileRes.isSuccess)
+  }
+
+  test("RecursiveBackTrack") {
+    var rectMaze: Maze[Cell2D] = RectMaze(10,10)
+    rectMaze = RecurBackTrackMaze.generate(rand, rectMaze)
+    val func = MazeImage.drawFunc(rectMaze)
+    var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    var fileRes = FileHelper.saveToFile(image, writer, s"NewMaze_RecurBT$ext", dir)
     assert(fileRes.isSuccess)
   }
 }
