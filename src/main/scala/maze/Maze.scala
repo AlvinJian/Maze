@@ -19,11 +19,9 @@ trait Cell2D {
 trait Maze[+T <: Cell2D] extends Iterable[T] {
   def at(position: Position2D): Option[T]
   def at(r: Int, c: Int): Option[T] = at(Position2D(r,c))
-  def neighborsAt(pos: Position2D): List[T] = {
-    at(pos).map(c=>c.neighbors) match {
-      case Some(value) => value.map(c => c.asInstanceOf[T])
-      case None => Nil
-    }
+  def neighborsAt(pos: Position2D): List[T] = at(pos).map(c=>c.neighbors) match {
+    case Some(value) => value.map(c => c.asInstanceOf[T])
+    case None => Nil
   }
   def info: MazeInfo
   def randomCell(r: Random): T = {
