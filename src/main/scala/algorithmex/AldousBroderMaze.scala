@@ -10,11 +10,11 @@ object AldousBroderMaze extends MazeGenerator {
     val pos = maze.randomCell(random).pos
     @scala.annotation.tailrec
     def loop(unvisited: Int, pos: Position2D, maze: Maze[CC]): Maze[CC] = {
-      if (unvisited > 0 && maze.at(pos).isDefined) {
-        val cell = maze.at(pos).get
-        val randIndex = random.nextInt(cell.neighbors.size)
-        val neighborPos = cell.neighbors(randIndex).pos
-        if (maze.linked(neighborPos).isEmpty) {
+      val neighbors = maze.neighborsAt(pos)
+      if (unvisited > 0 && neighbors.nonEmpty) {
+        val randIndex = random.nextInt(neighbors.size)
+        val neighborPos = neighbors(randIndex).pos
+        if (maze.linkedPositions(neighborPos).isEmpty) {
           maze.link(pos, neighborPos) match {
             case Some(newMaze) => loop(unvisited - 1, neighborPos, newMaze)
             case None => loop(unvisited, pos, maze)

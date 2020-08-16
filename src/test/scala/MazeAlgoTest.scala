@@ -8,7 +8,7 @@ import utils.FileHelper
 
 import scala.util.Random
 
-class MazeAlgoTest extends FunSuite{
+class MazeAlgoTest extends FunSuite {
   val rand: Random = new Random()
   private implicit val writer: PngWriter = PngWriter.MaxCompression
   private val ext = ".png"

@@ -12,10 +12,7 @@ object RecurBackTrackMaze extends MazeGenerator {
     val stack = List[Position2D]()
     @tailrec
     def loop(pos2D: Position2D, prev: List[Position2D], curMaze: Maze[CC]): Maze[CC] = {
-      val neighbors: List[Cell2D] = curMaze.at(pos2D).map(c=>c.neighbors) match {
-        case Some(value) => value.filter(n => curMaze.linked(n.pos).isEmpty)
-        case None => Nil
-      }
+      val neighbors = curMaze.neighborsAt(pos2D).filter(c=>curMaze.linkedPositions(c.pos).isEmpty)
       if (neighbors.nonEmpty) {
         val other = neighbors(random.nextInt(neighbors.size)).pos
         val newMaze = curMaze.link(pos2D, other) match {
@@ -31,7 +28,7 @@ object RecurBackTrackMaze extends MazeGenerator {
             case ::(head, remaining) => {
               stack = remaining
               val neighbor1 = curMaze.at(head).get.neighbors
-              if (neighbor1.exists(c=>curMaze.linked(c.pos).isEmpty)) {
+              if (neighbor1.exists(c=>curMaze.linkedPositions(c.pos).isEmpty)) {
                 Some(head)
               } else None
             }

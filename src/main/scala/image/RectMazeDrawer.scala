@@ -32,7 +32,7 @@ private[image] class RectMazeDrawer(val info: RectMazeInfo, cSize: Int) extends 
       if (cell.west.isEmpty) {
         wallGraphics.drawLine(x1, y1, x1, y2)
       }
-      val linkedPos = maze.linked(cell.pos)
+      val linkedPos = maze.linkedPositions(cell.pos)
       val shouldDrawEast = cell.east match {
         case Some(eastCell) =>
           !linkedPos.contains(eastCell.pos)

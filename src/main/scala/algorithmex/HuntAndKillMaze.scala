@@ -10,10 +10,7 @@ object HuntAndKillMaze extends MazeGenerator {
   def generate[CC <: C](random: Random, maze: Maze[CC]): Maze[CC] = {
     @tailrec
     def loop(position: Position2D, maze: Maze[CC]): Maze[CC] = {
-      val neighbors = maze.at(position).map(c => c.neighbors) match {
-        case Some(list) => list.filter(c=>maze.linked(c.pos).isEmpty)
-        case None => Nil
-      }
+      val neighbors = maze.neighborsAt(position).filter(c=>maze.linkedPositions(c.pos).isEmpty)
       if (neighbors.nonEmpty) {
         val next = {
           val id = random.nextInt(neighbors.size)
@@ -25,10 +22,10 @@ object HuntAndKillMaze extends MazeGenerator {
         }
         loop(next, newMaze)
       } else {
-        maze.find(c => maze.linked(c.pos).isEmpty &&
-          c.neighbors.exists(nc=>maze.linked(nc.pos).nonEmpty)) match {
+        maze.find(c => maze.linkedPositions(c.pos).isEmpty &&
+          c.neighbors.exists(nc=>maze.linkedPositions(nc.pos).nonEmpty)) match {
           case Some(cell) => {
-            val candidates = cell.neighbors.filter(nc=>maze.linked(nc.pos).nonEmpty)
+            val candidates = cell.neighbors.filter(nc=>maze.linkedPositions(nc.pos).nonEmpty)
             val other = candidates(random.nextInt(candidates.size)).pos
             val newMaze = maze.link(cell.pos, other) match {
               case Some(value) => value
