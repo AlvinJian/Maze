@@ -5,9 +5,9 @@ import scala.annotation.tailrec
 import scala.util.Random
 
 object SidewinderMaze extends MazeGenerator {
-  override type M = Maze[Cell2DRect]
+  override type C = Cell2DRect
 
-  override def generate(random: Random, maze: M): M = {
+  override def generate[CC <: C](random: Random, maze: Maze[CC]): Maze[CC] = {
     val grid = maze.info.asInstanceOf[RectMazeInfo].grid
     var tmpMaze = maze
     for(r <- 0.until(grid.rows)) {

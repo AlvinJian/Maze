@@ -1,4 +1,4 @@
-import algorithmex.{AldousBroderMaze, RecurBackTrackMaze, SidewinderMaze}
+import algorithmex.{AldousBroderMaze, HuntAndKillMaze, RecurBackTrackMaze, SidewinderMaze}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
 import image.{Drawer, MazeImage}
@@ -15,7 +15,7 @@ class MazeAlgoTest extends FunSuite{
   val dir: String = "images"
 
   test("Aldous") {
-    var rectMaze: Maze[Cell2D] = RectMaze(10, 10)
+    var rectMaze = RectMaze(10, 10)
     rectMaze = AldousBroderMaze.generate(rand, rectMaze)
     val func = MazeImage.drawFunc(rectMaze)
     var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
@@ -33,11 +33,20 @@ class MazeAlgoTest extends FunSuite{
   }
 
   test("RecursiveBackTrack") {
-    var rectMaze: Maze[Cell2D] = RectMaze(10,10)
+    var rectMaze = RectMaze(10,10)
     rectMaze = RecurBackTrackMaze.generate(rand, rectMaze)
     val func = MazeImage.drawFunc(rectMaze)
     var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
     var fileRes = FileHelper.saveToFile(image, writer, s"NewMaze_RecurBT$ext", dir)
+    assert(fileRes.isSuccess)
+  }
+
+  test("HuntAndKill") {
+    var rectMaze = RectMaze(10, 10)
+    rectMaze = HuntAndKillMaze.generate(rand, rectMaze)
+    val func = MazeImage.drawFunc(rectMaze)
+    var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    var fileRes = FileHelper.saveToFile(image, writer, s"NewMaze_HuntAndKill$ext", dir)
     assert(fileRes.isSuccess)
   }
 }

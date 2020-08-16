@@ -13,7 +13,7 @@ trait Cell2D {
   def container: Maze[T]
   def pos: Position2D
   def neighbors: List[T]
-  def linkedCells: Set[T]
+  def linked: Set[T]
 }
 
 trait MazeInfo {

@@ -23,10 +23,10 @@ class MazeExTest extends FunSuite {
     val p1 = Position2D(0,0)
     val p2 = Position2D(1,1)
     rectMaze = rectMaze.link(p1, p2).get
-    assert(rectMaze.at(p1).get.linkedCells.size == 1)
-    assert(rectMaze.at(p1).get.linkedCells.head.pos === p2)
-    assert(rectMaze.at(p2).get.linkedCells.size == 1)
-    assert(rectMaze.at(p2).get.linkedCells.head.pos === p1)
-    assert(rectMaze.at(3,3).get.linkedCells.isEmpty)
+    assert(rectMaze.at(p1).get.linked.size == 1)
+    assert(rectMaze.at(p1).get.linked.head.pos === p2)
+    assert(rectMaze.at(p2).get.linked.size == 1)
+    assert(rectMaze.at(p2).get.linked.head.pos === p1)
+    assert(rectMaze.at(3,3).get.linked.isEmpty)
   }
 }

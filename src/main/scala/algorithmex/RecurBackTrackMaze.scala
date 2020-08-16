@@ -5,13 +5,13 @@ import scala.annotation.tailrec
 import scala.util.Random
 
 object RecurBackTrackMaze extends MazeGenerator {
-  override type M = Maze[Cell2D]
+  override type C = Cell2D
 
-  override def generate(random: Random, maze: M): M = {
+  override def generate[CC <: C](random: Random, maze: Maze[CC]): Maze[CC] = {
     val start = maze.randomCell(random).pos
     val stack = List[Position2D]()
     @tailrec
-    def loop(pos2D: Position2D, prev: List[Position2D], curMaze: M): M = {
+    def loop(pos2D: Position2D, prev: List[Position2D], curMaze: Maze[CC]): Maze[CC] = {
       val neighbors: List[Cell2D] = curMaze.at(pos2D).map(c=>c.neighbors) match {
         case Some(value) => value.filter(n => curMaze.linked(n.pos).isEmpty)
         case None => Nil
