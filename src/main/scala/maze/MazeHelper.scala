@@ -8,4 +8,7 @@ private[maze] class MazeHelper[T <: Cell2D, G <: PlainGrid[Position2D]](val maze
   def link(pos1: Position2D, pos2: Position2D): Option[Graph] = {
     if (grid.isValid(pos1) && grid.isValid(pos2)) Some(graph.link(pos1, pos2)) else None
   }
+
+  def linkedBy(position: Position2D): List[T] = graph.linked(position)
+    .flatMap(p => maze.at(p)).toList
 }

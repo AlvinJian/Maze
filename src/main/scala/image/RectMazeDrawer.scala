@@ -4,15 +4,15 @@ import java.awt.image.BufferedImage
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import maze.{Cell2DRect, Maze, Position2D, RectMazeInfo}
+import maze.{Cell2DRect, Maze, Position2D, RectGrid}
 
-private[image] class RectMazeDrawer(val info: RectMazeInfo, cSize: Int) extends Drawer {
+private[image] class RectMazeDrawer(val grid: RectGrid,
+                                    val maze: Maze[Cell2DRect],
+                                    cSize: Int) extends Drawer {
   override type M = Maze[Cell2DRect]
 
-  override def maze: M = info.maze
-
-  val imgWidth: Int = info.grid.cols * cellSize
-  val imgHeight: Int = info.grid.rows * cellSize
+  val imgWidth: Int = grid.cols * cellSize
+  val imgHeight: Int = grid.rows * cellSize
 
   override def baseImage: ImmutableImage =
     ImmutableImage.filled(imgWidth+1, imgHeight+1, java.awt.Color.WHITE, BufferedImage.TYPE_INT_RGB)
@@ -32,15 +32,14 @@ private[image] class RectMazeDrawer(val info: RectMazeInfo, cSize: Int) extends 
       if (cell.west.isEmpty) {
         wallGraphics.drawLine(x1, y1, x1, y2)
       }
-      val linkedPos = maze.linkedPositions(cell.pos)
+      val linkedCells = maze.linkedBy(cell.pos).toSet
       val shouldDrawEast = cell.east match {
-        case Some(eastCell) =>
-          !linkedPos.contains(eastCell.pos)
+        case Some(eastCell) => !linkedCells.contains(eastCell)
         case _ => true
       }
       if (shouldDrawEast) wallGraphics.drawLine(x2, y1, x2, y2)
       val shouldDrawSouth = cell.south match {
-        case Some(southCell) => !linkedPos.contains(southCell.pos)
+        case Some(southCell) => !linkedCells.contains(southCell)
         case _ => true
       }
       if (shouldDrawSouth) wallGraphics.drawLine(x1, y2, x2, y2)

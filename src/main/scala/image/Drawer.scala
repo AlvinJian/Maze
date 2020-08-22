@@ -15,7 +15,7 @@ trait Drawer {
 
 object Drawer {
   def apply(maze: Maze[Cell2D], cellSize: Int): Drawer = maze.info match {
-    case rectMazeInfo: RectMazeInfo => new RectMazeDrawer(rectMazeInfo, cellSize)
+    case mazeInfo: RectMazeInfo => new RectMazeDrawer(mazeInfo.grid, mazeInfo.maze, cellSize)
     case _ => ???
   }
 }

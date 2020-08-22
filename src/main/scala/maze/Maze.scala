@@ -13,21 +13,19 @@ trait Cell2D {
   def container: Maze[T]
   def pos: Position2D
   def neighbors: List[T]
-  def linked: Set[T]
+  def linked: List[T]
 }
 
 trait Maze[+T <: Cell2D] extends Iterable[T] {
   def at(position: Position2D): Option[T]
   def at(r: Int, c: Int): Option[T] = at(Position2D(r,c))
-  def neighborsAt(pos: Position2D): List[T] = at(pos).map(c=>c.neighbors) match {
-    case Some(value) => value.map(c => c.asInstanceOf[T])
-    case None => Nil
-  }
+  def neighborsAt(pos: Position2D): List[T] = at(pos).map(c=>c.neighbors)
+    .fold(List[T]())(cells=>cells.map(c=>c.asInstanceOf[T]))
+  def linkedBy(position: Position2D): List[T]
   def info: MazeInfo
   def randomCell(r: Random): T = {
     val arr = this.toSeq
     arr(r.nextInt(arr.length))
   }
   def link(pos1: Position2D, pos2: Position2D): Option[Maze[T]]
-  def linkedPositions(pos: Position2D): Set[Position2D]
 }

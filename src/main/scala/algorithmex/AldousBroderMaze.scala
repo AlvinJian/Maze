@@ -14,7 +14,7 @@ object AldousBroderMaze extends MazeGenerator {
       if (unvisited > 0 && neighbors.nonEmpty) {
         val randIndex = random.nextInt(neighbors.size)
         val neighborPos = neighbors(randIndex).pos
-        if (maze.linkedPositions(neighborPos).isEmpty) {
+        if (maze.linkedBy(neighborPos).isEmpty) {
           maze.link(pos, neighborPos) match {
             case Some(newMaze) => loop(unvisited - 1, neighborPos, newMaze)
             case None => loop(unvisited, pos, maze)

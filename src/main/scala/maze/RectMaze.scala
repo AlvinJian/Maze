@@ -30,16 +30,14 @@ private class Cell2DRectImpl(position2D: Position2D, maze: Maze[Cell2DRect]) ext
 
   override def pos: Position2D = position2D
 
-  override def linked: Set[Cell2DRect] = {
-    container.linkedPositions(this.pos).map(p => container.at(p).get)
-  }
+  override def linked: List[Cell2DRect] = container.linkedBy(this.pos)
 }
 
 private[maze] class RectMaze(val grid: RectGrid, val graph: Graph = new Graph()) extends Maze[Cell2DRect] {
   private val helper = new MazeHelper[Cell2DRect, RectGrid](this, grid, graph)
   private val cells = helper.buildCells((p, maze)=>new Cell2DRectImpl(p, maze))
 
-  def this(rows: Int, cols: Int) {
+  def this(rows: Int, cols: Int) = {
     this(RectGrid(rows, cols))
   }
 
@@ -56,7 +54,7 @@ private[maze] class RectMaze(val grid: RectGrid, val graph: Graph = new Graph())
 
   override def info: MazeInfo = RectMazeInfo(grid, this)
 
-  override def linkedPositions(pos: Position2D): Set[Position2D] = graph.linked(pos)
+  override def linkedBy(position: Position2D): List[Cell2DRect] = helper.linkedBy(position)
 }
 
 object RectMaze {
