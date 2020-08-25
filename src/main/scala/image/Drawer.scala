@@ -1,7 +1,8 @@
 package image
 
-import com.sksamuel.scrimage.ImmutableImage
+import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.RGBColor
+import com.sksamuel.scrimage.graphics.RichGraphics2D
 import maze.{Cell2D, Maze, Position2D, RectMazeInfo}
 
 trait Drawer {
@@ -9,13 +10,19 @@ trait Drawer {
   def maze: M
   def cellSize: Int
   def baseImage: ImmutableImage
-  def drawWalls(prevImage: ImmutableImage): ImmutableImage
-  def drawCells(prevImage: ImmutableImage, f: Position2D => RGBColor): ImmutableImage
+  def finalImage(f: Position2D => RGBColor): ImmutableImage = {
+    val mutableImage = new MutableImage(baseImage.awt())
+    val g2 = new RichGraphics2D(mutableImage.awt().createGraphics())
+    drawCells(g2, f)
+    drawWalls(g2)
+    mutableImage.toImmutableImage
+  }
+  protected def drawWalls(g2: RichGraphics2D): Unit
+  protected def drawCells(g2: RichGraphics2D, f: Position2D => RGBColor): Unit
 }
 
 object Drawer {
   def apply(maze: Maze[Cell2D], cellSize: Int): Drawer = maze.info match {
     case mazeInfo: RectMazeInfo => new RectMazeDrawer(mazeInfo.grid, mazeInfo.maze, cellSize)
-    case _ => ???
   }
 }

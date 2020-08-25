@@ -8,8 +8,6 @@ object RecurBackTrackMaze extends MazeGenerator {
   override type C = Cell2D
 
   override def generate[CC <: C](random: Random, maze: Maze[CC]): Maze[CC] = {
-    val start = maze.randomCell(random).pos
-    val stack = List[Position2D]()
     @tailrec
     def loop(pos2D: Position2D, prev: List[Position2D], curMaze: Maze[CC]): Maze[CC] = {
       val neighbors = curMaze.neighborsAt(pos2D).filter(c=>curMaze.linkedBy(c.pos).isEmpty)
@@ -41,6 +39,6 @@ object RecurBackTrackMaze extends MazeGenerator {
         }
       }
     }
-    loop(start, stack, maze)
+    loop(maze.randomCell(random).pos, List[Position2D](), maze)
   }
 }

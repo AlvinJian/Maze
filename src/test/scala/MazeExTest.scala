@@ -1,4 +1,4 @@
-import maze.{Cell2D, Cell2DRect, Maze, Position2D, RectGrid, RectMaze, RectMazeInfo}
+import maze.{Cell2D, Cell2DPolar, Cell2DRect, Maze, PolarGrid, PolarMaze, PolarMazeInfo, Position2D, RectGrid, RectMaze, RectMazeInfo}
 import org.scalatest.FunSuite
 
 class MazeExTest extends FunSuite {
@@ -28,5 +28,43 @@ class MazeExTest extends FunSuite {
     assert(rectMaze.at(p2).get.linked.size == 1)
     assert(rectMaze.at(p2).get.linked.head.pos === p1)
     assert(rectMaze.at(3,3).get.linked.isEmpty)
+  }
+
+  test("PolarMazeStructTest") {
+    val radius = 10
+    var polarMaze: Maze[Cell2DPolar] = PolarMaze(radius)
+    val info = polarMaze.info
+    val grid: PolarGrid = info match {
+      case PolarMazeInfo(grid, maze) => {
+        assert(grid.radius == radius)
+        grid
+      }
+      case _ => {
+        assert(false)
+        PolarGrid(0) // whatever...
+      }
+    }
+    val total = { 0.until(radius) }.map(r => grid.countAt(r)).sum
+    assert(total == polarMaze.size)
+    for (cell <- polarMaze) {
+      val (row: Int, col: Int) = (cell.pos.row, cell.pos.col)
+//      println(s"zzz $row, $col")
+      if (row == 0) {
+        assert(cell.cw == cell)
+        assert(cell.ccw == cell)
+        assert(cell.outward.size == 6)
+        assert(cell.inward.isEmpty)
+      } else {
+        assert(cell.cw == polarMaze.at(row, col-1).get)
+        assert(cell.ccw == polarMaze.at(row, col+1).get)
+        if (row < grid.radius-1) {
+          val count = grid.countAt(row)
+          val outerCount = grid.countAt(row+1)
+          assert(cell.outward.size == { if (outerCount > count) 2 else 1 })
+        } else {
+          assert(cell.outward.isEmpty)
+        }
+      }
+    }
   }
 }

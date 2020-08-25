@@ -13,7 +13,7 @@ trait Cell2D {
   def container: Maze[T]
   def pos: Position2D
   def neighbors: List[T]
-  def linked: List[T]
+  def linked: List[T] = container.linkedBy(this.pos)
 }
 
 trait Maze[+T <: Cell2D] extends Iterable[T] {

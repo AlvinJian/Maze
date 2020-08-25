@@ -17,10 +17,9 @@ private[image] class RectMazeDrawer(val grid: RectGrid,
   override def baseImage: ImmutableImage =
     ImmutableImage.filled(imgWidth+1, imgHeight+1, java.awt.Color.WHITE, BufferedImage.TYPE_INT_RGB)
 
-  override def drawWalls(prevImage: ImmutableImage): ImmutableImage = {
-    val mutableImage = new MutableImage(prevImage.awt())
+  override protected def drawWalls(g2: RichGraphics2D): Unit = {
     val wallColor = RGBColor.fromAwt(java.awt.Color.BLACK)
-    val wallGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
+    val wallGraphics = g2
     wallGraphics.setColor(wallColor)
 
     for (cell <- maze) {
@@ -44,16 +43,13 @@ private[image] class RectMazeDrawer(val grid: RectGrid,
       }
       if (shouldDrawSouth) wallGraphics.drawLine(x1, y2, x2, y2)
     }
-    mutableImage.toImmutableImage
   }
 
-  override def drawCells(prevImage: ImmutableImage, f: Position2D => RGBColor): ImmutableImage = {
-    val mutableImage = new MutableImage(prevImage.awt())
-    val cellGraphics = new RichGraphics2D(mutableImage.awt().createGraphics())
+  override protected def drawCells(g2: RichGraphics2D, f: Position2D => RGBColor): Unit = {
+    val cellGraphics = g2
     for (cell <- maze) {
       drawCell(cell, cellGraphics, f)
     }
-    mutableImage.toImmutableImage
   }
 
   override def cellSize: Int = cSize
