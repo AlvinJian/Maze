@@ -1,9 +1,9 @@
 package algorithmex
 
-import maze.{Cell2D, Maze, MazeInfo, Position2D}
+import maze.{Cell2D, Maze, MazeInfo, PlainGrid, Position2D}
 
 trait DistanceMap {
-  def info: MazeInfo
+  def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]]
   def apply(pos: Position2D): Int
   def root: Position2D
   def max: (Position2D, Int)

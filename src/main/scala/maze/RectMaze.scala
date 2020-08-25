@@ -28,7 +28,7 @@ private[maze] class RectMaze(val grid: RectGrid, val graph: Graph = new Graph())
 
   override def iterator: Iterator[Cell2DRect] = cells.valuesIterator
 
-  override def info: MazeInfo = RectMazeInfo(grid, this)
+  override def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]] = RectMazeInfo(grid, this)
 
   override def linkedBy(position: Position2D): List[Cell2DRect] = helper.linkedBy(position)
 

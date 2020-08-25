@@ -8,7 +8,8 @@ sealed trait Cell2DPolar extends Cell2D {
   def inward: Option[T]
   def neighbors: List[T] = {
     val candidates: List[T] = List(cw, ccw) ++ outward ++ inward
-    candidates.filter(c=>c!=this) // when r == 0, this is required!
+    if (pos.row == 0) candidates.filter(c=>c!=this) // when r == 0, this is required!
+    else candidates
   }
 }
 
@@ -27,7 +28,7 @@ private[maze] class PolarMaze(val grid: PolarGrid, val graph: Graph = new Graph(
 
   override def linkedBy(position: Position2D): List[Cell2DPolar] = helper.linkedBy(position)
 
-  override def info: MazeInfo = PolarMazeInfo(grid, this)
+  override def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]] = PolarMazeInfo(grid, this)
 
   override def link(pos1: Position2D, pos2: Position2D): Option[Maze[Cell2DPolar]] = {
     helper.link(pos1, pos2) match {

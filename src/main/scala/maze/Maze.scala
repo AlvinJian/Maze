@@ -22,7 +22,7 @@ trait Maze[+T <: Cell2D] extends Iterable[T] {
   def neighborsAt(pos: Position2D): List[T] = at(pos).map(c=>c.neighbors)
     .fold(List[T]())(cells=>cells.map(c=>c.asInstanceOf[T]))
   def linkedBy(position: Position2D): List[T]
-  def info: MazeInfo
+  def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]]
   def randomCell(r: Random): T = {
     val arr = this.toSeq
     arr(r.nextInt(arr.length))
