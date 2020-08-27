@@ -91,13 +91,15 @@ class MazeAlgoTest extends FunSuite {
     val inputMazes: List[Maze[Cell2D]] = List(rectMaze, polarMaze)
 
     for (inMaze <- inputMazes) {
-      val generators: List[MazeGenerator] = inMaze.info match {
-        case RectMazeInfo(_, _) => List(AldousBroderMaze, SidewinderMaze, RecurBackTrackMaze,
-          HuntAndKillMaze, WilsonMaze)
-        case _ => List(AldousBroderMaze, RecurBackTrackMaze, HuntAndKillMaze, WilsonMaze)
+      val genMazes: List[(Maze[Cell2D], String)] = inMaze.info match {
+        case RectMazeInfo(_, rectMaze) => List(AldousBroderMaze, SidewinderMaze, RecurBackTrackMaze,
+          HuntAndKillMaze, WilsonMaze).map(gen => (gen.generate(rand, rectMaze), gen.getClass.getSimpleName))
+        case _ => List(AldousBroderMaze, RecurBackTrackMaze, HuntAndKillMaze, WilsonMaze).map {
+          gen => (gen.generate(rand, inMaze), gen.getClass.getSimpleName)
+        }
       }
-      for (gen <- generators) {
-        val genMaze = gen.generate[gen.C](rand, inMaze.asInstanceOf[Maze[gen.C]])
+      for (tup <- genMazes) {
+        val (genMaze, genName) = tup
         DistanceMap.tryCreate(genMaze.randomCell(rand).pos, genMaze) match {
           case Some(distanceMap) => {
             val start = distanceMap.root
@@ -106,7 +108,7 @@ class MazeAlgoTest extends FunSuite {
             assert(path.nonEmpty)
             assert(maxDist == distanceMap.data(path.last))
             pathCheck(path, distanceMap, start, end)
-            println(s"${inMaze.info.name} ${gen.getClass.getSimpleName} ${maxDist}")
+            println(s"${genMaze.info.name} ${genName} ${maxDist}")
           }
           case None => assert(false)
         }
