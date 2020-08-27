@@ -66,13 +66,13 @@ private[maze] class PolarMaze(val grid: PolarGrid, val graph: Graph = new Graph(
       else {
         val count = grid.countAt(pos.row)
         val innerCount = grid.countAt(pos.row-1)
-        if (count != innerCount) container.at(pos.row-1, pos.col/2)
-        else container.at(pos.row-1, pos.col)
+        if (count == innerCount) container.at(pos.row-1, pos.col)
+        else container.at(pos.row-1, pos.col/2)
       }
     }
   }
 }
 
 object PolarMaze {
-  def apply(radius: Int): PolarMaze = new PolarMaze(radius)
+  def apply(radius: Int): Maze[Cell2DPolar] = new PolarMaze(radius)
 }

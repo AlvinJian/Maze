@@ -3,7 +3,7 @@ package image
 import com.sksamuel.scrimage.{ImmutableImage, MutableImage}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.graphics.RichGraphics2D
-import maze.{Cell2D, Maze, Position2D, RectMazeInfo}
+import maze.{Cell2D, Maze, PolarMazeInfo, Position2D, RectMazeInfo}
 
 trait Drawer {
   type M <: Maze[Cell2D]
@@ -23,6 +23,8 @@ trait Drawer {
 
 object Drawer {
   def apply(maze: Maze[Cell2D], cellSize: Int): Drawer = maze.info match {
-    case mazeInfo: RectMazeInfo => new RectMazeDrawer(mazeInfo.grid, mazeInfo.maze, cellSize)
+    case RectMazeInfo(grid, maze) => new RectMazeDrawer(grid, maze, cellSize)
+    case PolarMazeInfo(grid, maze) => new PolarMazeDrawer(grid, maze, cellSize)
+    case _ => ???
   }
 }

@@ -54,7 +54,7 @@ private[image] class RectMazeDrawer(val grid: RectGrid,
 
   override def cellSize: Int = cSize
 
-  protected def calcRectCellPositions(cell: Cell2DRect): (Int, Int, Int, Int) = {
+  def calcRectCellPositions(cell: Cell2DRect): (Int, Int, Int, Int) = {
     val row = cell.pos.row
     val col = cell.pos.col
     val x1 = col * cellSize
