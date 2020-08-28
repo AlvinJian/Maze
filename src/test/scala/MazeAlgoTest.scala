@@ -1,4 +1,4 @@
-import algorithmex.{AldousBroderMaze, DistanceMap, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
+import algorithmex.{AldousBroderMaze, BinaryTreeMaze, DistanceMap, HuntAndKillMaze, MazeGenerator, RecurBackTrackMaze, SidewinderMaze, WilsonMaze}
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
 import image.{Drawer, MazeImage}
@@ -49,6 +49,15 @@ class MazeAlgoTest extends FunSuite {
     assert(fileRes.isSuccess)
   }
 
+  test("BinaryTree") {
+    var rectMaze = RectMaze(10,10)
+    rectMaze = BinaryTreeMaze.generate(rand, rectMaze)
+    val func = MazeImage.func(rectMaze)
+    var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    var fileRes = FileHelper.saveToFile(image, writer, s"NewMaze_BinaryTree$ext", dir)
+    assert(fileRes.isSuccess)
+  }
+
   test("RecursiveBackTrack") {
     var rectMaze = RectMaze(10,10)
     rectMaze = RecurBackTrackMaze.generate(rand, rectMaze)
@@ -92,7 +101,7 @@ class MazeAlgoTest extends FunSuite {
 
     for (inMaze <- inputMazes) {
       val genMazes: List[(Maze[Cell2D], String)] = inMaze.info match {
-        case RectMazeInfo(_, rectMaze) => List(AldousBroderMaze, SidewinderMaze, RecurBackTrackMaze,
+        case RectMazeInfo(_, rectMaze) => List(AldousBroderMaze, SidewinderMaze, BinaryTreeMaze, RecurBackTrackMaze,
           HuntAndKillMaze, WilsonMaze).map(gen => (gen.generate(rand, rectMaze), gen.getClass.getSimpleName))
         case _ => List(AldousBroderMaze, RecurBackTrackMaze, HuntAndKillMaze, WilsonMaze).map {
           gen => (gen.generate(rand, inMaze), gen.getClass.getSimpleName)

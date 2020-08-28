@@ -20,7 +20,7 @@ trait Maze[+T <: Cell2D] extends Iterable[T] {
   def at(position: Position2D): Option[T]
   def at(r: Int, c: Int): Option[T] = at(Position2D(r,c))
   def neighborsAt(pos: Position2D): List[T] = at(pos).map(c=>c.neighbors)
-    .fold(List[T]())(cells=>cells.map(c=>c.asInstanceOf[T]))
+    .fold(List[T]())(cells => cells.map(c => c.asInstanceOf[T]))
   def linkedBy(position: Position2D): List[T]
   def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]]
   def randomCell(r: Random): T = {
