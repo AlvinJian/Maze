@@ -21,14 +21,19 @@ class MazeAlgoTest extends FunSuite {
     assert(path.last == end)
     val maze = distMap.info.maze
     @tailrec
-    def loopCheck(i: Int): Unit = {
-      if (i < path.size-1) {
-        assert(maze.linkedBy(path(i)).map(c => c.pos).contains(path(i+1)))
-        assert(distMap.data(path(i))+1 == distMap.data(path(i+1)))
-        loopCheck(i+1)
+    def loopCheck(list: List[Position2D]): Unit = list match {
+      case ::(head, next) => {
+        if (next.nonEmpty) {
+          val curPos = head
+          val nextPos = next.head
+          assert(maze.linkedBy(curPos).map(c => c.pos).contains(nextPos))
+          assert(distMap.data(head)+1 == distMap.data(nextPos))
+        }
+        loopCheck(next)
       }
+      case Nil => ()
     }
-    loopCheck(0)
+    loopCheck(path)
   }
 
   test("Aldous") {
