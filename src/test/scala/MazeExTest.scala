@@ -1,4 +1,4 @@
-import maze.{Cell2D, Cell2DPolar, Cell2DRect, Maze, PolarGrid, PolarMaze, PolarMazeInfo, Position2D, RectGrid, RectMaze, RectMazeInfo}
+import maze.{Cell2D, Cell2DPolar, Cell2DRect, Cell2DTriangle, Maze, PolarGrid, PolarMaze, PolarMazeInfo, Position2D, RectGrid, RectMaze, RectMazeInfo, TriangleMaze}
 import org.scalatest.FunSuite
 
 class MazeExTest extends FunSuite {
@@ -48,7 +48,7 @@ class MazeExTest extends FunSuite {
     assert(total == polarMaze.size)
     for (cell <- polarMaze) {
       val (row: Int, col: Int) = (cell.pos.row, cell.pos.col)
-//      println(s"zzz $row, $col")
+      println(s"zzz $row, $col")
       if (row == 0) {
         assert(cell.cw == cell)
         assert(cell.ccw == cell)
@@ -66,5 +66,32 @@ class MazeExTest extends FunSuite {
         }
       }
     }
+  }
+
+  test("TriangleMazeStructTest") {
+    val triMaze = TriangleMaze(10, 10)
+    val _ = triMaze.foldLeft[Option[Cell2DTriangle]](None)((optPrevCell, cell) => {
+      optPrevCell match {
+        case Some(prevCell) => {
+          if (cell.pos.col > 0) {
+            assert(prevCell.isUpright != cell.isUpright)
+          }
+        }
+        case None =>
+      }
+
+      val r = cell.pos.row
+      val c = cell.pos.col
+      assert(cell.north == {
+        if (cell.isUpright) None else triMaze.at(r - 1, c)
+      })
+      assert(cell.south == {
+        if (cell.isUpright) triMaze.at(r + 1, c) else None
+      })
+      assert(cell.east == triMaze.at(r, c + 1))
+      assert(cell.west == triMaze.at(r, c - 1))
+
+      Some(cell)
+    })
   }
 }

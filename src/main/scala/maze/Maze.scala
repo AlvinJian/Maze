@@ -7,6 +7,12 @@ import scala.util.Random
  */
 
 case class Position2D(row: Int, col: Int)
+object Position2D {
+  implicit val ordering: Ordering[Position2D] = (x: Position2D, y: Position2D) => {
+    if (x.row == y.row) x.col - y.col
+    else x.row - y.row
+  }
+}
 
 trait Cell2D {
   type T <: Cell2D

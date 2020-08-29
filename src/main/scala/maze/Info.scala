@@ -21,3 +21,8 @@ case class PolarMazeInfo(override val grid: PolarGrid,
 //  override type M = Maze[Cell2DPolar]
   override val name: String = "PolarMaze"
 }
+
+case class TriangleMazeInfo(override val grid: RectGrid,
+                            override val maze: Maze[Cell2DTriangle]) extends MazeInfo[RectGrid, Maze[Cell2DTriangle]] {
+  override val name: String = "TriangleMaze"
+}

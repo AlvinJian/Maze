@@ -14,16 +14,16 @@ sealed trait Cell2DPolar extends Cell2D {
 }
 
 private[maze] class PolarMaze(val grid: PolarGrid, val graph: Graph = new Graph()) extends Maze[Cell2DPolar] {
-  private val helper = new MazeHelper[Cell2DPolar, PolarGrid](this, grid, graph)
-  private val cells: Map[Position2D, Cell2DPolar] = grid.map(p=>(p, new Cell2DPolarImpl(p))).toMap
+  private val helper = new MazeHelper[Cell2DPolar, PolarGrid](this,
+                                                              p=>new Cell2DPolarImpl(p),
+                                                              grid, graph)
 
   def this(radius: Int) = {
     this(PolarGrid(radius))
   }
 
   override def at(position: Position2D): Option[Cell2DPolar] = {
-    val normPos = grid.at(position.row, position.col).get
-    cells.get(normPos)
+    grid.at(position.row, position.col).map(p => helper.cells.apply(p))
   }
 
   override def linkedBy(position: Position2D): List[Cell2DPolar] = helper.linkedBy(position)
@@ -37,7 +37,7 @@ private[maze] class PolarMaze(val grid: PolarGrid, val graph: Graph = new Graph(
     }
   }
 
-  override def iterator: Iterator[Cell2DPolar] = cells.valuesIterator
+  override def iterator: Iterator[Cell2DPolar] = helper.iterator
 
   private class Cell2DPolarImpl(position: Position2D) extends Cell2DPolar {
     override def container: Maze[Cell2DPolar] = PolarMaze.this

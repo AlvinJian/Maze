@@ -10,14 +10,14 @@ sealed trait Cell2DRect extends Cell2D {
 }
 
 private[maze] class RectMaze(val grid: RectGrid, val graph: Graph = new Graph()) extends Maze[Cell2DRect] {
-  private val helper = new MazeHelper[Cell2DRect, RectGrid](this, grid, graph)
-  private val cells = grid.map(p=>(p, new Cell2DRectImpl(p))).toMap
+  private val helper = new MazeHelper[Cell2DRect, RectGrid](this, p => new Cell2DRectImpl(p),
+                                                            grid, graph)
 
   def this(rows: Int, cols: Int) = {
     this(RectGrid(rows, cols))
   }
 
-  override def at(pos: Position2D): Option[Cell2DRect] = cells.get(pos)
+  override def at(pos: Position2D): Option[Cell2DRect] = helper.cells.get(pos)
 
   override def link(pos1: Position2D, pos2: Position2D): Option[Maze[Cell2DRect]] = {
     helper.link(pos1, pos2) match {
@@ -26,7 +26,7 @@ private[maze] class RectMaze(val grid: RectGrid, val graph: Graph = new Graph())
     }
   }
 
-  override def iterator: Iterator[Cell2DRect] = cells.valuesIterator
+  override def iterator: Iterator[Cell2DRect] = helper.iterator
 
   override def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]] = RectMazeInfo(grid, this)
 
