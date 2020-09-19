@@ -13,7 +13,7 @@ class WeaveMazeDrawer(val grid: RectGrid,
 
   override def cellSize: Int = cSize
 
-  override def baseImage: ImmutableImage = rectDrawer.baseImage
+  override def baseImage: ImmutableImage = rectDrawer.baseImage.fill(java.awt.Color.GRAY)
 
   override protected def drawWalls(g2: RichGraphics2D): Unit = {
     val wallColor = RGBColor.fromAwt(java.awt.Color.BLACK)
@@ -119,25 +119,21 @@ class WeaveMazeDrawer(val grid: RectGrid,
     var xright = x3
     var ytop = y2
     var ybottom = y3
-    val linked = cell.linked
-    if (cell.north.map(n => linked.contains(n)).fold(false)(b => b)) {
+    if (cell.isHorizontalLinked) {
+      xleft = x1; xright = x2;
+      ytop = y2; ybottom = y3;
+      cellGraphics.fillRect(xleft, ytop, xright-xleft, ybottom-ytop)
+
+      xleft = x3; xright = x4;
+      cellGraphics.fillRect(xleft, ytop, xright-xleft, ybottom-ytop)
+    }
+
+    if (cell.isVerticalLinked) {
       ytop = y1; ybottom = y2
       xleft = x2; xright = x3
       cellGraphics.fillRect(xleft, ytop, xright-xleft, ybottom-ytop)
-    }
-    if (cell.south.map(s => linked.contains(s)).fold(false)(b => b)) {
+
       ytop = y3; ybottom = y4
-      xleft = x2; xright = x3
-      cellGraphics.fillRect(xleft, ytop, xright-xleft, ybottom-ytop)
-    }
-    if (cell.west.map(w => linked.contains(w)).fold(false)(b => b)) {
-      ytop = y2; ybottom = y3
-      xleft = x1; xright = x2
-      cellGraphics.fillRect(xleft, ytop, xright-xleft, ybottom-ytop)
-    }
-    if (cell.east.map(e => linked.contains(e)).fold(false)(b => b)) {
-      ytop = y2; ybottom = y3
-      xleft = x3; xright = x4
       cellGraphics.fillRect(xleft, ytop, xright-xleft, ybottom-ytop)
     }
   }

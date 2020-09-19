@@ -10,17 +10,17 @@ trait Cell2DWeave extends Cell2DRect {
 }
 
 private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
-                              hidden: List[Position2D]) extends Maze[Cell2DWeave] {
+                              hidden: List[Position2D], val linkedToHidden: Graph) extends Maze[Cell2DWeave] {
   private val helper = new MazeHelper[Cell2DWeave, RectGrid](p => Cell2DOverlay(p), grid, graph)
 
-  def this(rows: Int, cols: Int) = this(RectGrid(rows, cols), new Graph(), Nil)
+  def this(rows: Int, cols: Int) = this(RectGrid(rows, cols), new Graph(), Nil, new Graph())
 
   override def at(position: Position2D): Option[Cell2DWeave] = helper.cells.get(position)
 
   override def linkedBy(position: Position2D): List[Cell2DWeave] = {
-    val posList = graph.linked(position)
-    val cells = posList.map(p => helper.cells(p)) ++ posList.flatMap(p => hiddenCells.get(p))
-    cells.toList
+    helper.linkedBy(position) ++ {
+      linkedToHidden.linked(position).map(p => hiddenCells(p))
+    }
   }
 
   override def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]] = WeaveMazeInfo(grid, this)
@@ -51,15 +51,13 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
 
   override def link(pos1: Position2D, pos2: Position2D): Option[Maze[Cell2DWeave]] = {
     val optCell = checkHiddenCellRequired(pos1, pos2)
-//    val newHiddens = hiddenCells.keys.toList ++ optCell.map(c => c.pos)
-//    helper.link(pos1, pos2).map(g => new WeaveMaze(grid, g, newHiddens))
     optCell match {
       case Some(cell) =>  {
-        val g = graph.dirLink(pos1, cell.pos).dirLink(pos2, cell.pos)
-        Some(new WeaveMaze(grid, g, hiddenCells.keys.toList :+ cell.pos))
+        val hg = linkedToHidden.dirLink(pos1, cell.pos).dirLink(pos2, cell.pos)
+        Some(new WeaveMaze(grid, graph, hiddenCells.keys.toList :+ cell.pos, hg))
       }
       case None => {
-        helper.link(pos1, pos2).map(g => new WeaveMaze(grid, g, hiddenCells.keys.toList))
+        helper.link(pos1, pos2).map(g => new WeaveMaze(grid, g, hiddenCells.keys.toList, linkedToHidden))
       }
     }
   }
@@ -108,6 +106,7 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
       val _west = super.west
       val _north = super.north
       val _south = super.south
+      // TODO need cleanup
       if (_east.isDefined && _west.isDefined) {
         linked.contains(_east.get) &&
           linked.contains(_west.get) && {
@@ -123,6 +122,7 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
       val _west = super.west
       val _north = super.north
       val _south = super.south
+      // TODO need cleanup
       if (_north.isDefined && _south.isDefined) {
         linked.contains(_north.get) &&
           linked.contains(_south.get) && {
