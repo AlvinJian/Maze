@@ -82,23 +82,22 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
 //    override def pos: Position2D = p
 
     def canTunnelNorth: Boolean =
-      north.isDefined && north.get.north.isDefined && {
-        north.get.isHidden || north.get.isHorizontalLinked
-      }
+      north.fold(false)(n => n.north.isDefined) &&
+        north.fold(false)(n => n.isHidden || n.isHorizontalLinked)
 
     def canTunnelSouth: Boolean =
-      south.isDefined && south.get.south.isDefined && {
-        south.get.isHidden || south.get.isHorizontalLinked
+      south.map(s => s.south.isDefined).fold(false)(b => b) && {
+        south.fold(false)(s => s.isHidden || s.isHorizontalLinked)
       }
 
     def canTunnelEast: Boolean =
-      east.isDefined && east.get.east.isDefined && {
-        east.get.isHidden || east.get.isVerticalLinked
+      east.fold(false)(e => e.east.isDefined) && {
+        east.fold(false)(e => e.isHidden || e.isVerticalLinked)
       }
 
     def canTunnelWest: Boolean =
-      west.isDefined && west.get.west.isDefined && {
-        west.get.isHidden || west.get.isVerticalLinked
+      west.fold(false)(w => w.west.isDefined) && {
+        west.fold(false)(w => w.isHidden || w.isVerticalLinked)
       }
 
     override def isHorizontalLinked: Boolean = {
@@ -128,54 +127,58 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
     def underneath: Option[Cell2DHidden] = WeaveMaze.this.hiddenCells.get(pos)
 
     override def north: Option[Cell2DWeave] = {
-      val optWeaveCell = super.north
-      if (optWeaveCell.isDefined) {
-        val overlay = optWeaveCell.get.asInstanceOf[Cell2DOverlay]
-        if (overlay.underneath.isDefined && overlay.isHorizontalLinked) overlay.underneath
-        else optWeaveCell
-      } else optWeaveCell
+      val optCell = super.north
+      optCell.map(c => {
+        val overlay = c.asInstanceOf[Cell2DOverlay]
+        if (overlay.isHorizontalLinked) overlay.underneath.fold(c)(u => u)
+        else c
+      })
     }
 
     override def south: Option[Cell2DWeave] = {
-      val optWeaveCell = super.south
-      if (optWeaveCell.isDefined) {
-        val overlay = optWeaveCell.get.asInstanceOf[Cell2DOverlay]
-        if (overlay.underneath.isDefined && overlay.isHorizontalLinked) overlay.underneath
-        else optWeaveCell
-      } else optWeaveCell
+      val optCell = super.south
+      optCell.map(c => {
+        val overlay = c.asInstanceOf[Cell2DOverlay]
+        if (overlay.isHorizontalLinked) overlay.underneath.fold(c)(u => u)
+        else c
+      })
     }
 
     override def east: Option[Cell2DWeave] = {
-      val optWeaveCell = super.east
-      if (optWeaveCell.isDefined) {
-        val overlay = optWeaveCell.get.asInstanceOf[Cell2DOverlay]
-        if (overlay.isVerticalLinked && overlay.underneath.isDefined) overlay.underneath
-        else optWeaveCell
-      } else optWeaveCell
+      val optCell = super.east
+      optCell.map {
+        c => {
+          val overlay = c.asInstanceOf[Cell2DOverlay]
+          if (overlay.isVerticalLinked) overlay.underneath.fold(c)(u => u)
+          else c
+        }
+      }
     }
 
     override def west: Option[Cell2DWeave] = {
-      val optWeaveCell = super.west
-      if (optWeaveCell.isDefined) {
-        val overlay = optWeaveCell.get.asInstanceOf[Cell2DOverlay]
-        if (overlay.isVerticalLinked && overlay.underneath.isDefined) overlay.underneath
-        else optWeaveCell
-      } else optWeaveCell
+      val optCell = super.west
+      optCell.map {
+        c => {
+          val overlay = c.asInstanceOf[Cell2DOverlay]
+          if (overlay.isVerticalLinked) overlay.underneath.fold(c)(u => u)
+          else c
+        }
+      }
     }
 
     override def neighbors: List[Cell2DWeave] = {
       var neighbors = super.neighbors
       neighbors = neighbors ++ {
-        if (canTunnelNorth) List(north.get.north.get) else Nil
+        if (canTunnelNorth) north.flatMap(n => n.north) else Nil
       }
       neighbors = neighbors ++ {
-        if (canTunnelSouth) List(south.get.south.get) else Nil
+        if (canTunnelSouth) south.flatMap(s => s.south) else Nil
       }
       neighbors = neighbors ++ {
-        if (canTunnelEast) List(east.get.east.get) else Nil
+        if (canTunnelEast) east.flatMap(e => e.east) else Nil
       }
       neighbors = neighbors ++ {
-        if (canTunnelWest) List(west.get.west.get) else Nil
+        if (canTunnelWest) west.flatMap(w => w.west) else Nil
       }
       neighbors.filter(c => true/*!c.isHidden*/)
     }
