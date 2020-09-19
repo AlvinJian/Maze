@@ -10,11 +10,7 @@ case class RectGrid(rows: Int, cols: Int) extends PlainGrid[Position2D] {
     )
   }
 
-  override def at(r: Int, c: Int): Option[Position2D] = {
-    if (r >= 0 && r < rows && c >= 0 && c < cols) {
-      Some(data(r * rows + c))
-    } else None
-  }
+  override def at(r: Int, c: Int): Option[Position2D] = Some(Position2D(r, c)).filter(isValid)
 
   // not efficient but convenient~
   override def isValid(pos: Position2D): Boolean = data.contains(pos)

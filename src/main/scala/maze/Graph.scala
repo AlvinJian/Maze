@@ -1,10 +1,16 @@
 package maze
 
-private[maze] class Graph(val map:Map[Position2D, Set[Position2D]] = Map()) {
+private[maze] class Graph(val map: Map[Position2D, Set[Position2D]] = Map()) {
   def link(pos1: Position2D, pos2: Position2D): Graph = {
     var newMap = map
     newMap = Graph.linkHelper(newMap, pos1, pos2)
     newMap = Graph.linkHelper(newMap, pos2, pos1)
+    new Graph(newMap)
+  }
+
+  def dirLink(from: Position2D, to: Position2D): Graph = {
+    var newMap = map
+    newMap = Graph.linkHelper(newMap, from, to)
     new Graph(newMap)
   }
 

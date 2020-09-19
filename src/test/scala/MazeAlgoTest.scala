@@ -2,7 +2,7 @@ import algorithmex.{AldousBroderMaze, BinaryTreeMaze, DistanceMap, HuntAndKillMa
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
 import image.{Drawer, MazeImage}
-import maze.{Cell2D, Cell2DRect, Maze, PolarMaze, PolarMazeInfo, Position2D, RectMaze, RectMazeInfo}
+import maze.{Cell2D, Cell2DRect, HexMaze, Maze, PolarMaze, PolarMazeInfo, Position2D, RectMaze, RectMazeInfo, TriangleMaze, WeaveMaze}
 import org.scalatest.FunSuite
 import utils.FileHelper
 
@@ -86,7 +86,7 @@ class MazeAlgoTest extends FunSuite {
     rectMaze = WilsonMaze.generate(rand, rectMaze)
     val func = MazeImage.func(rectMaze)
     var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
-    var fileRes = FileHelper.saveToFile(image, writer, s"NewMaze_Wilson$ext", dir)
+    var fileRes = FileHelper.saveToFile(image, writer, s"NewRectMaze_Wilson$ext", dir)
     assert(fileRes.isSuccess)
   }
 
@@ -96,6 +96,47 @@ class MazeAlgoTest extends FunSuite {
     val func = MazeImage.func(polarMaze)
     var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
     var fileRes = FileHelper.saveToFile(image, writer, s"NewPolarMaze_Wilson$ext", dir)
+    assert(fileRes.isSuccess)
+  }
+
+  test("Wilson.TriangleMaze") {
+    var maze = TriangleMaze(15, 20)
+    var func = MazeImage.func(maze)
+    var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    var fileRes = FileHelper.saveToFile(image, writer, s"NewTriangleMaze$ext", dir)
+    maze = WilsonMaze.generate(rand, maze)
+    func = MazeImage.func(maze)
+    image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    fileRes = FileHelper.saveToFile(image, writer, s"NewTriangleMaze_Wilson$ext", dir)
+    assert(fileRes.isSuccess)
+  }
+
+  test("Wilson.HexMaze") {
+    var maze = HexMaze(15, 15)
+    var func = MazeImage.func(maze)
+    var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    var fileRes = FileHelper.saveToFile(image, writer, s"NewHexMaze$ext", dir)
+    maze = WilsonMaze.generate(rand, maze)
+    func = MazeImage.func(maze)
+    image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    fileRes = FileHelper.saveToFile(image, writer, s"NewHexMaze_Wilson$ext", dir)
+    assert(fileRes.isSuccess)
+  }
+
+  test("Wilson.WeaveMaze") {
+    var maze = WeaveMaze(15, 15)
+    // var func = MazeImage.func(maze)
+    // var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    // var fileRes = FileHelper.saveToFile(image, writer, s"NewWeaveMaze$ext", dir)
+    maze = WilsonMaze.generate(rand, maze)
+    // TODO distance map doesn't work well on weave maze. need to fix it
+//    val distMap = DistanceMap.tryCreate(Position2D(0, 0), maze).get
+//    val path = distMap.pathTo(distMap.max._1)
+//    assert(path.nonEmpty)
+//    pathCheck(path, distMap, distMap.root, distMap.max._1)
+    var func = MazeImage.func(maze)
+    var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+    var fileRes = FileHelper.saveToFile(image, writer, s"NewWeaveMaze_Wilson$ext", dir)
     assert(fileRes.isSuccess)
   }
 

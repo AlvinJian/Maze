@@ -1,18 +1,12 @@
 package maze
 
-sealed trait Cell2DTriangle extends Cell2D {
-  override type T = Cell2DTriangle
-  def north: Option[T]
-  def south: Option[T]
-  def east: Option[T]
-  def west: Option[T]
-  override def neighbors: List[T] = List(this.north, this.south, this.east, this.west).flatten
+trait Cell2DTriangle extends Cell2DRect {
+  override type T <: Cell2DTriangle
   def isUpright: Boolean
 }
 
 private[maze] class TriangleMaze(val grid: RectGrid, val graph: Graph = new Graph()) extends Maze[Cell2DTriangle] {
-  private val helper = new MazeHelper[Cell2DTriangle, RectGrid](this, p => new Cell2DTriangleImpl(p),
-                                                                grid, graph)
+  private val helper = new MazeHelper[Cell2DTriangle, RectGrid](p => new Cell2DTriangleImpl(p), grid, graph)
   def this(rows: Int, cols: Int) = {
     this(RectGrid(rows, cols))
   }
@@ -33,18 +27,16 @@ private[maze] class TriangleMaze(val grid: RectGrid, val graph: Graph = new Grap
   override def iterator: Iterator[Cell2DTriangle] = helper.iterator
 
   private class Cell2DTriangleImpl(p: Position2D) extends Cell2DTriangle {
+    override type T = Cell2DTriangle
+
     override def north: Option[Cell2DTriangle] = {
-      if (!isUpright) {
-        val (row, col) = (pos.row-1, pos.col)
-        container.at(Position2D(row, col))
-      } else None
+      if (!isUpright) container.at(pos.row-1, pos.col)
+      else None
     }
 
     override def south: Option[Cell2DTriangle] = {
-      if (isUpright) {
-        val (row, col) = (pos.row+1, pos.col)
-        container.at(Position2D(row, col))
-      } else None
+      if (isUpright) container.at(pos.row+1, pos.col)
+      else None
     }
 
     override def east: Option[Cell2DTriangle] = {

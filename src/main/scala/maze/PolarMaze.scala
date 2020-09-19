@@ -1,7 +1,7 @@
 package maze
 
-sealed trait Cell2DPolar extends Cell2D {
-  override type T = Cell2DPolar
+trait Cell2DPolar extends Cell2D {
+  override type T <: Cell2DPolar
   def cw: T
   def ccw: T
   def outward: List[T]
@@ -14,9 +14,7 @@ sealed trait Cell2DPolar extends Cell2D {
 }
 
 private[maze] class PolarMaze(val grid: PolarGrid, val graph: Graph = new Graph()) extends Maze[Cell2DPolar] {
-  private val helper = new MazeHelper[Cell2DPolar, PolarGrid](this,
-                                                              p=>new Cell2DPolarImpl(p),
-                                                              grid, graph)
+  private val helper = new MazeHelper[Cell2DPolar, PolarGrid](p=>new Cell2DPolarImpl(p), grid, graph)
 
   def this(radius: Int) = {
     this(PolarGrid(radius))
@@ -40,6 +38,8 @@ private[maze] class PolarMaze(val grid: PolarGrid, val graph: Graph = new Graph(
   override def iterator: Iterator[Cell2DPolar] = helper.iterator
 
   private class Cell2DPolarImpl(position: Position2D) extends Cell2DPolar {
+    override type T = Cell2DPolar
+
     override def container: Maze[Cell2DPolar] = PolarMaze.this
     override def pos: Position2D = position
 
