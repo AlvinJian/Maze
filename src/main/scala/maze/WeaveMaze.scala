@@ -106,15 +106,11 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
       val _west = super.west
       val _north = super.north
       val _south = super.south
-      // TODO need cleanup
-      if (_east.isDefined && _west.isDefined) {
-        linked.contains(_east.get) &&
-          linked.contains(_west.get) && {
-          _north.isEmpty || !linked.contains(_north.get)
-        } && {
-          _south.isEmpty || !linked.contains(_south.get)
-        }
-      } else false
+
+      _east.map(e => linked.contains(e)).fold(false)(b => b) &&
+        _west.map(w => linked.contains(w)).fold(false)(b => b) &&
+        _north.map(n => !linked.contains(n)).fold(true)(b => b) &&
+        _south.map(s => !linked.contains(s)).fold(true)(b => b)
     }
 
     override def isVerticalLinked: Boolean = {
@@ -122,15 +118,11 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
       val _west = super.west
       val _north = super.north
       val _south = super.south
-      // TODO need cleanup
-      if (_north.isDefined && _south.isDefined) {
-        linked.contains(_north.get) &&
-          linked.contains(_south.get) && {
-          _east.isEmpty || !linked.contains(_east.get)
-        } && {
-          _west.isEmpty || !linked.contains(_west.get)
-        }
-      } else false
+
+      _north.map(n => linked.contains(n)).fold(false)(b => b) &&
+        _south.map(s => linked.contains(s)).fold(false)(b => b) &&
+        _east.map(e => !linked.contains(e)).fold(true)(b => b) &&
+        _west.map(w => !linked.contains(w)).fold(true)(b => b)
     }
 
     def underneath: Option[Cell2DHidden] = WeaveMaze.this.hiddenCells.get(pos)
