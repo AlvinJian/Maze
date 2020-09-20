@@ -23,6 +23,20 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
     }
   }
 
+  override def linkedBy(cell: Cell2D): List[Cell2DWeave] = {
+    if (cell.container != this) return Nil
+    val weaveCell = cell.asInstanceOf[Cell2DWeave]
+    weaveCell match {
+      case overlay: Cell2DOverlay => linkedBy(overlay.pos)
+      case hidden: Cell2DHidden => {
+        if (hidden.isVerticalLinked) List(hidden.north, hidden.south).flatten
+        else if (hidden.isHorizontalLinked) List(hidden.east, hidden.west).flatten
+        else Nil
+      }
+      case _ => Nil
+    }
+  }
+
   override def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]] = WeaveMazeInfo(grid, this)
 
 //  override def randomCell(r: Random): Cell2DWeave = {

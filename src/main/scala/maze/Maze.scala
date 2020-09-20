@@ -5,7 +5,10 @@ import scala.util.Random
 /*
  * Cell trait is stateful, depending on Maze[T]; Position is not.
  */
-
+/*
+ * TODO need more flexible design in Position type, ex. trait Position
+ * to fix weave maze
+ */
 case class Position2D(row: Int, col: Int)
 object Position2D {
   implicit val ordering: Ordering[Position2D] = (x: Position2D, y: Position2D) => {
@@ -34,4 +37,13 @@ trait Maze[+T <: Cell2D] extends Iterable[T] {
     arr(r.nextInt(arr.length))
   }
   def link(pos1: Position2D, pos2: Position2D): Option[Maze[T]]
+
+  def neighborsAt(cell: Cell2D): List[T] = {
+    if (cell.container != this) return Nil
+    neighborsAt(cell.pos)
+  }
+  def linkedBy(cell: Cell2D): List[T] = {
+    if (cell.container != this) return Nil
+    linkedBy(cell.pos)
+  }
 }

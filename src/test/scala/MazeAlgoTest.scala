@@ -2,7 +2,7 @@ import algorithmex.{AldousBroderMaze, BinaryTreeMaze, DistanceMap, HuntAndKillMa
 import com.sksamuel.scrimage.color.RGBColor
 import com.sksamuel.scrimage.nio.PngWriter
 import image.{Drawer, MazeImage}
-import maze.{Cell2D, Cell2DRect, HexMaze, Maze, PolarMaze, PolarMazeInfo, Position2D, RectMaze, RectMazeInfo, TriangleMaze, WeaveMaze}
+import maze.{Cell2D, Cell2DRect, HexMaze, Maze, PolarMaze, PolarMazeInfo, Position2D, RectMaze, RectMazeInfo, TriangleMaze, TriangleMazeInfo, WeaveMaze}
 import org.scalatest.FunSuite
 import utils.FileHelper
 
@@ -15,19 +15,19 @@ class MazeAlgoTest extends FunSuite {
   private val ext = ".png"
   val dir: String = "images"
 
-  def pathCheck(path: List[Position2D], distMap: DistanceMap,
-                start: Position2D, end: Position2D): Unit = {
+  def pathCheck(path: List[Cell2D], distMap: DistanceMap,
+                start: Cell2D, end: Cell2D): Unit = {
     assert(path.head == start)
     assert(path.last == end)
     val maze = distMap.info.maze
     @tailrec
-    def loopCheck(list: List[Position2D]): Unit = list match {
+    def loopCheck(list: List[Cell2D]): Unit = list match {
       case ::(head, next) => {
         if (next.nonEmpty) {
-          val curPos = head
-          val nextPos = next.head
-          assert(maze.linkedBy(curPos).map(c => c.pos).contains(nextPos))
-          assert(distMap.data(head)+1 == distMap.data(nextPos))
+          val curCell = head
+          val nextCell = next.head
+          assert(maze.linkedBy(curCell.pos).contains(nextCell))
+          assert(distMap.data(head)+1 == distMap.data(nextCell))
         }
         loopCheck(next)
       }
@@ -124,31 +124,36 @@ class MazeAlgoTest extends FunSuite {
   }
 
   test("Wilson.WeaveMaze") {
-    var maze = WeaveMaze(15, 15)
+    var maze = WeaveMaze(30, 30)
     // var func = MazeImage.func(maze)
     // var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
     // var fileRes = FileHelper.saveToFile(image, writer, s"NewWeaveMaze$ext", dir)
     maze = WilsonMaze.generate(rand, maze)
-    // TODO distance map doesn't work well on weave maze. need to fix it
-//    val distMap = DistanceMap.tryCreate(Position2D(0, 0), maze).get
-//    val path = distMap.pathTo(distMap.max._1)
-//    assert(path.nonEmpty)
-//    pathCheck(path, distMap, distMap.root, distMap.max._1)
     var func = MazeImage.func(maze)
     var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
     var fileRes = FileHelper.saveToFile(image, writer, s"NewWeaveMaze_Wilson$ext", dir)
     assert(fileRes.isSuccess)
+
+    // TODO distance map doesn't work well on weave maze.
+    val distMap = DistanceMap.tryCreate(Position2D(0, 0), maze).get
+    val path = distMap.pathTo(distMap.max._1)
+    assert(path.nonEmpty)
+    pathCheck(path, distMap, distMap.root, distMap.max._1)
   }
 
   test("DistMap") {
     val rectMaze = RectMaze(10, 10)
     val polarMaze = PolarMaze(5)
-    val inputMazes: List[Maze[Cell2D]] = List(rectMaze, polarMaze)
+    val hexMaze = HexMaze(10, 10)
+    val triMaze = TriangleMaze(15, 20)
+    val inputMazes: List[Maze[Cell2D]] = List(rectMaze, polarMaze, hexMaze, triMaze)
 
     for (inMaze <- inputMazes) {
       val genMazes: List[(Maze[Cell2D], String)] = inMaze.info match {
         case RectMazeInfo(_, rectMaze) => List(AldousBroderMaze, SidewinderMaze, BinaryTreeMaze, RecurBackTrackMaze,
           HuntAndKillMaze, WilsonMaze).map(gen => (gen.generate(rand, rectMaze), gen.getClass.getSimpleName))
+        case TriangleMazeInfo(_, triMaze) => List(AldousBroderMaze, SidewinderMaze, BinaryTreeMaze, RecurBackTrackMaze,
+          HuntAndKillMaze, WilsonMaze).map(gen => (gen.generate(rand, triMaze), gen.getClass.getSimpleName))
         case _ => List(AldousBroderMaze, RecurBackTrackMaze, HuntAndKillMaze, WilsonMaze).map {
           gen => (gen.generate(rand, inMaze), gen.getClass.getSimpleName)
         }

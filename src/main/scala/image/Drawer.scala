@@ -32,13 +32,13 @@ object Drawer {
     case _ => ???
   }
 
-  def distToColor(distMap: DistanceMap, pos: Position2D): RGBColor = {
-    if (distMap.data.contains(pos)) {
+  def distToColor(distMap: DistanceMap, cell: Cell2D): RGBColor = {
+    if (distMap.data.contains(cell)) {
       //      val ratio: Double = (maxDist - dist) / maxDist
       //      val dark: Int = (255.0 * ratio).round.toInt
       //      val bright: Int = 128 + (127 * ratio).round.toInt
       //      new RGBColor(dark, bright, dark)
-      val dist = distMap.data(pos).toDouble
+      val dist = distMap.data(cell).toDouble
       val maxDist = distMap.max._2.toDouble
       val ratioRed = (maxDist-dist)/maxDist.toDouble
       val ratioGreen = dist.toDouble/maxDist.toDouble
