@@ -93,3 +93,6 @@ images/
 .bloop/
 .ammonite/
 project/metals.sbt
+
+# scratchpad
+src/main/scala/playground/*.scala
