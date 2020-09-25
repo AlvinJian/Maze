@@ -13,6 +13,9 @@ import utils.FileHelper
 import scala.swing.FileChooser
 import scala.util.{Random, Try}
 
+// copy the code here and create a new scala class deriving from App in
+// playground package. The code under playground is not tracked except
+// for this `Template` class
 object Template extends App {
   def setupWorkspace: Option[File] = {
     val jc: FileChooser = new FileChooser()
