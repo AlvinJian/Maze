@@ -20,11 +20,8 @@ class WeaveMazeDrawer(val grid: RectGrid,
     val wallGraphics = g2
     wallGraphics.setColor(wallColor)
     for (cell <- maze) {
-      if (cell.isHidden) {
-        drawHiddenCellWalls(wallGraphics, cell)
-      } else {
-        drawOverlayCellWalls(wallGraphics, cell)
-      }
+      drawOverlayCellWalls(wallGraphics, cell)
+      cell.underneath.foreach(hidden => drawHiddenCellWalls(wallGraphics, hidden))
     }
   }
 
@@ -78,11 +75,8 @@ class WeaveMazeDrawer(val grid: RectGrid,
   override protected def drawCells(g2: RichGraphics2D, f: Position2D => RGBColor): Unit = {
     val cellGraphics = g2
     for (cell <- maze) {
-      if (!cell.isHidden) {
-        drawOverlayCell(cellGraphics, cell, f)
-      } else {
-        drawHiddenCell(cellGraphics, cell, f)
-      }
+      drawOverlayCell(cellGraphics, cell, f)
+      cell.underneath.foreach(hidden => drawHiddenCell(cellGraphics, hidden, f))
     }
   }
 

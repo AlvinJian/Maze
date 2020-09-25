@@ -6,7 +6,8 @@ trait Cell2DWeave extends Cell2DRect {
   override type T <: Cell2DWeave
   def isHorizontalLinked: Boolean
   def isVerticalLinked: Boolean
-  def isHidden: Boolean
+//  def isHidden: Boolean
+  def underneath: Option[Cell2DWeave]
 }
 
 private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
@@ -21,11 +22,11 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
 
   override def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]] = WeaveMazeInfo(grid, this)
 
-  override def randomCell(r: Random): Cell2DWeave = {
-    val overlayCells = helper.cells.values.toArray
-    val id = r.nextInt(overlayCells.length)
-    overlayCells(id)
-  }
+//  override def randomCell(r: Random): Cell2DWeave = {
+//    val overlayCells = helper.cells.values.toArray
+//    val id = r.nextInt(overlayCells.length)
+//    overlayCells(id)
+//  }
 
   private def checkHiddenCellRequired(pos1: Position2D,
                                       pos2: Position2D): Option[Position2D] = {
@@ -57,7 +58,7 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
   }
 
   override def iterator: Iterator[Cell2DWeave] = {
-    val all = helper.cells.values.toList.sortBy(c => c.pos) ++ hiddenCells.values.toList.sortBy(c => c.pos)
+    val all = helper.cells.values.toList.sortBy(c => c.pos)//  ++ hiddenCells.values.toList.sortBy(c => c.pos)
     all.iterator
   }
 
@@ -69,7 +70,7 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
   case class Cell2DOverlay(pos: Position2D) extends Cell2DWeave {
     override type T = Cell2DWeave
 
-    override def isHidden: Boolean = false
+//    override def isHidden: Boolean = false
 
     override def container: Maze[Cell2DWeave] = WeaveMaze.this
 
@@ -141,7 +142,7 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
 
     override def isVerticalLinked: Boolean = north.isDefined || south.isDefined
 
-    override def isHidden: Boolean = true
+//    override def isHidden: Boolean = true
 
     override def container: Maze[Cell2DWeave] = WeaveMaze.this
 
@@ -162,6 +163,8 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
     override def west: Option[Cell2DWeave] = {
       if(overlay.isVerticalLinked) super.west else None
     }
+
+    override def underneath: Option[Cell2DWeave] = None
   }
 }
 
