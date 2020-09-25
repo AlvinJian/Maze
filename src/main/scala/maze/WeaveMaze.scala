@@ -194,7 +194,7 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
       neighbors = neighbors ++ {
         if (canTunnelWest) west.flatMap(w => w.west) else Nil
       }
-      neighbors.filter(c => true/*!c.isHidden*/)
+      neighbors.filter(c => !c.isHidden)
     }
   }
 
