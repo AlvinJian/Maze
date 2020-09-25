@@ -18,7 +18,7 @@ import scala.util.{Random, Try}
 // for this `Template` class
 object Template extends App {
   def setupWorkspace: Option[File] = {
-    val jc: FileChooser = new FileChooser()
+    val jc: FileChooser = new FileChooser(new File("."))
     val title: String = "select a directory as a workspace:"
     jc.title = title
     jc.multiSelectionEnabled = false
@@ -34,17 +34,20 @@ object Template extends App {
   val wsRes = Try(setupWorkspace.get)
   if (wsRes.isFailure) System.exit(0)
   val dir: File = wsRes.get
+  val cellSize: Int = 16
+  val padding: Int = 2
 
   var maze = WeaveMaze(20, 20)
+  val mazeName = maze.getClass.getSimpleName.split('$').head
   maze = HuntAndKillMaze.generate(rand, maze)
   val func = MazeImage.func(maze)
-  var image = func(32, 4, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
-  var fileRes = FileHelper.saveToFile(image, s"NewMaze_HuntAndKill$ext", dir)
+  var image = func(cellSize, padding, _=>RGBColor.fromAwt(java.awt.Color.WHITE))
+  var fileRes = FileHelper.saveToFile(image, s"${mazeName}_HuntAndKill$ext", dir)
   fileRes.fold(fail => System.err.println(fail),
     file => println(s"${file.getPath} is written successfully"))
 
-  val mapRes = Try(DistanceMap.maximize(Position2D(0, 0), maze).get)
-  if (mapRes.isFailure) {
+  val mapRes = DistanceMap.maximize(Position2D(0, 0), maze)
+  if (mapRes.isEmpty) {
     System.err.println("fail to create distance map")
     System.exit(1)
   }
@@ -54,11 +57,11 @@ object Template extends App {
     System.err.println("path is empty")
     System.exit(1)
   }
-  image = func(32, 4, p => {
+  image = func(cellSize, padding, p => {
     if (path.contains(p)) Drawer.distToColor(distanceMap, p)
     else RGBColor.fromAwt(java.awt.Color.DARK_GRAY)
   })
-  fileRes = FileHelper.saveToFile(image, s"NewMaze_HuntAndKill_Path$ext", dir)
+  fileRes = FileHelper.saveToFile(image, s"${mazeName}_HuntAndKill_Path$ext", dir)
   fileRes.fold(fail => System.err.println(fail),
     file => println(s"${file.getPath} is written successfully"))
 }
