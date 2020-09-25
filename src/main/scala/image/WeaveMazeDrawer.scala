@@ -108,12 +108,17 @@ class WeaveMazeDrawer(val grid: RectGrid,
 
   def drawHiddenCell(cellGraphics: RichGraphics2D, cell: Cell2DWeave, f: Position2D => RGBColor): Unit = {
     val (x1, x2, x3, x4, y1, y2, y3, y4) = calcInsetPosition(cell)
-    cellGraphics.setColor(f(cell.pos))
+//    cellGraphics.setColor(f(cell.pos))
     var xleft = x2
     var xright = x3
     var ytop = y2
     var ybottom = y3
     if (cell.isHorizontalLinked) {
+      val list = List(cell.west, cell.east).flatten
+      val color = if (list.size == 2) {
+        Drawer.interpolate(f(list(0).pos), f(list(1).pos))
+      } else f(cell.pos)
+      cellGraphics.setColor(color)
       xleft = x1; xright = x2;
       ytop = y2; ybottom = y3;
       cellGraphics.fillRect(xleft, ytop, xright-xleft, ybottom-ytop)
@@ -123,6 +128,11 @@ class WeaveMazeDrawer(val grid: RectGrid,
     }
 
     if (cell.isVerticalLinked) {
+      val list = List(cell.north, cell.south).flatten
+      val color = if (list.size == 2) {
+        Drawer.interpolate(f(list(0).pos), f(list(1).pos))
+      } else f(cell.pos)
+      cellGraphics.setColor(color)
       ytop = y1; ybottom = y2
       xleft = x2; xright = x3
       cellGraphics.fillRect(xleft, ytop, xright-xleft, ybottom-ytop)

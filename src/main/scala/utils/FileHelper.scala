@@ -7,6 +7,8 @@ import com.sksamuel.scrimage.nio.ImageWriter
 
 import scala.util.{Failure, Success, Try}
 
+import com.sksamuel.scrimage.implicits._
+
 object FileHelper {
   def saveToFile(image: ImmutableImage, writer: ImageWriter,
                  filename: String, directoryName: String = ""): Try[File] = {
@@ -23,13 +25,17 @@ object FileHelper {
         Success(new File(filename))
       }
 
-    if (imageFile.isSuccess) {
-      try {
-        image.output(writer, imageFile.get)
-      } catch {
-        case e: Throwable => imageFile = Failure(e)
+    imageFile.flatMap(f => Try(image.output(f)(writer)))
+  }
+
+  def saveToFile(image: ImmutableImage, filename: String, directory: File)(implicit writer: ImageWriter): Try[File] = {
+    val imageFile: Try[File] = {
+      if (directory.exists() && directory.isDirectory) {
+        Success(new File(directory, filename))
+      } else {
+        Failure(new RuntimeException("can't create image file"))
       }
     }
-    imageFile
+    imageFile.flatMap(f => Try(image.output(f)(writer)))
   }
 }

@@ -51,4 +51,12 @@ object Drawer {
       new RGBColor(r, g, b)
     } else RGBColor.fromAwt(java.awt.Color.BLACK)
   }
+
+  def interpolate(color1: RGBColor, color2: RGBColor): RGBColor = {
+    val r = (color1.red + color2.red)/2
+    val g = (color1.green + color2.green)/2
+    val b = (color1.blue + color2.blue)/2
+    val a = (color1.alpha + color2.alpha)/2
+    new RGBColor(r, g, b, a)
+  }
 }
