@@ -1,7 +1,7 @@
 import maze.{Cell2D, Cell2DPolar, Cell2DRect, Cell2DTriangle, Maze, PolarGrid, PolarMaze, PolarMazeInfo, Position2D, RectGrid, RectMaze, RectMazeInfo, TriangleMaze, WeaveMaze}
 import org.scalatest.FunSuite
 
-class MazeExTest extends FunSuite {
+class MazeStructureTest extends FunSuite {
   test("RectMazeStructTest") {
     var rectMaze: Maze[Cell2DRect] = RectMaze(5,5)
     val info = rectMaze.info
@@ -100,14 +100,12 @@ class MazeExTest extends FunSuite {
     maze = maze.link(Position2D(1,0), Position2D(1,1)).get
     maze = maze.link(Position2D(1,1), Position2D(1,2)).get
     assert(maze.neighborsAt(Position2D(2,1)).size == 3)
-    assert(maze.neighborsAt(Position2D(2,1)).map(c => c.pos).contains(Position2D(0, 1)))
+    assert(maze.at(Position2D(2,1)).flatMap(c => c.north).fold(false)(n => n.pos == Position2D(0, 1)))
     maze = maze.link(Position2D(0,1), Position2D(2,1)).get
     val cellOverlay = maze.at(1,1).get
     assert(cellOverlay.isHorizontalLinked)
     assert(!cellOverlay.isVerticalLinked)
-//    assert(maze.neighborsAt(Position2D(2,1)).size == 3)
-    assert(maze.size == 10)
-//    assert(maze.count(c => c.pos == Position2D(1,1) && c.isHidden) == 1)
-//    assert(maze.count(c => c.pos == Position2D(1,1) && !c.isHidden) == 1)
+    assert(cellOverlay.underneath.fold(false)(c => c.pos == Position2D(1,1)))
+    assert(maze.size == 9)
   }
 }
