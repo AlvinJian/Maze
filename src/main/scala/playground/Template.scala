@@ -13,7 +13,7 @@ import utils.FileHelper
 import scala.swing.FileChooser
 import scala.util.{Random, Try}
 
-object ScratchPad extends App {
+object Template extends App {
   def setupWorkspace: Option[File] = {
     val jc: FileChooser = new FileChooser()
     val title: String = "select a directory as a workspace:"
