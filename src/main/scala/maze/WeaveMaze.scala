@@ -10,33 +10,29 @@ trait Cell2DWeave extends Cell2DRect {
 }
 
 private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
-                              hidden: List[Position2D], val linkedToHidden: Graph) extends Maze[Cell2DWeave] {
+                              hidden: List[Position2D]) extends Maze[Cell2DWeave] {
   private val helper = new MazeHelper[Cell2DWeave, RectGrid](p => Cell2DOverlay(p), grid, graph)
 
-  def this(rows: Int, cols: Int) = this(RectGrid(rows, cols), new Graph(), Nil, new Graph())
+  def this(rows: Int, cols: Int) = this(RectGrid(rows, cols), new Graph(), Nil)
 
   override def at(position: Position2D): Option[Cell2DWeave] = helper.cells.get(position)
 
   override def linkedBy(position: Position2D): List[Cell2DWeave] = helper.linkedBy(position)
 
-  override def linkedBy(cell: Cell2D): List[Cell2DWeave] = {
-    if (cell.container != this) return Nil
-    linkedBy(cell.pos)
-  }
-
   override def info: MazeInfo[PlainGrid[Position2D], Maze[Cell2D]] = WeaveMazeInfo(grid, this)
 
-//  override def randomCell(r: Random): Cell2DWeave = {
-//    val overlayCells = helper.cells.values.toArray
-//    val id = r.nextInt(overlayCells.size)
-//    overlayCells(id)
-//  }
+  override def randomCell(r: Random): Cell2DWeave = {
+    val overlayCells = helper.cells.values.toArray
+    val id = r.nextInt(overlayCells.length)
+    overlayCells(id)
+  }
 
   private def checkHiddenCellRequired(pos1: Position2D,
                                       pos2: Position2D): Option[Position2D] = {
     if (!grid.isValid(pos1) || !grid.isValid(pos2)) return None
     val c1 = helper.cells(pos1).asInstanceOf[Cell2DOverlay]
     val c2 = helper.cells(pos2).asInstanceOf[Cell2DOverlay]
+
     if (c1.canTunnelSouth && c1.south.fold(false)(s => s.pos == c2.pos))
       Some(Position2D(pos1.row+1, pos1.col))
     else if (c1.canTunnelNorth && c1.north.fold(false)(n => n.pos == c2.pos))
@@ -46,28 +42,16 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
     else if (c1.canTunnelEast && c1.east.fold(false)(e => e.pos == c2.pos))
       Some(Position2D(pos1.row, pos1.col+1))
     else None
-//    val tmp: Option[Cell2DWeave] = {
-//      if (c1.north.isDefined && c1.north == c2.south) c1.north
-//      else if (c1.south.isDefined && c1.south == c2.north) c1.south
-//      else if (c1.west.isDefined && c1.west == c2.east) c1.west
-//      else if (c1.east.isDefined && c1.east == c2.west) c1.east
-//      else None
-//    }
-//    tmp.flatMap(c => c match {
-//      case overlay: Cell2DOverlay => Some(overlay)
-//      case _ => None
-//    }).filter(c => c.isHorizontalLinked || c.isVerticalLinked)
   }
 
   override def link(pos1: Position2D, pos2: Position2D): Option[Maze[Cell2DWeave]] = {
     val optPos = checkHiddenCellRequired(pos1, pos2)
     optPos match {
       case Some(p) =>  {
-        val hg = linkedToHidden.dirLink(p, pos1).dirLink(p, pos2)
-        Some(new WeaveMaze(grid, graph.link(pos1, pos2), hiddenCells.keys.toList :+ p, hg))
+        Some(new WeaveMaze(grid, graph.link(pos1, pos2), hiddenCells.keys.toList :+ p))
       }
       case None => {
-        helper.link(pos1, pos2).map(g => new WeaveMaze(grid, g, hiddenCells.keys.toList, linkedToHidden))
+        helper.link(pos1, pos2).map(g => new WeaveMaze(grid, g, hiddenCells.keys.toList))
       }
     }
   }
@@ -148,23 +132,6 @@ private[maze] class WeaveMaze(val grid: RectGrid, val graph: Graph,
       if (canTunnelWest) container.at(pos.row, pos.col-2)
       else super.west
     }
-
-//    override def neighbors: List[Cell2DWeave] = {
-//      var neighbors = super.neighbors
-//      neighbors = neighbors ++ {
-//        if (canTunnelNorth) north.flatMap(n => n.north) else Nil
-//      }
-//      neighbors = neighbors ++ {
-//        if (canTunnelSouth) south.flatMap(s => s.south) else Nil
-//      }
-//      neighbors = neighbors ++ {
-//        if (canTunnelEast) east.flatMap(e => e.east) else Nil
-//      }
-//      neighbors = neighbors ++ {
-//        if (canTunnelWest) west.flatMap(w => w.west) else Nil
-//      }
-//      neighbors.filter(c => true /*!c.isHidden*/)
-//    }
   }
 
   case class Cell2DHidden(overlay: Cell2DOverlay) extends Cell2DWeave {

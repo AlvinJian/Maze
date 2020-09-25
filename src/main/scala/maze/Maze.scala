@@ -37,13 +37,4 @@ trait Maze[+T <: Cell2D] extends Iterable[T] {
     arr(r.nextInt(arr.length))
   }
   def link(pos1: Position2D, pos2: Position2D): Option[Maze[T]]
-
-  def neighborsAt(cell: Cell2D): List[T] = {
-    if (cell.container != this) return Nil
-    neighborsAt(cell.pos)
-  }
-  def linkedBy(cell: Cell2D): List[T] = {
-    if (cell.container != this) return Nil
-    linkedBy(cell.pos)
-  }
 }
