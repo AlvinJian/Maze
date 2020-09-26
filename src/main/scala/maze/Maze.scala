@@ -5,10 +5,6 @@ import scala.util.Random
 /*
  * Cell trait is stateful, depending on Maze[T]; Position is not.
  */
-/*
- * TODO need more flexible design in Position type, ex. trait Position
- * to fix weave maze
- */
 case class Position2D(row: Int, col: Int)
 object Position2D {
   implicit val ordering: Ordering[Position2D] = (x: Position2D, y: Position2D) => {
