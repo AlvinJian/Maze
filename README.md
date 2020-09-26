@@ -1,15 +1,10 @@
 # Maze Generator
-This is a pet project for me to learn and experiment Functional Programming and Scala. The project is based a book: [Maze for Programmer](http://www.mazesforprogrammers.com/). Now I'm (slowly) refactoring the code on the branch: `new_class_design`.
+This is a pet project for me to learn and experiment Functional Programming and Scala. The project is based the book: [Maze for Programmer](http://www.mazesforprogrammers.com/).
 
 # Gallery
-Circular Maze (Braided) with a Path:
 
-![Braided Polar Maze](gallery/BraidMaze_Path.png)
-
-Weaved Maze
-
-![Weaved Maze](gallery/WeaveMaze.png)
-
-Triangle Maze with a Path:
-
-![TriangleMaze Path](gallery/TriangleMaze_Path.png)
+| Algorithm | Maze | Path |
+|:---:|:---:|:---: |
+|Recursive Backtrack|![polar maze](gallery/PolarMaze_RecurBackTrackMaze.png)|![polar maze path](gallery/PolarMaze_RecurBackTrackMaze_Path.png)|
+|Wilson|![weave maze](gallery/WeaveMaze_WilsonMaze.png)|![weave maze path](gallery/WeaveMaze_WilsonMaze_Path.png)|
+|Aldous Broder|![hex maze](gallery/HexMaze_AldousBroderMaze.png)|![hex maze path](gallery/HexMaze_AldousBroderMaze_Path.png)|
