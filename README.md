@@ -11,4 +11,4 @@ This is a pet project for me to learn and experiment Functional Programming and 
 
 Animation
 ---
-![animated path](gallery/WeaveMaze_RecurBackTrackMaze_Path_Anim.gif)
+![animated path](gallery/maze_path_anim.gif)
