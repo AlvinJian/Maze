@@ -16,22 +16,24 @@ import scala.util.{Failure, Success, Try}
 class GifCreator[T](input: Seq[T], f: T => ImmutableImage) {
   private val futureImages: Seq[Future[ImmutableImage]] = input.map(t => Future(f(t)))
 
-  def produce(interval: Long, target: File, infLoop: Boolean): Try[Unit] = {
-    val duration = if (infLoop) {
-      (futureImages.size.asInstanceOf[Long] * interval) * 3
-    } else futureImages.size.asInstanceOf[Long] * interval + 10L
-    val writer = new StreamingGifWriter(java.time.Duration.ofMillis(duration), infLoop)
+  def produce(interval: Long, target: File): Try[File] = {
+    val duration = futureImages.size.asInstanceOf[Long] * interval + interval/2
+    val writer = new StreamingGifWriter(java.time.Duration.ofMillis(duration), false)
     val stream = writer.prepareStream(target, BufferedImage.TYPE_INT_ARGB)
     val res = futureImages.foldLeft(Try(stream))((prevStream, futureImage) => {
-      val image = Await.result(futureImage, 60 seconds)
+      val image = if (prevStream.isSuccess) Await.result(futureImage, 60 seconds)
+        else ImmutableImage.create(0, 0)
       prevStream.flatMap(s => Try(s.writeFrame(image, java.time.Duration.ofMillis(interval))))
     })
-    res.map(s => s.close())
+    res.map(s => {
+      s.close()
+      target
+    })
   }
 
-  def produce(interval: Long, dir: File, filename: String, infLoop: Boolean = true): Try[Unit] = {
+  def produce(interval: Long, dir: File, filename: String): Try[File] = {
     if (dir.exists() && dir.isDirectory) {
-      produce(interval, new File(dir, filename), infLoop)
+      produce(interval, new File(dir, filename))
     } else Failure(new RuntimeException("Failed to create image file"))
   }
 }
