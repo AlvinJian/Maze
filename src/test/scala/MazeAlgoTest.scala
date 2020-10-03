@@ -179,4 +179,14 @@ class MazeAlgoTest extends FunSuite {
       }
     }
   }
+
+  test("Braid") {
+    var maze = PolarMaze(15)
+    maze = RecurBackTrackMaze.generate(rand, maze)
+    val oldDeadEnds = maze.filter(c => c.linked.size == 1)
+    val braidedMaze = MazeGenerator.braid(rand, maze, param = 0.8)
+    val newDeadEnds = braidedMaze.filter(c => c.linked.size == 1)
+    println(s"dead end count: old=${oldDeadEnds.size}, new=${newDeadEnds.size}")
+    assert(newDeadEnds.size < oldDeadEnds.size)
+  }
 }
