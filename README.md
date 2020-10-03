@@ -11,4 +11,4 @@ This is a pet project for me to learn and experiment Functional Programming and 
 
 Animation
 ---
-![animated path](gallery/maze_path_anim.gif)
+![animated path](gallery/maze_path_anim_1.gif)

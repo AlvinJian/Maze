@@ -18,7 +18,7 @@ class GifCreator[T](input: Seq[T], f: T => ImmutableImage) {
 
   def produce(interval: Long, target: File): Try[File] = {
     val duration = futureImages.size.asInstanceOf[Long] * interval + interval/2
-    val writer = new StreamingGifWriter(java.time.Duration.ofMillis(duration), false)
+    val writer = new StreamingGifWriter(java.time.Duration.ofMillis(duration), true)
     val stream = writer.prepareStream(target, BufferedImage.TYPE_INT_ARGB)
     val res = futureImages.foldLeft(Try(stream))((prevStream, futureImage) => {
       val image = if (prevStream.isSuccess) Await.result(futureImage, 60 seconds)
