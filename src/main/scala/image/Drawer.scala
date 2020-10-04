@@ -29,7 +29,6 @@ object Drawer {
     case TriangleMazeInfo(grid, maze) => new TriangleMazeDrawer(grid, maze, cellSize)
     case HexMazeInfo(grid, maze) => new HexMazeDrawer(grid, maze, cellSize)
     case WeaveMazeInfo(grid, maze) => new WeaveMazeDrawer(grid, maze, cellSize, cellSize/6)
-    case _ => ???
   }
 
   def distToColor(distMap: DistanceMap, pos: Position2D): RGBColor = {
